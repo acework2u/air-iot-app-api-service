@@ -21,11 +21,9 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ap-southeast-1
 
+# # Step 3
    
-  
-  deploy:
-    name: Create CodeDeploy Deployment
-     id: deploy
+   - name: Create CodeDeploy Deployment
      run: | 
        aws deploy create-deployment \
       -application-name air-api-ec2 \
