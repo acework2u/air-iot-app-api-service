@@ -2,7 +2,7 @@ version: 0.0
 os: linux
 files:
   - source: /app
-    destination: /home/ubuntu/air-iot-app-api-service
+    destination: /home/ubuntu/air-iot-app-api-service/bin
 
 hooks:
   BeforeInstall:
