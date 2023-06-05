@@ -3,3 +3,15 @@ os: linux
 files:
   - source: /app
     destination: /home/ubuntu/air-iot-app-api-service
+
+hooks:
+  BeforeInstall:
+    - location: codedeploy/BeforeInstall.sh
+  AfterInstall:
+    - location: codedeploy/AfterInstall.sh
+  ApplicationStop:
+    - location: codedeploy/ApplicationStop.sh
+  ApplicationStart:
+    - location: codedeploy/ApplicationStart.sh
+  ValidateService:
+    - location: codedeploy/ValidateService.sh   
