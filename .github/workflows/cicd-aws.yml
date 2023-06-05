@@ -23,7 +23,16 @@ jobs:
 
 # # # Step 3
    
-#    - name: Create CodeDeploy Deployment
+   - name: Create CodeDeploy Deployment
+      id: deploy
+      run: | 
+      aws deploy create-deployment \
+      --application-name air-api-ec2 \
+      --deployment-group-name Air-Api-devops-deploy \
+      --deployment-config-name CodeDeployDefault.OneAtATime \
+      --github-location repository=${{ github.repository }},commitId=${{ github.sha }}
+
+
 #      run: | 
 #        aws deploy create-deployment \
 #       -application-name air-api-ec2 \
