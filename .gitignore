@@ -38,3 +38,5 @@ _testmain.go
 ../.DS_Store
 .DS_Store
 ./.DS_Store
+tmp
+./tmp
