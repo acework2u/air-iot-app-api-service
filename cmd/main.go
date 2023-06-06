@@ -17,17 +17,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(configs.DBUri)
-	// config, err := conf.LoadCongig(".")
-
-	/*
-		if err != nil {
-			log.Fatal("Could not load config", err)
-		}
-
-		fmt.Println(config.Port)
-	*/
-
 	r := gin.Default()
 
 	r.GET("/", func(c *gin.Context) {
