@@ -62,21 +62,6 @@ func init() {
 	customerService := service.NewUserService(&userRepository)
 	UserRouterCtl = handler.NewUserHandler(&customerService)
 
-	// _ = userRepository
-
-	// users, err := customerService.GetUsers()
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// fmt.Println(users)
-
-	// log.Println("Run on Init")
-
-	//UserController = users.NewUserService(userRepo)
-	// UserRepo = repository.NewUserRepositoryDB((*mongo.Collection)(mongoclient), ctx)
-	// UserService = users.NewUserService(UserRepo)
-	// UserRouteController = routers.NewUserRouteController(UserService)
-
 	customerCollection = configs.GetCollection(mongoclient, "customers")
 	customerRepository := repository.NewCustomerRepositoryDB(customerCollection, ctx)
 	custService := service.NewCustomerService(customerRepository)
