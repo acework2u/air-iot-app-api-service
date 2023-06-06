@@ -10,7 +10,7 @@ import (
 
 func main() {
 
-	configs, err := conf.LoadCongig("/home/ubuntu/air-iot-app-api-service/bin")
+	configs, err := conf.LoadCongig(".")
 
 	if err != nil {
 		log.Fatal(err)
