@@ -104,7 +104,7 @@ func startGinServer(config conf.Config) {
 	server.Use(cors.New(corsConfig))
 
 	server.NoRoute(func(ctx *gin.Context) {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    "PAGE_NOT_FOUND",
 			"message": "page not found",
 		})
