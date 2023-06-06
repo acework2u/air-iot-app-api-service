@@ -2,6 +2,19 @@
 *.o
 *.a
 *.so
+*.env
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.zip
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
 
 # Folders
 _obj

@@ -1,0 +1,24 @@
+FROM golang:1.19 as builder
+
+ENV GOOS=linux
+ENV CGO_ENABLED=0
+ENV GOARCH=amd64
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go download
+
+COPY . .
+
+RUN go buil -o app /cmd/main.go
+
+FROM alpine:3.14 as production
+RUN apk add --no-cach ca-certificates
+
+COPY --from=builder app .
+
+EXPOSE 8000
+
+CMD ./app
+

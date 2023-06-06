@@ -59,4 +59,6 @@ phases:
 
 artifacts:
   files:
-    - packaged.yml
+    # - packaged.yml
+    - app
+    - buildspec.yml
