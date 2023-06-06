@@ -140,5 +140,6 @@ func startGinServer(config conf.Config) {
 	//Pro
 	// UserRouterCtl.UserRoute(routePro, UserService)
 
-	log.Fatal(server.Run(":" + config.Port))
+	// log.Fatal(server.Run(":" + config.Port))
+	log.Fatal(server.Run(":3000"))
 }
