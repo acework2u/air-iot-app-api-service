@@ -11,7 +11,7 @@ import (
 func main() {
 
 	// conf.LoadCongig(".")
-	configs, err := conf.LoadCongig("../")
+	configs, err := conf.LoadCongig(".")
 
 	if err != nil {
 		log.Fatal(err)
