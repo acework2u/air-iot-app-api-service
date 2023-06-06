@@ -5,21 +5,21 @@ import (
 )
 
 type Config struct {
-	DBUri string `mapstructure:"MONGODB_LOCAL_URL"`
-	Port  string `mapstructure:"PORT"`
-
+	DBUri  string `mapstructure:"MONGODB_LOCAL_URL"`
+	Port   string `mapstructure:"PORT"`
 	Origin string `mapstructure:"CLIENT_ORIGIN"`
 }
 
 func LoadCongig(path string) (config Config, err error) {
 
 	viper.AddConfigPath(path)
-	viper.SetConfigFile(".env")
-	//viper.SetConfigType("env")
-	//viper.SetConfigName("dev")
+	// viper.SetConfigFile(".env")
+	viper.SetConfigType("env")
+	viper.SetConfigName("dev")
 
 	viper.AutomaticEnv()
 	err = viper.ReadInConfig()
+
 	if err != nil {
 		return
 	}

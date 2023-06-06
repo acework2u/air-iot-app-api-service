@@ -1,3 +1,5 @@
+include .env
+
 dev:
 	docker-compose up
 
