@@ -22,14 +22,14 @@ type DBCustomer struct {
 	Tel      string             `json:"tel" bson:"tel"`
 	Email    string             `json:"email" bson:"email"`
 	CreateAt time.Time          `json:"created_date,omitempty" bson:"created_date,omitempty"`
-	UpdateAt time.Time          `json:"updated_date,omitempty" bson:"updated_date,omtiempty`
+	UpdateAt time.Time          `json:"updated_date,omitempty" bson:"updated_date,omtiempty"`
 }
 type UpdateCustomer struct {
 	Name     string    `json:"name" bson:"name"`
 	Lastname string    `json:"last_name" bson:"last_name"`
 	Tel      string    `json:"tel" bson:"tel"`
 	Email    string    `json:"email" bson:"email"`
-	UpdateAt time.Time `json:"updated_date,omitempty" bson:"updated_date,omtiempty`
+	UpdateAt time.Time `json:"updated_date,omitempty" bson:"updated_date,omtiempty"`
 }
 
 type CustomerRepository interface {

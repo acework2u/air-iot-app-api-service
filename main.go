@@ -16,6 +16,12 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
+	//Swagger
+	_ "github.com/acework2u/air-iot-app-api-service/docs"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -83,6 +89,11 @@ func init() {
 
 }
 
+// @title Air IoT API Service
+// @version 1.1.0
+// @description Air Smart IoT App API Service
+// @host http://localhost:3000
+// @BasePath /api
 func main() {
 	config, err := conf.LoadCongig(".")
 
@@ -110,7 +121,10 @@ func startGinServer(config conf.Config) {
 		})
 	})
 
+	// Add Swagger
 	router := server.Group("/api")
+
+	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// routePro := server.Group("/api/v2")
 	// router.GET("/healthchecker", func(ctx *gin.Context) {

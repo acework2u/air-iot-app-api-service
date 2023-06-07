@@ -1,0 +1,9 @@
+basePath: /api
+host: http://localhost:3000
+info:
+  contact: {}
+  description: Air Smart IoT App API Service
+  title: Air IoT API Service
+  version: 1.1.0
+paths: {}
+swagger: "2.0"

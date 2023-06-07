@@ -1,0 +1,12 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Air Smart IoT App API Service",
+        "title": "Air IoT API Service",
+        "contact": {},
+        "version": "1.1.0"
+    },
+    "host": "http://localhost:3000",
+    "basePath": "/api",
+    "paths": {}
+}
