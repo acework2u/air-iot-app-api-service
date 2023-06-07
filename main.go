@@ -89,10 +89,9 @@ func init() {
 
 }
 
-// @title Air IoT API Service
+// @title Air IoT API Service 2023
 // @version 1.1.0
 // @description Air Smart IoT App API Service
-// @host http://localhost:3000
 // @BasePath /api
 func main() {
 	config, err := conf.LoadCongig(".")
@@ -127,9 +126,18 @@ func startGinServer(config conf.Config) {
 	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// routePro := server.Group("/api/v2")
-	// router.GET("/healthchecker", func(ctx *gin.Context) {
-	// 	ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": "OK"})
-	// })
+
+	// HealthCheck godoc
+	// @Summary Show the status of server.
+	// @Description get the status of server.
+	// @Tags root
+	// @Accept */*
+	// @Produce json
+	// @Success 200 {object} map[string]interface{}
+	// @Router / [get]
+	router.GET("/healthchecker", func(ctx *gin.Context) {
+		ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": "OK"})
+	})
 
 	//Uat
 	UserRouterCtl.UserRoute(router)

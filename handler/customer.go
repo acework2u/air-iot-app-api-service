@@ -37,6 +37,15 @@ func (h *CustomerHandler) GetCustomer(ctx *gin.Context) {
 	})
 }
 
+// CreateCustomer godoc
+// @Summary Create Customer
+// @Description Save customer data in DB
+// @Param customer body services.CreateCustomerRequest true "Create Customer"
+// @Produce application/json
+// @Tags customers
+// @Success 200 {object} response{}
+// @Router /customers [get]
+
 func (h *CustomerHandler) PostCustomer(ctx *gin.Context) {
 
 	var customer *services.CreateCustomerRequest
@@ -46,7 +55,6 @@ func (h *CustomerHandler) PostCustomer(ctx *gin.Context) {
 		return
 	}
 
-	//
 	response, err := h.cusService.CreateNewCustomer(customer)
 
 	if err != nil {

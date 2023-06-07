@@ -21,10 +21,10 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.1.0",
-	Host:             "http://localhost:3000",
+	Host:             "",
 	BasePath:         "/api",
 	Schemes:          []string{},
-	Title:            "Air IoT API Service",
+	Title:            "Air IoT API Service 2023",
 	Description:      "Air Smart IoT App API Service",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
