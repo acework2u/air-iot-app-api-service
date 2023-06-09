@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"reflect"
 
 	service "github.com/acework2u/air-iot-app-api-service/services/clientcoginto"
 	"github.com/gin-gonic/gin"
@@ -25,20 +26,28 @@ func NewClientHandler(clientService service.ClientCognito) ClientHandler {
 func (h *ClientHandler) PostSignUp(ctx *gin.Context) {
 
 	var clientRq *service.ClientSignUp
+	// var oe *smithy.OperationError
+	// var oe *ErrMsg
 
-	err := ctx.ShouldBindJSON(&clientRq)
-	if err != nil {
+	if err := ctx.ShouldBindJSON(&clientRq); err != nil {
 
-		// if er:=err();er!=nil {
+		fmt.Println(err)
+		var result map[string]interface{}
+
+		fmt.Println(reflect.TypeOf(err))
+		//fmt.Println(reflect.TypeOf(err.Error()))
+		fmt.Println(result)
+		fmt.Println(err.Error())
+		fmt.Println(reflect.TypeOf(err.Error()))
+
+		// if errors.As(err, &oe) {
+
+		// 	ctx.JSON(http.StatusBadRequest, gin.H{
+		// 		"status":  http.StatusBadRequest,
+		// 		"message": fmt.Sprintf("fail to call service: %s, Operation: %s, error: %v", oe.Service(), oe.Operation(), oe.Unwrap()),
+		// 	})
 
 		// }
-
-		// er := err.Error()
-
-		// // s := string(fmt.Sprintf(`$v`, er))
-		// data := ErrMsg{}
-
-		// er = map[string]interface{}{er}
 
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"status":  http.StatusBadRequest,
@@ -50,25 +59,19 @@ func (h *ClientHandler) PostSignUp(ctx *gin.Context) {
 
 	// client SignUp
 	// res, err := h.clientService.SignUp(clientRq.Email, clientRq.Password)
-
 	res, err := h.clientService.SignUp(clientRq.Email, clientRq.Password)
 	if err != nil {
 
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusNotFound,
+			"message": ctx.Error(err),
+		})
 		log.Println(err)
 		return
 
 	}
 
 	log.Println(res)
-
-	// if err != nil {
-	// 	log.Println(err)
-	// 	//panic(err)
-
-	// 	return
-	// }
-
-	// log.Panicln(res)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
@@ -86,10 +89,26 @@ func (h *ClientHandler) PostConfirmSignUp(ctx *gin.Context) {
 			"status":  http.StatusBadRequest,
 			"message": err.Error(),
 		})
+
+		return
+	}
+
+	//
+
+	result, ok := h.clientService.ConfirmeSignUp(user.User, user.ConfirmationCode)
+
+	if ok != nil {
+
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"status":  http.StatusNotFound,
+			"message": ok.Error(),
+		})
+
+		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
-		"message": "Confirm",
+		"message": result,
 	})
 }

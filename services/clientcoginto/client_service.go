@@ -1,6 +1,8 @@
 package clientcoginto
 
 import (
+	"fmt"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	cognito "github.com/aws/aws-sdk-go/service/cognitoidentityprovider"
@@ -50,8 +52,11 @@ func (sc *cognitoService) ConfirmeSignUp(email string, code string) (string, err
 	result, err := sc.cognitoClient.ConfirmSignUp(confirmSignUpInput)
 
 	if err != nil {
+		fmt.Println(err)
 		return "", err
 	}
+
+	fmt.Println(result)
 
 	return result.String(), nil
 }

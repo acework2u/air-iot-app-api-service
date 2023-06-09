@@ -17,7 +17,7 @@ type (
 	}
 	UserConfirm struct {
 		ConfirmationCode string `json:"confirmationcode" validate:"required" binding:"required"`
-		User             User   `json:"user" validate:"required" binding:"required"`
+		User             string `json:"username" validate:"required" binding:"required" `
 	}
 	UserRegister struct {
 		Email string `json:"email" validate:"required"`
@@ -37,4 +37,5 @@ type (
 
 type ClientCognito interface {
 	SignUp(string, string) (string, error)
+	ConfirmeSignUp(string, string) (string, error)
 }

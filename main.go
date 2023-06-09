@@ -121,20 +121,9 @@ func startGinServer(config conf.Config) {
 	})
 
 	// Add Swagger
-	router := server.Group("/api")
+	router := server.Group("/api/v1")
 
 	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
-	// routePro := server.Group("/api/v2")
-
-	// HealthCheck godoc
-	// @Summary Show the status of server.
-	// @Description get the status of server.
-	// @Tags root
-	// @Accept */*
-	// @Produce json
-	// @Success 200 {object} map[string]interface{}
-	// @Router / [get]
 	router.GET("/healthchecker", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": "OK"})
 	})
@@ -143,6 +132,12 @@ func startGinServer(config conf.Config) {
 	UserRouterCtl.UserRoute(router)
 	CustomerRouter.CustRoute(router)
 	ClientRouter.ClientRoute(router)
+
+	// Pro
+	routerPro := server.Group("/api/v2")
+	UserRouterCtl.UserRoute(routerPro)
+	CustomerRouter.CustRoute(routerPro)
+	ClientRouter.ClientRoute(routerPro)
 
 	//Pro
 	// UserRouterCtl.UserRoute(routePro, UserService)
