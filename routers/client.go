@@ -18,5 +18,6 @@ func (rc *ClientController) ClientRoute(rg *gin.RouterGroup) {
 
 	router.POST("/signup", rc.clientHandler.PostSignUp)
 	router.POST("/signup/confirm", rc.clientHandler.PostConfirmSignUp)
+	router.POST("/signin", rc.clientHandler.PostSignIn)
 
 }

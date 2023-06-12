@@ -112,3 +112,36 @@ func (h *ClientHandler) PostConfirmSignUp(ctx *gin.Context) {
 		"message": result,
 	})
 }
+
+func (h *ClientHandler) PostSignIn(ctx *gin.Context) {
+
+	var user *service.ClientSignUp
+
+	if err := ctx.ShouldBindJSON(&user); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err.Error(),
+		})
+
+		return
+	}
+	result, resOut, ok := h.clientService.SignIn(user.Email, user.Password)
+
+	// fmt.Println(result)
+	// fmt.Println(ok)
+
+	if ok != nil {
+		ctx.JSON(http.StatusNoContent, gin.H{
+			"status":  http.StatusNoContent,
+			"message": ok,
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": result,
+		"token":   resOut,
+	})
+
+}

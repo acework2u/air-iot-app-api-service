@@ -13,6 +13,24 @@ type cognitoService struct {
 	appClientId   string
 }
 
+func NewCognitoService(cognitoRegion string, cognitoClientId string) ClientCognito {
+	conf := &aws.Config{
+		Region: aws.String(cognitoRegion),
+	}
+
+	sess, err := session.NewSession(conf)
+	client := cognito.New(sess)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return &cognitoService{
+		cognitoClient: client,
+		appClientId:   cognitoClientId,
+	}
+}
+
 // SigUp implements ClientCognito
 func (sc *cognitoService) SignUp(emil string, password string) (string, error) {
 
@@ -61,20 +79,29 @@ func (sc *cognitoService) ConfirmeSignUp(email string, code string) (string, err
 	return result.String(), nil
 }
 
-func NewCognitoService(cognitoRegion string, cognitoClientId string) ClientCognito {
-	conf := &aws.Config{
-		Region: aws.String(cognitoRegion),
+func (sc *cognitoService) SignIn(email string, password string) (string, *cognito.InitiateAuthOutput, error) {
+
+	flow := aws.String("USER_PASSWORD_AUTH")
+
+	params := map[string]*string{
+		"USERNAME": aws.String(email),
+		"PASSWORD": aws.String(password),
 	}
 
-	sess, err := session.NewSession(conf)
-	client := cognito.New(sess)
+	authTry := &cognito.InitiateAuthInput{
+		AuthFlow:       flow,
+		AuthParameters: params,
+		ClientId:       &sc.appClientId,
+	}
+
+	res, err := sc.cognitoClient.InitiateAuth(authTry)
 
 	if err != nil {
-		panic(err)
+		return "", nil, err
 	}
 
-	return &cognitoService{
-		cognitoClient: client,
-		appClientId:   cognitoClientId,
-	}
+	fmt.Println("res.AuthenticationResult")
+
+	return res.String(), res, nil
+
 }

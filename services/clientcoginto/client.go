@@ -1,6 +1,9 @@
 package clientcoginto
 
-import "github.com/go-playground/validator/v10"
+import (
+	cognito "github.com/aws/aws-sdk-go/service/cognitoidentityprovider"
+	"github.com/go-playground/validator/v10"
+)
 
 type ClientSignUp struct {
 	Email    string `json:"email" binding:"required"`
@@ -38,4 +41,5 @@ type (
 type ClientCognito interface {
 	SignUp(string, string) (string, error)
 	ConfirmeSignUp(string, string) (string, error)
+	SignIn(string, string) (string, *cognito.InitiateAuthOutput, error)
 }

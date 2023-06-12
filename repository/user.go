@@ -22,7 +22,7 @@ type User struct {
 }
 type UserDB struct {
 	Id       primitive.ObjectID `json:"id" bson:"_id,omitempty"`
-	Code     string             `json:"code bson:"cus_code"`
+	Code     string             `json:"code" bson:"cus_code"`
 	Name     string             `json:"name" bson:"name"`
 	Lastname string             `json:"last_name" bson:"last_name"`
 	Email    string             `json:"email" bson:"email"`
@@ -34,7 +34,7 @@ type UserDB struct {
 type CusAddress struct {
 	Address  string `json:"address" bson:"address"`
 	Statge   string `json:"statge" bson:"statge"`
-	District string `json:district bson:"district"`
+	District string `json:"district" bson:"district"`
 	Province string `json:"provice" bson:"provice"`
 	Zipcode  int    `json:"zipcode" bson:"zipcode"`
 }
