@@ -11,6 +11,7 @@ import (
 	"github.com/acework2u/air-iot-app-api-service/repository"
 	"github.com/acework2u/air-iot-app-api-service/routers"
 	service "github.com/acework2u/air-iot-app-api-service/services"
+	"github.com/acework2u/air-iot-app-api-service/services/auth"
 	clientCog "github.com/acework2u/air-iot-app-api-service/services/clientcoginto"
 	services "github.com/acework2u/air-iot-app-api-service/services/user"
 	"github.com/gin-contrib/cors"
@@ -41,6 +42,9 @@ var (
 	//Client
 	ClientHandler handler.ClientHandler
 	ClientRouter  routers.ClientController
+
+	//Auth
+	AuthRouter routers.AuthController
 )
 
 func init() {
@@ -84,6 +88,12 @@ func init() {
 	ClientRouter = routers.NewClientRouter(ClientHandler)
 
 	//customerService := service.NewCustomerService(&customerRepository)
+
+	//Auth
+	userPoolId := "qq74q62sm1jfg8t7qetmo3a86"
+	authService := auth.NewCognitoClient(userPoolId, cognitoClientId)
+	authHandler := handler.NewAuthHandler(authService)
+	AuthRouter = routers.NewAuthRouter(authHandler)
 
 	server = gin.Default()
 
@@ -132,6 +142,7 @@ func startGinServer(config conf.Config) {
 	UserRouterCtl.UserRoute(router)
 	CustomerRouter.CustRoute(router)
 	ClientRouter.ClientRoute(router)
+	AuthRouter.AuthRoute(router)
 
 	// Pro
 	routerPro := server.Group("/api/v2")

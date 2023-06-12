@@ -1,36 +1,36 @@
 package auth
 
-import (
-	cip "github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
-)
-
 type CognitoClient struct {
-	*cip.Client
 	AppClientId string
 	UserPoolId  string
+	// *cip.Client
 }
 
-func NewCognitoClient(cognitoRegion string, cognitoClientId string) AuthService {
+func NewCognitoClient(userPoolId string, cognitoClientId string) AuthService {
 
-	// cfg, err := awsconfig.LoadDefaultConfig(context.Background())
+	// cfg, err := config.LoadDefaultConfig(context.Background())
 	// if err != nil {
 	// 	panic(err)
 	// }
 
 	// return &CognitoClient{
 	// 	AppClientId: cognitoClientId,
-	// 	UserPoolId: "",
+	// 	UserPoolId:  userPoolId,
 	// 	cip.NewFromConfig(cfg),
 	// }
 
-	return nil
+	return &CognitoClient{
+		AppClientId: cognitoClientId,
+		UserPoolId:  userPoolId,
+	}
 
 }
 
-func (s *CognitoClient) SignIn(string, string) (string, error) {
-	return "", nil
+func (s *CognitoClient) SignIn(email string, password string) (string, error) {
+
+	return s.AppClientId, nil
 }
-func (s *CognitoClient) SignUp(string, string) (string, error) {
+func (s *CognitoClient) SignUp(email string, passeorf string) (string, error) {
 	return "", nil
 }
 
