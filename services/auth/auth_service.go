@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	_ "github.com/aws/aws-sdk-go-v2/config"
 	cip "github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider/types"
+	"github.com/aws/aws-sdk-go/aws"
 )
 
 var ctx = context.TODO()
@@ -37,7 +37,6 @@ func NewCognitoClient(cognitoRegion string, userPoolId string, cognitoClientId s
 
 func (s *CognitoClient) SignIn(email string, password string) (string, error) {
 
-	// flow := aws.String("ADMIN_USER_PASSWORD_AUTH")
 	// params := map[string]string{
 	// 	"USERNAME": *aws.String(email),
 	// 	"PASSWPRD": *aws.String(password),
@@ -45,7 +44,7 @@ func (s *CognitoClient) SignIn(email string, password string) (string, error) {
 
 	// signInInput := &cip.AdminInitiateAuthInput{
 
-	// 	AuthFlow:       types.AuthFlowType(*flow),
+	// 	AuthFlow:       types.AuthFlowTypeAdminUserPasswordAuth,
 	// 	AuthParameters: params,
 	// 	ClientId:       &s.AppClientId,
 	// 	UserPoolId:     &s.UserPoolId,
@@ -54,8 +53,11 @@ func (s *CognitoClient) SignIn(email string, password string) (string, error) {
 	// res, err := s.ClientCog.AdminInitiateAuth(ctx, signInInput)
 
 	// if err != nil {
-	// 	return "", err
+	// 	return "Notwork", err
 	// }
+	// fmt.Println(res)
+
+	// Work
 
 	flow := aws.String("USER_PASSWORD_AUTH")
 	params := map[string]string{
@@ -77,7 +79,8 @@ func (s *CognitoClient) SignIn(email string, password string) (string, error) {
 
 	fmt.Println(res)
 
-	return "Connect DB Success", nil
+	return *res.Session, nil
+
 }
 func (s *CognitoClient) SignUp(email string, passeorf string) (string, error) {
 	return "", nil
