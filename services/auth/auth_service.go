@@ -2,12 +2,16 @@ package auth
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	_ "github.com/aws/aws-sdk-go-v2/config"
 	cip "github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
-	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider/types"
 )
+
+var ctx = context.TODO()
 
 type CognitoClient struct {
 	AppClientId string
@@ -18,17 +22,10 @@ type CognitoClient struct {
 
 func NewCognitoClient(cognitoRegion string, userPoolId string, cognitoClientId string) AuthService {
 
-	cfg, err := config.LoadDefaultConfig(context.Background())
+	cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(cognitoRegion))
 	if err != nil {
 		panic(err)
 	}
-	cfg.Region = *aws.String(cognitoRegion)
-
-	// return &CognitoClient{
-	// 	AppClientId: cognitoClientId,
-	// 	UserPoolId:  userPoolId,
-	// 	cip.NewFromConfig(cfg),
-	// }
 
 	return &CognitoClient{
 		AppClientId: cognitoClientId,
@@ -54,13 +51,33 @@ func (s *CognitoClient) SignIn(email string, password string) (string, error) {
 	// 	UserPoolId:     &s.UserPoolId,
 	// }
 
-	// res, err := s.ClientCog.AdminInitiateAuth(context.Background(), signInInput)
+	// res, err := s.ClientCog.AdminInitiateAuth(ctx, signInInput)
 
 	// if err != nil {
 	// 	return "", err
 	// }
 
-	return "", nil
+	flow := aws.String("USER_PASSWORD_AUTH")
+	params := map[string]string{
+		"USERNAME": *aws.String(email),
+		"PASSWORD": *aws.String(password),
+	}
+
+	signInInput := &cip.InitiateAuthInput{
+		AuthFlow:       types.AuthFlowType(*flow),
+		AuthParameters: params,
+		ClientId:       &s.AppClientId,
+	}
+
+	res, err := s.ClientCog.InitiateAuth(ctx, signInInput)
+
+	if err != nil {
+		return "Error DB Conncetion", err
+	}
+
+	fmt.Println(res)
+
+	return "Connect DB Success", nil
 }
 func (s *CognitoClient) SignUp(email string, passeorf string) (string, error) {
 	return "", nil
