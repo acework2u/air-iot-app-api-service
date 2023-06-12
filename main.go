@@ -91,7 +91,7 @@ func init() {
 
 	//Auth
 	userPoolId := "qq74q62sm1jfg8t7qetmo3a86"
-	authService := auth.NewCognitoClient(userPoolId, cognitoClientId)
+	authService := auth.NewCognitoClient(cognitoRegion, userPoolId, cognitoClientId)
 	authHandler := handler.NewAuthHandler(authService)
 	AuthRouter = routers.NewAuthRouter(authHandler)
 
