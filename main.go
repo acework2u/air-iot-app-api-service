@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
 
 	conf "github.com/acework2u/air-iot-app-api-service/config"
 	"github.com/acework2u/air-iot-app-api-service/configs"
@@ -45,11 +46,21 @@ var (
 
 	//Auth
 	AuthRouter routers.AuthController
+
+	EnvPaht string
 )
 
 func init() {
 
 	ctx = context.TODO()
+
+	appMode := os.Getenv("APP_MODE")
+
+	if appMode == "Dev" {
+		EnvPaht = "."
+	} else {
+		EnvPaht = "~/air-iot-app-api-service/bin"
+	}
 
 	// connect to mongoDB
 	// mongoconn := options.Client().ApplyURI(configs.EnvMongoURI)
@@ -104,11 +115,21 @@ func init() {
 // @description Air Smart IoT App API Service
 // @BasePath /api
 func main() {
-	config, err := conf.LoadCongig("/home/ubuntu/air-iot-app-api-service/bin")
 
-	if err != nil {
-		log.Fatal("Could not load config", err)
-	}
+	config, _ := conf.LoadCongig(EnvPaht)
+
+	// config := *conf.Config
+	// var err error
+
+	// if appMode == "Dev" {
+	// 	config, _ = conf.LoadCongig(".")
+	// } else {
+	// 	config, err = conf.LoadCongig("~/air-iot-app-api-service/bin")
+	// }
+
+	// if err != nil {
+	// 	log.Fatal("Could not load config", err)
+	// }
 
 	//fmt.Print(config)
 
