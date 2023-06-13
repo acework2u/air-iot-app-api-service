@@ -100,8 +100,8 @@ func (sc *cognitoService) SignIn(email string, password string) (string, *cognit
 		return "", nil, err
 	}
 
-	fmt.Println("res.AuthenticationResult")
-	fmt.Println(res.AuthenticationResult)
+	// fmt.Println("res.AuthenticationResult")
+	// fmt.Println(res.AuthenticationResult)
 
 	return res.String(), res, nil
 

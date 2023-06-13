@@ -133,7 +133,7 @@ func (h *ClientHandler) PostSignIn(ctx *gin.Context) {
 	if ok != nil {
 		ctx.JSON(http.StatusNoContent, gin.H{
 			"status":  http.StatusNoContent,
-			"message": ok,
+			"message": ok.Error(),
 		})
 		return
 	}
@@ -141,7 +141,7 @@ func (h *ClientHandler) PostSignIn(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
 		"message": result,
-		"token":   resOut,
+		"token":   resOut.AuthenticationResult.IdToken,
 	})
 
 }
