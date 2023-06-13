@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -8,6 +9,21 @@ import (
 	"github.com/acework2u/air-iot-app-api-service/utils"
 	"github.com/gin-gonic/gin"
 )
+
+type UserInfo struct {
+	Username              string `json:"username"`
+	Email                 string `json:"email"`
+	Email_verified        bool   `json:"email_verifyed"`
+	Exp                   string `json:"exp"`
+	Iat                   string `json:"iat"`
+	Iss                   string `json:"iss"`
+	Jti                   string `json:"jti"`
+	Origin_jti            string `json:"origin_jti"`
+	Phone_number          string `json:"phone_number"`
+	Phone_number_verified bool   `json:"phone_number_verified"`
+	Sub                   string `json:"sub"`
+	Token_use             string `json:"token_use"`
+}
 
 type CustomerHandler struct {
 	cusService services.CustomerService
@@ -25,7 +41,9 @@ func (h *CustomerHandler) GetCustomer(ctx *gin.Context) {
 
 		res, err := h.cusService.AllCustomers()
 
-		//fmt.Println(userToken.sub)
+		fmt.Println("Customer... Handler")
+
+		// fmt.Sprintf("format string %T", userToken)
 
 		if err != nil {
 			log.Println(err)

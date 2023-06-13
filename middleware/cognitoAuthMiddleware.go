@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -14,18 +15,18 @@ import (
 )
 
 type UserInfo struct {
-	Username              any `mapstructure:"email"`
-	Email                 any `mapstructure:"email"`
-	Email_verified        bool
-	Exp                   string
-	Iat                   string
-	Iss                   string
-	Jti                   string
-	Origin_jti            string
-	Phone_number          string
-	Phone_number_verified bool
-	Sub                   string
-	Token_use             string
+	Username              string    `json:"username"`
+	Email                 string    `json:"email"`
+	Email_verified        bool      `json:"email_verifyed"`
+	Exp                   time.Time `json:"exp"`
+	Iat                   time.Time `json:"iat"`
+	Iss                   string    `json:"iss"`
+	Jti                   string    `json:"jti"`
+	Origin_jti            string    `json:"origin_jti"`
+	Phone_number          string    `json:"phone_number"`
+	Phone_number_verified bool      `json:"phone_number_verified"`
+	Sub                   string    `json:"sub"`
+	Token_use             string    `json:"token_use"`
 }
 
 func CognitoAuthMiddleware() gin.HandlerFunc {
@@ -74,49 +75,41 @@ func CognitoAuthMiddleware() gin.HandlerFunc {
 		}
 
 		username, _ := token.Get("cognito:username")
+		useremail, _ := token.Get("email")
+		useremail_verified, _ := token.Get("email_verified")
+		exp, _ := token.Get("exp")
+		iat, _ := token.Get("iat")
+		iss, _ := token.Get("iss")
+		jti, _ := token.Get("jti")
+		origin_jti, _ := token.Get("origin_jti")
+		phone_number, _ := token.Get("phone_number")
+		phone_number_verified, _ := token.Get("phone_number_verified")
+		sub, _ := token.Get("sub")
+		token_use, _ := token.Get("token_use")
 
-		c.Set("UserToken", token)
+		myData := &UserInfo{
+			Username:              username.(string),
+			Email:                 useremail.(string),
+			Email_verified:        useremail_verified.(bool),
+			Exp:                   exp.(time.Time),
+			Iat:                   iat.(time.Time),
+			Iss:                   iss.(string),
+			Jti:                   jti.(string),
+			Origin_jti:            origin_jti.(string),
+			Phone_number:          phone_number.(string),
+			Phone_number_verified: phone_number_verified.(bool),
+			Sub:                   sub.(string),
+			Token_use:             token_use.(string),
+		}
+
+		// Set Variable to Context
+		c.Set("UserToken", myData)
 
 		c.JSON(http.StatusOK, gin.H{
 			"status":  http.StatusOK,
 			"message": username,
 		})
 
-		// fmt.Printf("The username: %v\n", username)
-		// fmt.Println(token)
-
-		// fmt.Println(splitAuthHeader)
-
-		// cognitoClient := service.NewCognitoService()
-
-		// fmt.Println(cognitoClient)
-
-		// if !ok {
-		// 	c.JSON(http.StatusInternalServerError, gin.H{
-		// 		"status":  http.Status InternalServerError,
-		// 		"message": ok,
-		// 	})
-
-		// 	return
-		// } else {
-		// 	c.JSON(http.StatusUnauthorized, gin.H{
-		// 		"status":  http.StatusUnauthorized,
-		// 		"message": cognitoClient,
-		// 	})
-		// 	return
-
-		// }
-
-		// Verify the Cognito ID token
-		// _, err := cognito.VerifyIDToken(idToken, "YOUR_COGNITO_USER_POOL_ID", "YOUR_COGNITO_REGION")
-
-		// if err != nil {
-		// 	c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-		// 	c.Abort()
-		// 	return
-		// }
-
-		// Continue to the next middleware or handler
 		c.Next()
 	}
 }
