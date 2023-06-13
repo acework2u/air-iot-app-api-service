@@ -42,3 +42,4 @@ tmp
 ./tmp
 tmp/*
 ./tmp/*
+*.log
