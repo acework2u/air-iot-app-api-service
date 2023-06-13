@@ -13,16 +13,27 @@ import (
 	// "github.com/niclabs/go-nic/aws/cognito"
 )
 
+type UserInfo struct {
+	Username              any `mapstructure:"email"`
+	Email                 any `mapstructure:"email"`
+	Email_verified        bool
+	Exp                   string
+	Iat                   string
+	Iss                   string
+	Jti                   string
+	Origin_jti            string
+	Phone_number          string
+	Phone_number_verified bool
+	Sub                   string
+	Token_use             string
+}
+
 func CognitoAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Extract the Cognito ID token from the request headers
 		idToken := c.GetHeader("Authorization")
 
 		splitAuthHeader := strings.Split(idToken, " ")
-
-		fmt.Println(os.Getenv("USER_POOL_ID"))
-
-		fmt.Println("Middleware")
 
 		if len(splitAuthHeader) != 2 {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -32,9 +43,7 @@ func CognitoAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// fmt.Println("splitAuthHeader")
-		// fmt.Println(splitAuthHeader[1])
-
+		// Verified Check Key
 		pubKeyURL := "https://cognito-idp.%s.amazonaws.com/%s/.well-known/jwks.json"
 		formattedURL := fmt.Sprintf(pubKeyURL, os.Getenv("AWS_REGION"), os.Getenv("USER_POOL_ID"))
 
@@ -54,10 +63,13 @@ func CognitoAuthMiddleware() gin.HandlerFunc {
 			jwt.WithValidate(true),
 		)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"status":  http.StatusBadRequest,
+
+			// txtErr := strings.Split(err.Error(), ":")
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"status":  http.StatusUnauthorized,
 				"message": err.Error(),
 			})
+			// c.Abort()
 			return
 		}
 
@@ -70,8 +82,8 @@ func CognitoAuthMiddleware() gin.HandlerFunc {
 			"message": username,
 		})
 
-		fmt.Printf("The username: %v\n", username)
-		fmt.Println(token)
+		// fmt.Printf("The username: %v\n", username)
+		// fmt.Println(token)
 
 		// fmt.Println(splitAuthHeader)
 

@@ -19,28 +19,33 @@ func NewCustomerHandler(cusService services.CustomerService) CustomerHandler {
 
 func (h *CustomerHandler) GetCustomer(ctx *gin.Context) {
 
-	res, err := h.cusService.AllCustomers()
+	userToken, check := ctx.Get("UserToken")
 
-	userToken, _ := ctx.Get("UserToken")
+	if check {
 
-	// fmt.Println(userToken)
+		res, err := h.cusService.AllCustomers()
 
-	if err != nil {
-		log.Println(err)
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": err.Error(),
+		//fmt.Println(userToken.sub)
+
+		if err != nil {
+			log.Println(err)
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"status":  http.StatusBadRequest,
+				"message": err.Error(),
+			})
+
+			return
+		}
+
+		_ = res
+
+		ctx.JSON(http.StatusOK, gin.H{
+			"status":  "success",
+			"message": userToken,
 		})
 
-		return
 	}
 
-	_ = res
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"status":  "success",
-		"message": userToken,
-	})
 }
 
 // CreateCustomer godoc
