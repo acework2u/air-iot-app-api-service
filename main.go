@@ -104,7 +104,7 @@ func init() {
 // @description Air Smart IoT App API Service
 // @BasePath /api
 func main() {
-	config, err := conf.LoadCongig(".")
+	config, err := conf.LoadCongig("/home/ubuntu/air-iot-app-api-service/bin")
 
 	if err != nil {
 		log.Fatal("Could not load config", err)
