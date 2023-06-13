@@ -5,9 +5,10 @@ import (
 )
 
 type Config struct {
-	DBUri  string `mapstructure:"MONGODB_LOCAL_URL"`
-	Port   string `mapstructure:"PORT"`
-	Origin string `mapstructure:"CLIENT_ORIGIN"`
+	DBUri      string `mapstructure:"MONGODB_LOCAL_URL"`
+	Port       string `mapstructure:"PORT"`
+	Origin     string `mapstructure:"CLIENT_ORIGIN"`
+	UserPoolId string `mapstructure:"USER_POOL_ID"`
 }
 
 func LoadCongig(path string) (config Config, err error) {

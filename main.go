@@ -9,6 +9,7 @@ import (
 	conf "github.com/acework2u/air-iot-app-api-service/config"
 	"github.com/acework2u/air-iot-app-api-service/configs"
 	"github.com/acework2u/air-iot-app-api-service/handler"
+	"github.com/acework2u/air-iot-app-api-service/middleware"
 	"github.com/acework2u/air-iot-app-api-service/repository"
 	"github.com/acework2u/air-iot-app-api-service/routers"
 	service "github.com/acework2u/air-iot-app-api-service/services"
@@ -41,6 +42,7 @@ var (
 	CustomerRouter routers.CustomerController
 
 	//Client
+	CustService   clientCog.ClientCognito
 	ClientHandler handler.ClientHandler
 	ClientRouter  routers.ClientController
 
@@ -94,14 +96,14 @@ func init() {
 	//Client
 	cognitoRegion := "ap-southeast-1"
 	cognitoClientId := "qq74q62sm1jfg8t7qetmo3a86"
-	clientService := clientCog.NewCognitoService(cognitoRegion, cognitoClientId)
-	ClientHandler = handler.NewClientHandler(clientService)
+	CustService = clientCog.NewCognitoService(cognitoRegion, cognitoClientId)
+	ClientHandler = handler.NewClientHandler(CustService)
 	ClientRouter = routers.NewClientRouter(ClientHandler)
 
 	//customerService := service.NewCustomerService(&customerRepository)
 
 	//Auth
-	userPoolId := "qq74q62sm1jfg8t7qetmo3a86"
+	userPoolId := "ap-southeast-1_EqxkPGgmk"
 	authService := auth.NewCognitoClient(cognitoRegion, userPoolId, cognitoClientId)
 	authHandler := handler.NewAuthHandler(authService)
 	AuthRouter = routers.NewAuthRouter(authHandler)
@@ -143,6 +145,7 @@ func startGinServer(config conf.Config) {
 	corsConfig.AllowOrigins = []string{config.Origin}
 	corsConfig.AllowCredentials = true
 	server.Use(cors.New(corsConfig))
+	server.Use(middleware.CognitoAuthMiddleware())
 
 	server.NoRoute(func(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, gin.H{

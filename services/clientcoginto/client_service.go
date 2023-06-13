@@ -8,7 +8,7 @@ import (
 	cognito "github.com/aws/aws-sdk-go/service/cognitoidentityprovider"
 )
 
-type cognitoService struct {
+type CognitoService struct {
 	cognitoClient *cognito.CognitoIdentityProvider
 	appClientId   string
 }
@@ -25,14 +25,14 @@ func NewCognitoService(cognitoRegion string, cognitoClientId string) ClientCogni
 		panic(err)
 	}
 
-	return &cognitoService{
+	return &CognitoService{
 		cognitoClient: client,
 		appClientId:   cognitoClientId,
 	}
 }
 
 // SigUp implements ClientCognito
-func (sc *cognitoService) SignUp(emil string, password string) (string, error) {
+func (sc *CognitoService) SignUp(emil string, password string) (string, error) {
 
 	//phone_no := 0945968514
 
@@ -57,7 +57,7 @@ func (sc *cognitoService) SignUp(emil string, password string) (string, error) {
 	return result.String(), nil
 }
 
-func (sc *cognitoService) ConfirmeSignUp(email string, code string) (string, error) {
+func (sc *CognitoService) ConfirmeSignUp(email string, code string) (string, error) {
 
 	//phone_no := 0945968514
 
@@ -79,7 +79,7 @@ func (sc *cognitoService) ConfirmeSignUp(email string, code string) (string, err
 	return result.String(), nil
 }
 
-func (sc *cognitoService) SignIn(email string, password string) (string, *cognito.InitiateAuthOutput, error) {
+func (sc *CognitoService) SignIn(email string, password string) (string, *cognito.InitiateAuthOutput, error) {
 
 	flow := aws.String("USER_PASSWORD_AUTH")
 
@@ -105,4 +105,8 @@ func (sc *cognitoService) SignIn(email string, password string) (string, *cognit
 
 	return res.String(), res, nil
 
+}
+
+func (sc *CognitoService) GetUserPoolId() (string, error) {
+	return "", nil
 }

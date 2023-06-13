@@ -27,3 +27,10 @@ func ResponseSuccess(c *gin.Context, msg string) {
 		"message": msg,
 	})
 }
+
+func ResponseFail(c *gin.Context, msg string) {
+	c.JSON(http.StatusBadRequest, gin.H{
+		"status":  http.StatusBadRequest,
+		"message": msg,
+	})
+}
