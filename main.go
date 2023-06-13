@@ -9,7 +9,6 @@ import (
 	conf "github.com/acework2u/air-iot-app-api-service/config"
 	"github.com/acework2u/air-iot-app-api-service/configs"
 	"github.com/acework2u/air-iot-app-api-service/handler"
-	"github.com/acework2u/air-iot-app-api-service/middleware"
 	"github.com/acework2u/air-iot-app-api-service/repository"
 	"github.com/acework2u/air-iot-app-api-service/routers"
 	service "github.com/acework2u/air-iot-app-api-service/services"
@@ -145,7 +144,7 @@ func startGinServer(config conf.Config) {
 	corsConfig.AllowOrigins = []string{config.Origin}
 	corsConfig.AllowCredentials = true
 	server.Use(cors.New(corsConfig))
-	server.Use(middleware.CognitoAuthMiddleware())
+	// server.Use(middleware.CognitoAuthMiddleware())
 
 	server.NoRoute(func(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, gin.H{

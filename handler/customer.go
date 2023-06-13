@@ -21,6 +21,10 @@ func (h *CustomerHandler) GetCustomer(ctx *gin.Context) {
 
 	res, err := h.cusService.AllCustomers()
 
+	userToken, _ := ctx.Get("UserToken")
+
+	// fmt.Println(userToken)
+
 	if err != nil {
 		log.Println(err)
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -31,9 +35,11 @@ func (h *CustomerHandler) GetCustomer(ctx *gin.Context) {
 		return
 	}
 
+	_ = res
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"status":  "success",
-		"message": res,
+		"message": userToken,
 	})
 }
 

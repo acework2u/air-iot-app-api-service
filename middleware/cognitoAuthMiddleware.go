@@ -40,10 +40,6 @@ func CognitoAuthMiddleware() gin.HandlerFunc {
 
 		keySet, err := jwk.Fetch(c, formattedURL)
 
-		// if err != nil {
-		// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-		// 	return
-		// }
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"status":  http.StatusInternalServerError,
@@ -52,16 +48,12 @@ func CognitoAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		fmt.Println("keyset")
-		fmt.Println(keySet)
-
 		token, err := jwt.Parse(
 			[]byte(splitAuthHeader[1]),
 			jwt.WithKeySet(keySet),
 			jwt.WithValidate(true),
 		)
 		if err != nil {
-
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status":  http.StatusBadRequest,
 				"message": err.Error(),
@@ -70,6 +62,8 @@ func CognitoAuthMiddleware() gin.HandlerFunc {
 		}
 
 		username, _ := token.Get("cognito:username")
+
+		c.Set("UserToken", token)
 
 		c.JSON(http.StatusOK, gin.H{
 			"status":  http.StatusOK,
