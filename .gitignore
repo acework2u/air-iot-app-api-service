@@ -43,3 +43,6 @@ tmp
 tmp/*
 ./tmp/*
 *.log
+.aws
+../.aws
+./.aws
