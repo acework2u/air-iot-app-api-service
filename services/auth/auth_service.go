@@ -27,8 +27,6 @@ func NewCognitoClient(cognitoRegion string, userPoolId string, cognitoClientId s
 		panic(err)
 	}
 
-	fmt.Println(cfg)
-
 	return &CognitoClient{
 		AppClientId: cognitoClientId,
 		UserPoolId:  userPoolId,

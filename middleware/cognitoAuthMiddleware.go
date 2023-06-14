@@ -112,8 +112,10 @@ func CognitoAuthMiddleware() gin.HandlerFunc {
 			Token_use:             token_use.(string),
 		}
 
+		_ = myData
+
 		// Set Variable to Context
-		c.Set("UserToken", myData)
+		c.Set("UserToken", token)
 		c.Set("UserId", username.(string))
 		c.Set("UserEmail", useremail)
 		c.Set("UserEmailVerified", useremail_verified)
