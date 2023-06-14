@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"reflect"
 
 	"github.com/acework2u/air-iot-app-api-service/services"
 	"github.com/acework2u/air-iot-app-api-service/utils"
@@ -11,18 +12,18 @@ import (
 )
 
 type UserInfo struct {
-	Username              string `json:"username"`
-	Email                 string `json:"email"`
-	Email_verified        bool   `json:"email_verifyed"`
-	Exp                   string `json:"exp"`
-	Iat                   string `json:"iat"`
-	Iss                   string `json:"iss"`
-	Jti                   string `json:"jti"`
-	Origin_jti            string `json:"origin_jti"`
-	Phone_number          string `json:"phone_number"`
-	Phone_number_verified bool   `json:"phone_number_verified"`
-	Sub                   string `json:"sub"`
-	Token_use             string `json:"token_use"`
+	Username              string `json:"username" structs:"username"`
+	Email                 string `json:"email" structs:"email"`
+	Email_verified        bool   `json:"email_verifyed" json:"email_verifyed"`
+	Exp                   string `json:"exp" structs:"exp"`
+	Iat                   string `json:"iat" structs:"iat"`
+	Iss                   string `json:"iss" structs:"iss"`
+	Jti                   string `json:"jti" structs:"jti"`
+	Origin_jti            string `json:"origin_jti" structs:"origin_jti"`
+	Phone_number          string `json:"phone_number" structs:"phone_number"`
+	Phone_number_verified bool   `json:"phone_number_verified" structs:"phone_number_verified"`
+	Sub                   string `json:"sub" structs:"sub"`
+	Token_use             string `json:"token_use" structs:"token_use"`
 }
 
 type CustomerHandler struct {
@@ -37,11 +38,14 @@ func (h *CustomerHandler) GetCustomer(ctx *gin.Context) {
 
 	userToken, check := ctx.Get("UserToken")
 
+	userName, _ := ctx.Get("UserId")
+
 	if check {
 
 		res, err := h.cusService.AllCustomers()
 
-		fmt.Println("Customer... Handler")
+		fmt.Println("userName")
+		fmt.Println(userName)
 
 		// fmt.Sprintf("format string %T", userToken)
 
@@ -171,4 +175,27 @@ func (h *CustomerHandler) DelCustomer(ctx *gin.Context) {
 		"status":  http.StatusOK,
 		"message": delID,
 	})
+}
+
+func AcceptAnyValue(arg any) {
+	switch v := arg.(type) {
+	case string:
+		fmt.Printf("String: %s", v)
+	case int:
+		fmt.Printf("Int32: %d", v)
+	case float64:
+		fmt.Printf("float64: %f", v)
+	case map[string]int:
+		fmt.Printf("map[string]int: %+v", v)
+	case map[int]string:
+		fmt.Printf("map[int]string: %+v", v)
+	case map[string]map[any]any:
+		fmt.Printf("map[string]map[any]any: %+v", v)
+	case []int:
+		fmt.Printf("[]int: %+v", v)
+	default:
+		fmt.Printf("Undefined type: %s", reflect.TypeOf(v))
+	}
+
+	fmt.Println()
 }

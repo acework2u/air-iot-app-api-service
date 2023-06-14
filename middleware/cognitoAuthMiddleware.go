@@ -29,6 +29,16 @@ type UserInfo struct {
 	Token_use             string    `json:"token_use"`
 }
 
+func (u *UserInfo) GetVal(name string) any {
+	switch name {
+	default:
+		return "no data"
+	case "name":
+		return &u.Username
+	}
+
+}
+
 func CognitoAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Extract the Cognito ID token from the request headers
@@ -104,11 +114,19 @@ func CognitoAuthMiddleware() gin.HandlerFunc {
 
 		// Set Variable to Context
 		c.Set("UserToken", myData)
+		c.Set("UserId", username.(string))
+		c.Set("UserEmail", useremail)
+		c.Set("UserEmailVerified", useremail_verified)
+		c.Set("UserPhoneVerified", phone_number_verified)
+		c.Set("UserPhone", phone_number)
+		c.Set("UserSub", sub)
+		c.Set("UserIat", iat)
+		c.Set("UserExp", exp)
 
-		c.JSON(http.StatusOK, gin.H{
-			"status":  http.StatusOK,
-			"message": username,
-		})
+		// c.JSON(http.StatusOK, gin.H{
+		// 	"status":  http.StatusOK,
+		// 	"message": username,
+		// })
 
 		c.Next()
 	}
