@@ -102,6 +102,7 @@ func (sc *CognitoService) SignIn(email string, password string) (string, *cognit
 
 	// fmt.Println("res.AuthenticationResult")
 	// fmt.Println(res.AuthenticationResult)
+	fmt.Println(res)
 
 	return res.String(), res, nil
 

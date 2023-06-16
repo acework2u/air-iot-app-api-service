@@ -46,7 +46,8 @@ var (
 	ClientRouter  routers.ClientController
 
 	//Auth
-	AuthRouter routers.AuthController
+	AuthRouter   routers.AuthController
+	ThingsRouter routers.ThingController
 
 	EnvPaht string
 )
@@ -107,6 +108,11 @@ func init() {
 	authHandler := handler.NewAuthHandler(authService)
 	AuthRouter = routers.NewAuthRouter(authHandler)
 
+	//Thing
+	thingService := service.NewThingClient(cognitoRegion, userPoolId, cognitoClientId)
+	thingHandler := handler.NewThingsHandler(thingService)
+	ThingsRouter = routers.NewThingsRouter(thingHandler)
+
 	server = gin.Default()
 
 }
@@ -144,7 +150,8 @@ func startGinServer(config conf.Config) {
 	corsConfig.AllowOrigins = []string{config.Origin}
 	corsConfig.AllowCredentials = true
 	server.Use(cors.New(corsConfig))
-	// server.Use(middleware.CognitoAuthMiddleware())
+
+	// server.Use(middleware.CognitoIoTAuthMiddleware())
 
 	server.NoRoute(func(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, gin.H{
@@ -166,6 +173,7 @@ func startGinServer(config conf.Config) {
 	CustomerRouter.CustRoute(router)
 	ClientRouter.ClientRoute(router)
 	AuthRouter.AuthRoute(router)
+	ThingsRouter.ThingsRoute(router)
 
 	// Pro
 	routerPro := server.Group("/api/v2")
