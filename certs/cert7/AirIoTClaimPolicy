@@ -1,0 +1,29 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": "iot:Connect",
+        "Resource": "*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "iot:Publish",
+          "iot:Receive"
+        ],
+        "Resource": [
+          "arn:aws:iot:ap-southeast-1:513310385702:topic/$aws/certificates/create/*",
+          "arn:aws:iot:ap-southeast-1:513310385702:topic/$aws/provisioning-templates/AirIotProvisionTemplate/provision/*"
+        ]
+      },
+      {
+        "Effect": "Allow",
+        "Action": "iot:Subscribe",
+        "Resource": [
+          "arn:aws:iot:ap-southeast-1:513310385702:topicfilter/$aws/certificates/create/*",
+          "arn:aws:iot:ap-southeast-1:513310385702:topicfilter/$aws/provisioning-templates/AirIotProvisionTemplate/provision/*"
+        ]
+      }
+    ]
+  }

@@ -1,0 +1,37 @@
+{
+    "Parameters": {
+      "SerialNumber": {
+        "Type": "String"
+      },
+      "AWS::IoT::Certificate::Id": {
+        "Type": "String"
+      }
+    },
+    "Resources": {
+      "thing":{
+        "Properties":{
+            "ThingGroups":[],
+            "ThingName": {
+                "Ref": "SerialNumber"
+            }
+        },
+        "Type":"AWS::IoT::Thing"
+      },  
+      "policy": {
+        "Type": "AWS::IoT::Policy",
+        "Properties": {
+          "PolicyName": "airIoTFleetPolicy"
+        }
+      },
+      "certificate": {
+        "Type": "AWS::IoT::Certificate",
+        "Properties": {
+          "CertificateId": {
+            "Ref": "AWS::IoT::Certificate::Id"
+          },
+          "Status": "Active"
+        }
+      }
+      
+    }
+  }

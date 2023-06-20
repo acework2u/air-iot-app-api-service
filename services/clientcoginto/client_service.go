@@ -2,6 +2,7 @@ package clientcoginto
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -36,14 +37,20 @@ func (sc *CognitoService) SignUp(emil string, password string) (string, error) {
 
 	//phone_no := 0945968514
 
+	userName := strings.Split(emil, "@")
+
 	user := &cognito.SignUpInput{
 		ClientId: &sc.appClientId,
-		Username: aws.String(emil),
+		Username: aws.String(userName[0]),
 		Password: aws.String(password),
 		UserAttributes: []*cognito.AttributeType{
 			{
-				Name:  aws.String("phone_number"),
-				Value: aws.String("+66945968514"),
+				Name:  aws.String("email"),
+				Value: aws.String(emil),
+			},
+			{
+				Name:  aws.String("name"),
+				Value: aws.String(userName[0]),
 			},
 		},
 	}
@@ -83,6 +90,7 @@ func (sc *CognitoService) SignIn(email string, password string) (string, *cognit
 
 	flow := aws.String("USER_PASSWORD_AUTH")
 
+	userName := strings.Split(email, "@")
 	params := map[string]*string{
 		"USERNAME": aws.String(email),
 		"PASSWORD": aws.String(password),
@@ -97,7 +105,10 @@ func (sc *CognitoService) SignIn(email string, password string) (string, *cognit
 	res, err := sc.cognitoClient.InitiateAuth(authTry)
 
 	if err != nil {
-		return "", nil, err
+
+		fmt.Println(err.Error())
+
+		return "Authen Eror" + userName[0], nil, err
 	}
 
 	// fmt.Println("res.AuthenticationResult")

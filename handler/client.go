@@ -25,7 +25,8 @@ func NewClientHandler(clientService service.ClientCognito) ClientHandler {
 
 func (h *ClientHandler) PostSignUp(ctx *gin.Context) {
 
-	var clientRq *service.ClientSignUp
+	// var clientRq *service.ClientSignUp
+	var clientRq *service.SignUpRequest
 	// var oe *smithy.OperationError
 	// var oe *ErrMsg
 
@@ -125,6 +126,7 @@ func (h *ClientHandler) PostSignIn(ctx *gin.Context) {
 
 		return
 	}
+
 	result, resOut, ok := h.clientService.SignIn(user.Email, user.Password)
 
 	// fmt.Println(result)

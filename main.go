@@ -93,9 +93,18 @@ func init() {
 
 	_ = custService
 
-	//Client
+	// Cognito Config
+	// Pro
+	// cognitoRegion := "ap-southeast-1"
+	// cognitoClientId := "qq74q62sm1jfg8t7qetmo3a86"
+	// userPoolId := "ap-southeast-1_EqxkPGgmk"
+
+	// demo
 	cognitoRegion := "ap-southeast-1"
-	cognitoClientId := "qq74q62sm1jfg8t7qetmo3a86"
+	cognitoClientId := "68io9hfdm8qacori5t4v6ao0rv"
+	userPoolId := "ap-southeast-1_yW7AZdShx"
+
+	//Client
 	CustService = clientCog.NewCognitoService(cognitoRegion, cognitoClientId)
 	ClientHandler = handler.NewClientHandler(CustService)
 	ClientRouter = routers.NewClientRouter(ClientHandler)
@@ -103,7 +112,7 @@ func init() {
 	//customerService := service.NewCustomerService(&customerRepository)
 
 	//Auth
-	userPoolId := "ap-southeast-1_EqxkPGgmk"
+
 	authService := auth.NewCognitoClient(cognitoRegion, userPoolId, cognitoClientId)
 	authHandler := handler.NewAuthHandler(authService)
 	AuthRouter = routers.NewAuthRouter(authHandler)
