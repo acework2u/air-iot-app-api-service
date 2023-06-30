@@ -11,7 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 
 	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
+	cid "github.com/aws/aws-sdk-go-v2/service/cognitoidentity"
 	cip "github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider/types"
 	"github.com/aws/aws-sdk-go-v2/service/iot"
@@ -44,6 +44,7 @@ type deviceParam struct {
 
 var certIot awsIotCert
 var regPlayload deviceRegister
+var myRoleArn = *aws.String("arn:aws:iam::513310385702:role/Cognito_aws_iotUnauth_Role")
 
 // Cognito
 
@@ -58,13 +59,43 @@ type CogClient struct {
 
 func NewThingClient(cognitoRegion string, userPoolId string, cognitoClientId string) ThinksService {
 
+	// customResolver := aws.EndpointResolverWithOptions(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+	// 	if service == sts.ServiceID && region == "us-west-2" {
+	// 		return aws.Endpoint{
+	// 			PartitionID:   "aws",
+	// 			URL:           "https://sts.us-west-2.amazonaws.com",
+	// 			SigningRegion: "us-west-2",
+	// 		}, nil
+	// 	}
+	// 	return aws.Endpoint{}, &aws.EndpointNotFoundError{}
+	// })
+
+	// customResolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+	// 	if service == sts.ServiceID && region == *aws.String("us-west-2") {
+	// 		return aws.Endpoint{
+	// 			PartitionID:   *aws.String("aws"),
+	// 			URL:           *aws.String("https://sts.us-west-2.amazonaws.com"),
+	// 			SigningRegion: *aws.String("us-west-2"),
+	// 		}, nil
+	// 	}
+	// 	return aws.Endpoint{}, &aws.EndpointNotFoundError{}
+	// })
+
+	// fmt.Println("<-------customResolver---------->")
+	// fmt.Println(customResolver)
+
+	// cfg, err := config.LoadDefaultConfig(context.Background(), config.WithEndpointResolverWithOptions(customResolver), config.WithClientLogMode(1))
 	cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(cognitoRegion), config.WithSharedConfigProfile("default"))
+	// cfg, err := config.LoadDefaultConfig(context.Background(),config.With)
 	if err != nil {
-		log.Fatalln("Failed to load AWS config:", err)
+		// log.Fatalln("Failed to load AWS config:", err)
+		panic(fmt.Sprintf("Error configuring AWS: %s", err))
 	}
 
-	// fmt.Println("CFG")
-	// fmt.Println(cfg)
+	fmt.Println("CFG")
+	fmt.Println(cfg)
+
+	//assumeCnf, _ := config.LoadDefaultConfig(context.Background(), config.WithRegion(cognitoRegion))
 
 	cognitoIdentityProviderClient := cip.NewFromConfig(cfg)
 	stsClient := sts.NewFromConfig(cfg)
@@ -82,21 +113,11 @@ func NewThingClient(cognitoRegion string, userPoolId string, cognitoClientId str
 }
 
 func (s *CogClient) GetCerds() (interface{}, error) {
-
-	cognitoIdentityProviderClient := cognitoidentityprovider.NewFromConfig(*s.Cfg)
 	username := "wowoy73603@camplvad.com"
 	password := "J@e2262527"
-	//  if authResult,err := cognitoidentityprovider.InitiateAuth(context.TODO(),&cognitoidentityprovider.InitiateAuthInput{
-	// 	AuthFlow : types.AuthFlowTypeUserPasswordAuth,
-	// 	AuthParamiters: map[string]string{
-	// 		"USERNAME":aws.String(username),
-	// 		"PASSWORD":aws.String(password),
-	// 	},
-	// 	ClientId: s.AppClientId,
-	// 	UserPoolId: s.UserPoolId,
-	//  })
 
-	authResult, err := cognitoIdentityProviderClient.InitiateAuth(context.TODO(), &cognitoidentityprovider.InitiateAuthInput{
+	// _ = creds
+	authResult, err := s.ClientCog.InitiateAuth(context.TODO(), &cip.InitiateAuthInput{
 		AuthFlow: types.AuthFlowTypeUserPasswordAuth,
 		AuthParameters: map[string]string{
 			"USERNAME": *aws.String(username),
@@ -108,170 +129,199 @@ func (s *CogClient) GetCerds() (interface{}, error) {
 		log.Fatalln("Failed to authenticate user:", err)
 	}
 	fmt.Println("&authResult.AuthenticationResult.IdToken")
-	fmt.Println(&authResult.AuthenticationResult.IdToken)
 
-	// Create a Cognito Identity client
-	// cognitoIdentityClient := cognitoidentity.NewFromConfig(*s.Cfg)
+	svs := cid.NewFromConfig(*s.Cfg)
 
-	// // // arn:aws:cognito-idp:ap-southeast-1:513310385702:userpool/ap-southeast-1_yW7AZdShx
+	fmt.Println(svs)
 
-	// getIdentityResult, err := cognitoIdentityClient.GetId(context.TODO(), &cognitoidentity.GetIdInput{
-	// 	IdentityPoolId: aws.String(s.UserPoolId),
-	// 	Logins: map[string]string{
-	// 		"cognito-idp.ap-southeast-1.amazonaws.com/ap-southeast-1_yW7AZdShx": *authResult.AuthenticationResult.IdToken,
-	// 	},
-	// })
-
-	pubKeyURL := "https://cognito-idp.%s.amazonaws.com/%s/.well-known/jwks.json"
-	formattedURL := fmt.Sprintf(pubKeyURL, os.Getenv("AWS_REGION"), s.UserPoolId)
-	keySet, err := jwk.Fetch(context.TODO(), formattedURL)
-	if err != nil {
-		return "", nil
-	}
-
-	idToken := authResult.AuthenticationResult.IdToken
-	token, err := jwt.Parse(
-		[]byte(*idToken),
-		jwt.WithKeySet(keySet),
-		jwt.WithValidate(true),
-	)
-	if err != nil {
-		return "", nil
-	}
-
-	if err != nil {
-		fmt.Println("Failed to get Cognito identity ID:")
-		fmt.Println(err.Error())
-		log.Fatalln("Failed to get Cognito identity ID:", err)
-	}
-
-	userInfo, _ := token.Get("cognito:username")
-	cognitoIdentityId := userInfo.(string)
-
-	fmt.Println("getIdentityResult")
-	fmt.Println(cognitoIdentityId)
-
-	// myRoleArn := aws.String("arn:aws:iam::513310385702:role/Cognito_aws_iotUnauth_Role")
-	// assomeRoleResult, err := s.StsSvc.AssumeRole(context.TODO(), &sts.AssumeRoleInput{
-	// 	RoleArn:         myRoleArn,
-	// 	RoleSessionName: aws.String("session"),
-	// 	TokenCode:       authResult.AuthenticationResult.IdToken,
-	// })
-
-	// if err != nil {
-	// 	fmt.Println("Can not Assumrole")
-	// 	fmt.Println(err.Error())
-	// }
-
-	// fmt.Println(assomeRoleResult)
-
-	// stsClient := sts.NewFromConfig(*s.Cfg)
-
-	// // Assume an IAM role with the Cognito identity as the role's principal
-	myRoleArn := aws.String("arn:aws:iam::513310385702:role/Cognito_aws_iotUnauth_Role")
-
-	assumeRoleResult, err := s.StsSvc.AssumeRoleWithWebIdentity(context.TODO(), &sts.AssumeRoleWithWebIdentityInput{
-		RoleArn:          aws.String(*myRoleArn),
-		RoleSessionName:  aws.String("session"),
-		WebIdentityToken: authResult.AuthenticationResult.IdToken,
-	}, func(o *sts.Options) {
-		o.Region = *aws.String("us-west-2")
-	})
-	if err != nil {
-		// log.Fatalln("Failed to assume role with web identity:", err)
-		fmt.Println(err.Error())
-	}
-
-	fmt.Println(assumeRoleResult)
-
-	// Connect Iot Core
-	connection, err := mqtt.NewConnection(mqtt.Config{
-		KeyPath:  "./certs/cert7/57c2a591aca1a833d146cb9283ce66770ed9d65a4be0cd90a754ec8f92679371-private.pem.key",
-		CertPath: "./certs/cert7/57c2a591aca1a833d146cb9283ce66770ed9d65a4be0cd90a754ec8f92679371-certificate.pem.crt",
-		CAPath:   "./certs/cert7/AmazonRootCA1.pem",
-		ClientId: *aws.String(cognitoIdentityId),
-		Endpoint: "a18xth5rea73tz-ats.iot.ap-southeast-1.amazonaws.com",
+	idRes, err := svs.GetId(context.TODO(), &cid.GetIdInput{
+		IdentityPoolId: aws.String("ap-southeast-1:8f60452e-9616-4914-bdbf-d8f149ca8dfa"),
+		Logins: map[string]string{
+			"cognito-idp.ap-southeast-1.amazonaws.com/ap-southeast-1_yW7AZdShx": *authResult.AuthenticationResult.IdToken,
+		},
 	})
 
 	if err != nil {
-		panic(err)
+		fmt.Println(err.Error())
+
+		fmt.Println("This Error Block")
 	}
-	go func() {
-		err = connection.SubscribeWithHandler("$aws/certificates/create/json/accepted", 0, func(client MQTT.Client, message MQTT.Message) {
-			//print(string(message.Payload()))
-			fmt.Println("<!-----Certificate Create Accepted--->")
-			msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
-			//fmt.Println(msgPayload)
 
-			ok := json.Unmarshal([]byte(msgPayload), &certIot)
+	fmt.Println("<--- idRes --->")
+	// fmt.Println(idRes)
 
-			if ok != nil {
-				fmt.Println(err.Error())
-				//json: Unmarshal(non-pointer main.Request)
-			} else {
+	cresRes, err := svs.GetCredentialsForIdentity(context.TODO(), &cid.GetCredentialsForIdentityInput{
+		IdentityId: idRes.IdentityId,
+		Logins: map[string]string{
+			"cognito-idp.ap-southeast-1.amazonaws.com/ap-southeast-1_yW7AZdShx": *authResult.AuthenticationResult.IdToken,
+		},
+	})
 
-				pubPayload := deviceRegister{
-					CertificateOwnershipToken: certIot.CertificateOwnershipToken,
-					Parameters: deviceParam{
-						SerialNumber:        "23F05110000126",
-						AWSIoTCertificateId: string(certIot.CertificateId),
-					},
-				}
-
-				fmt.Println(certIot.CertificateId)
-				data, _ := json.Marshal(pubPayload)
-
-				fmt.Println(string(data))
-
-				regDev := connection.Publish("$aws/provisioning-templates/AirIotProvisionTemplate/provision/json", data, 0)
-				if regDev != nil {
-					fmt.Println(err.Error())
-				}
-
-			}
-
-		})
-
-	}()
 	if err != nil {
-		panic(err)
-	}
-	go func() {
-		err = connection.SubscribeWithHandler("$aws/provisioning-templates/AirIotProvisionTemplate/provision/json/accepted", 0, func(client MQTT.Client, message MQTT.Message) {
-			fmt.Println("<!-----Provision Acceped--->")
-			print(string(message.Payload()))
+		fmt.Println("cresRes Error")
+		fmt.Println(err.Error())
 
-		})
-
-	}()
-
-	go func() {
-		err = connection.SubscribeWithHandler("$aws/provisioning-templates/AirIotProvisionTemplate/provision/json/rejected", 0, func(client MQTT.Client, message MQTT.Message) {
-			fmt.Println("<!-----Provision Rejected--->")
-			print(string(message.Payload()))
-
-		})
-
-	}()
-	if err != nil {
-		panic(err)
 	}
 
-	err = connection.Publish("$aws/certificates/create/json", "", 0)
-	if err != nil {
-		panic(err)
-	}
+	// fmt.Println(cresRes)
 
-	for {
+	return cresRes, nil
 
-		fmt.Printf("IOT AC =%v \n", time.Now())
-		time.Sleep(4 * time.Second)
-	}
-
-	// s.Cfg.Credentials = aws.NewCredentialsCache(assumeRoleResult)
-
-	return authResult, nil
 }
+
+// func (s *CogClient) GetCerds() (interface{}, error) {
+
+// 	username := "wowoy73603@camplvad.com"
+// 	password := "J@e2262527"
+
+// 	//Ser
+
+// 	// stsSvc := sts.NewFromConfig(*s.Cfg)
+// 	// creds := stscreds.NewAssumeRoleProvider(stsSvc, myRoleArn)
+
+// 	// credens := aws.NewCredentialsCache(creds)
+
+// 	fmt.Println("<------credens---------->")
+// 	// fmt.Println(credens.Retrieve(context.TODO()))
+
+// 	// _ = creds
+// 	authResult, err := s.ClientCog.InitiateAuth(context.TODO(), &cognitoidentityprovider.InitiateAuthInput{
+// 		AuthFlow: types.AuthFlowTypeUserPasswordAuth,
+// 		AuthParameters: map[string]string{
+// 			"USERNAME": *aws.String(username),
+// 			"PASSWORD": *aws.String(password),
+// 		},
+// 		ClientId: aws.String(s.AppClientId),
+// 	})
+// 	if err != nil {
+// 		log.Fatalln("Failed to authenticate user:", err)
+// 	}
+// 	fmt.Println("&authResult.AuthenticationResult.IdToken")
+
+// 	fmt.Println("<---iotSession----<")
+
+// 	// 	fmt.Println(webId)
+// 	// webId := stscreds.NewWebIdentityRoleProvider(s.StsSvc, *myRoleArn)
+// 	// fmt.Println("Web Idd")
+// 	// fmt.Println(webId)
+
+// 	// Create assomeRole
+// 	// asSumeRoleInput := sts.AssumeRoleInput{
+// 	// 	RoleArn:         &myRoleArn,
+// 	// 	RoleSessionName: aws.String("session"),
+// 	// 	TokenCode:       authResult.AuthenticationResult.IdToken,
+// 	// }
+
+// 	// credsOut, err := stsSvc.AssumeRole(context.TODO(), &asSumeRoleInput, func(o *sts.Options) {
+// 	// 	o.Region = *aws.String("us-east-1")
+// 	// })
+
+// 	// if err != nil {
+// 	// 	log.Fatal("can not assomeRole :", err)
+// 	// }
+
+// 	// fmt.Println(credsOut)
+
+// 	// Create a Cognito Identity client
+// 	// cognitoIdentityClient := cognitoidentity.NewFromConfig(*s.Cfg)
+
+// 	// // // arn:aws:cognito-idp:ap-southeast-1:513310385702:userpool/ap-southeast-1_yW7AZdShx
+
+// 	// getIdentityResult, err := cognitoIdentityClient.GetId(context.TODO(), &cognitoidentity.GetIdInput{
+// 	// 	IdentityPoolId: aws.String(s.UserPoolId),
+// 	// 	Logins: map[string]string{
+// 	// 		"cognito-idp.ap-southeast-1.amazonaws.com/ap-southeast-1_yW7AZdShx": *authResult.AuthenticationResult.IdToken,
+// 	// 	},
+// 	// })
+
+// 	pubKeyURL := "https://cognito-idp.%s.amazonaws.com/%s/.well-known/jwks.json"
+// 	formattedURL := fmt.Sprintf(pubKeyURL, os.Getenv("AWS_REGION"), s.UserPoolId)
+// 	keySet, err := jwk.Fetch(context.TODO(), formattedURL)
+// 	if err != nil {
+// 		return "", nil
+// 	}
+
+// 	idToken := authResult.AuthenticationResult.IdToken
+
+// 	token, err := jwt.Parse(
+// 		[]byte(*idToken),
+// 		jwt.WithKeySet(keySet),
+// 		jwt.WithValidate(true),
+// 	)
+// 	if err != nil {
+// 		return "", nil
+// 	}
+
+// 	if err != nil {
+// 		fmt.Println("Failed to get Cognito identity ID:")
+// 		fmt.Println(err.Error())
+// 		log.Fatalln("Failed to get Cognito identity ID:", err)
+// 	}
+
+// 	userInfo, _ := token.Get("cognito:username")
+// 	cognitoIdentityId := userInfo.(string)
+
+// 	fmt.Println("cognitoIdentityId")
+// 	fmt.Println(cognitoIdentityId)
+
+// 	// myRoleArn := aws.String("arn:aws:iam::513310385702:role/Cognito_aws_iotUnauth_Role")
+// 	// assomeRoleResult, err := s.StsSvc.AssumeRole(context.TODO(), &sts.AssumeRoleInput{
+// 	// 	RoleArn:         myRoleArn,
+// 	// 	RoleSessionName: aws.String("session"),
+// 	// 	TokenCode:       authResult.AuthenticationResult.IdToken,
+// 	// })
+
+// 	// if err != nil {
+// 	// 	fmt.Println("Can not Assumrole")
+// 	// 	fmt.Println(err.Error())
+// 	// }
+
+// 	// fmt.Println(assomeRoleResult)
+
+// 	// stsClient := sts.NewFromConfig(*s.Cfg)
+
+// 	// // Assume an IAM role with the Cognito identity as the role's principal
+// 	// myRoleArn := aws.String("arn:aws:iam::513310385702:role/Cognito_aws_iotUnauth_Role")
+
+// 	// assumeRoleResult, err := s.StsSvc.AssumeRole(context.TODO(), &sts.AssumeRoleInput{
+// 	// 	RoleArn:         &myRoleArn,
+// 	// 	RoleSessionName: aws.String("iot-access-air"),
+// 	// 	DurationSeconds: aws.Int32(900),
+// 	// })
+
+// 	/*
+// 	assumeRoleResult, err := s.StsSvc.AssumeRoleWithWebIdentity(context.TODO(), &sts.AssumeRoleWithWebIdentityInput{
+// 		RoleArn:          &myRoleArn,
+// 		RoleSessionName:  aws.String("session"),
+// 		WebIdentityToken: authResult.AuthenticationResult.IdToken,
+// 	})
+
+// 	if err != nil {
+// 		// log.Fatalln("Failed to assume role with web identity:", err)
+// 		fmt.Println(err)
+// 	}
+
+// 	fmt.Println(assumeRoleResult)
+// */
+
+// 	svs := cid.NewFromConfig(*s.Cfg)
+
+// 	idRes,_ := svs.GetId(context.TODO(),&cid.GetIdInput{
+// 		IdentityPoolId: aws.String("ap-southeast-1:8f60452e-9616-4914-bdbf-d8f149ca8dfa"),
+// 		Logins: map[string]string{
+// 			"cognito-idp.ap-southeast-1.amazonaws.com/ap-southeast-1_yW7AZdShx:":assumeRoleResult.AuthenticationResult.IdToken
+// 		},
+// 	})
+
+// 	fmt.Println("<--- idRes --->")
+// 	// fmt.Println(idRes)
+
+// 	// Connect Iot Core
+
+// 	// s.Cfg.Credentials = aws.NewCredentialsCache(assumeRoleResult)
+
+// 	return authResult, nil
+// }
 
 // func (s *CogClient) GetCerds() (interface{}, error) {
 
@@ -421,3 +471,88 @@ func GetClientId(idToken string) (string, error) {
 
 	return cognitoIdentityId, nil
 }
+
+func iotConn(cognitoIdentityId string) {
+	connection, err := mqtt.NewConnection(mqtt.Config{
+		KeyPath:  "./certs/cert7/57c2a591aca1a833d146cb9283ce66770ed9d65a4be0cd90a754ec8f92679371-private.pem.key",
+		CertPath: "./certs/cert7/57c2a591aca1a833d146cb9283ce66770ed9d65a4be0cd90a754ec8f92679371-certificate.pem.crt",
+		CAPath:   "./certs/cert7/AmazonRootCA1.pem",
+		ClientId: *aws.String(cognitoIdentityId),
+		Endpoint: "a18xth5rea73tz-ats.iot.ap-southeast-1.amazonaws.com",
+	})
+
+	if err != nil {
+		panic(err)
+	}
+	go func() {
+		err = connection.SubscribeWithHandler("$aws/certificates/create/json/accepted", 0, func(client MQTT.Client, message MQTT.Message) {
+			//print(string(message.Payload()))
+			fmt.Println("<!-----Certificate Create Accepted--->")
+			msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
+			//fmt.Println(msgPayload)
+
+			ok := json.Unmarshal([]byte(msgPayload), &certIot)
+
+			if ok != nil {
+				fmt.Println(err.Error())
+				//json: Unmarshal(non-pointer main.Request)
+			} else {
+
+				pubPayload := deviceRegister{
+					CertificateOwnershipToken: certIot.CertificateOwnershipToken,
+					Parameters: deviceParam{
+						SerialNumber:        "23F05110000126",
+						AWSIoTCertificateId: string(certIot.CertificateId),
+					},
+				}
+
+				fmt.Println(certIot.CertificateId)
+				data, _ := json.Marshal(pubPayload)
+
+				fmt.Println(string(data))
+
+				regDev := connection.Publish("$aws/provisioning-templates/AirIotProvisionTemplate/provision/json", data, 0)
+				if regDev != nil {
+					fmt.Println(err.Error())
+				}
+
+			}
+
+		})
+
+	}()
+	if err != nil {
+		panic(err)
+	}
+	go func() {
+		err = connection.SubscribeWithHandler("$aws/provisioning-templates/AirIotProvisionTemplate/provision/json/accepted", 0, func(client MQTT.Client, message MQTT.Message) {
+			fmt.Println("<!-----Provision Acceped--->")
+			print(string(message.Payload()))
+
+		})
+
+	}()
+
+	go func() {
+		err = connection.SubscribeWithHandler("$aws/provisioning-templates/AirIotProvisionTemplate/provision/json/rejected", 0, func(client MQTT.Client, message MQTT.Message) {
+			fmt.Println("<!-----Provision Rejected--->")
+			print(string(message.Payload()))
+
+		})
+
+	}()
+	if err != nil {
+		panic(err)
+	}
+
+	err = connection.Publish("$aws/certificates/create/json", "", 0)
+	if err != nil {
+		panic(err)
+	}
+
+	for {
+
+		fmt.Printf("IOT AC =%v \n", time.Now())
+		time.Sleep(4 * time.Second)
+	}
+} // end of func

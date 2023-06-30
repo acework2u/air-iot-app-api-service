@@ -1,0 +1,33 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AuthCognitoStep1",
+            "Effect": "Allow",
+            "Principal": {
+                "Federated": "cognito-identity.amazonaws.com"
+            },
+            "Action": "sts:AssumeRoleWithWebIdentity",
+            "Condition": {
+                "StringEquals": {
+                    "cognito-identity.amazonaws.com:aud": "ap-southeast-1:5c9e484a-6554-41ab-991d-0e741ac0d2ea"
+                },
+                "ForAnyValue:StringLike": {
+                    "cognito-identity.amazonaws.com:amr": "unauthenticated"
+                }
+            }
+        },
+        {
+            "Sid": "AuthGetSubRoleStep2",
+            "Principal": {
+                "AWS": [
+                    "arn:aws:iam::513310385702:user/air_dev_001",
+                    "arn:aws:iam::513310385702:user/air_iot_dev",
+                    "arn:aws:iam::513310385702:user/anon_dev"
+                ]
+            },
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole"
+        }
+    ]
+}

@@ -40,7 +40,7 @@ var (
 	UserRouterCtl  handler.UserHandler
 	CustomerRouter routers.CustomerController
 
-	//Client
+	//'Client'
 	CustService   clientCog.ClientCognito
 	ClientHandler handler.ClientHandler
 	ClientRouter  routers.ClientController
@@ -63,17 +63,6 @@ func init() {
 	} else {
 		EnvPaht = "~/air-iot-app-api-service/bin"
 	}
-
-	// connect to mongoDB
-	// mongoconn := options.Client().ApplyURI(configs.EnvMongoURI)
-	// mongoclient, err := mongo.Connect(ctx, mongoconn)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// if err := mongoclient.Ping(ctx, readpref.Primary()); err != nil {
-	// 	panic(err)
-	// }
-	// fmt.Println("MongoDB Successfull connected...")
 
 	mongoclient = configs.ConnectDB()
 	userCollection = configs.GetCollection(mongoclient, "user")
@@ -100,6 +89,7 @@ func init() {
 	// userPoolId := "ap-southeast-1_EqxkPGgmk"
 
 	// demo
+	// cognitoRegion := "us-east-1"
 	cognitoRegion := "ap-southeast-1"
 	cognitoClientId := "68io9hfdm8qacori5t4v6ao0rv"
 	userPoolId := "ap-southeast-1_yW7AZdShx"

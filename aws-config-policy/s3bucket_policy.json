@@ -1,0 +1,39 @@
+{
+    "Version": "2008-10-17",
+    "Id": "Policy1335892530063",
+    "Statement": [
+        {
+            "Sid": "Stmt1335892150622",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "billingreports.amazonaws.com"
+            },
+            "Action": [
+                "s3:GetBucketAcl",
+                "s3:GetBucketPolicy"
+            ],
+            "Resource": "arn:aws:s3:::cdn-saijo-denki-s3",
+            "Condition": {
+                "StringEquals": {
+                    "aws:SourceArn": "arn:aws:cur:us-east-1:513310385702:definition/*",
+                    "aws:SourceAccount": "513310385702"
+                }
+            }
+        },
+        {
+            "Sid": "Stmt1335892526596",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "billingreports.amazonaws.com"
+            },
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::cdn-saijo-denki-s3/*",
+            "Condition": {
+                "StringEquals": {
+                    "aws:SourceArn": "arn:aws:cur:us-east-1:513310385702:definition/*",
+                    "aws:SourceAccount": "513310385702"
+                }
+            }
+        }
+    ]
+}

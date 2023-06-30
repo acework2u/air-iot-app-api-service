@@ -17,4 +17,5 @@ func (rc *ThingController) ThingsRoute(rg *gin.RouterGroup) {
 	router := rg.Group("/iot")
 
 	router.GET("/things", rc.thingsHandler.ConnectThing)
+	router.POST("/things", rc.thingsHandler.ConnectThing)
 }

@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/spf13/viper"
+	"os"
 )
 
 type Config struct {
@@ -13,10 +14,17 @@ type Config struct {
 
 func LoadCongig(path string) (config Config, err error) {
 
+	appMode := os.Getenv("APP_MODE")
+
 	viper.AddConfigPath(path)
-	// viper.SetConfigFile(".env")
-	viper.SetConfigType("env")
-	viper.SetConfigName("dev")
+
+	if appMode == "dev" || appMode == "Dev" {
+		viper.SetConfigType("env")
+		viper.SetConfigName("dev")
+	} else {
+		viper.SetConfigType("env")
+		viper.SetConfigName("app")
+	}
 
 	viper.AutomaticEnv()
 	err = viper.ReadInConfig()

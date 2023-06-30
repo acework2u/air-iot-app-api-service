@@ -6,6 +6,7 @@ require (
 	github.com/aws/aws-sdk-go v1.44.284
 	github.com/aws/aws-sdk-go-v2 v1.18.1
 	github.com/aws/aws-sdk-go-v2/config v1.18.27
+	github.com/aws/aws-sdk-go-v2/credentials v1.13.26 // indirect
 	github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider v1.22.12
 	github.com/aws/aws-sdk-go-v2/service/iot v1.38.2
 	github.com/aws/aws-sdk-go-v2/service/sts v1.19.2
@@ -27,9 +28,10 @@ require (
 	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616
 )
 
+require github.com/aws/aws-sdk-go-v2/service/cognitoidentity v1.15.13
+
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
-	github.com/aws/aws-sdk-go-v2/credentials v1.13.26 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.13.4 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.34 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.4.28 // indirect
