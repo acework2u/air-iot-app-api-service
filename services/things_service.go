@@ -9,20 +9,30 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-
 	"github.com/aws/aws-sdk-go-v2/config"
 	cid "github.com/aws/aws-sdk-go-v2/service/cognitoidentity"
 	cip "github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider/types"
 	"github.com/aws/aws-sdk-go-v2/service/iot"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
-	_ "github.com/aws/aws-sdk-go/service/iot"
+
+	// _ "github.com/aws/aws-sdk-go/service/iot"
 	"github.com/lestrrat-go/jwx/jwk"
 	"github.com/lestrrat-go/jwx/jwt"
 
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 	mqtt "github.com/tech-sumit/aws-iot-device-sdk-go"
 )
+
+type STSAssumeRoleAPI interface {
+	AssumeRole(ctx context.Context,
+		params *sts.AssumeRoleInput,
+		optFns ...func(*sts.Options)) (*sts.AssumeRoleOutput, error)
+}
+
+func TakeRole(c context.Context, api STSAssumeRoleAPI, input *sts.AssumeRoleInput) (*sts.AssumeRoleOutput, error) {
+	return api.AssumeRole(c, input)
+}
 
 // IotCore
 
@@ -163,7 +173,73 @@ func (s *CogClient) GetCerds() (interface{}, error) {
 
 	}
 
+	// iotClient := iot.NewFromConfig(*s.Cfg)
+
+	// certList, err := iotClient.GetPolicy(context.TODO(), &iot.GetPolicyInput{
+	// 	PolicyName: aws.String("AirThingPolicy"),
+	// })
+
+	certList, err := s.IotClient.ListAttachedPolicies(context.TODO(), &iot.ListAttachedPoliciesInput{
+		Target: aws.String("arn:aws:iot:ap-southeast-1:513310385702:cert/ffe2384c236d4b639c830b18d578f8a35f97eac3c8b88b6f420d795428b9ab85"),
+	})
+
+	if err != nil {
+		fmt.Println("Error IOT")
+		fmt.Println(err)
+	}
+
+	fmt.Println("IoT Cert List")
+	fmt.Println(certList)
+	_ = certList
+	// fmt.Println(certList)
+
+	// myArn := "arn:aws:iam::513310385702:role/Cognito_aws_iotUnauth_Role"
+	// client := sts.NewFromConfig(*s.Cfg)
+	// newCreds := stscreds.NewAssumeRoleProvider(client, myArn)
+
+	// _ = newCreds
+
+	// newCreds := credentials.NewStaticCredentialsProvider(*cresRes.Credentials.AccessKeyId, *cresRes.Credentials.SecretKey, *cresRes.Credentials.SessionToken)
+
+	/*
+
+
+		_ = cresRes
+
+		myArn := "arn:aws:iam::513310385702:role/Cognito_aws_iotUnauth_Role"
+		client := sts.NewFromConfig(*s.Cfg)
+
+		creds := stscreds.NewAssumeRoleProvider(client, myArn)
+
+		fmt.Println("stscreds")
+		fmt.Println(creds)
+
+		aws.NewCredentialsCache(creds)
+
+		Credentials := aws.NewCredentialsCache(creds)
+
+	*/
+
+	// input := &sts.AssumeRoleInput{
+	// 	RoleArn:         aws.String("arn:aws:iam::513310385702:role/Cognito_aws_iotUnauth_Role"),
+	// 	RoleSessionName: aws.String("sessionIot"),
+	// }
+
+	// result, err := TakeRole(context.TODO(), client, input)
+
+	// if err != nil {
+	// 	fmt.Println("Error assuming the role")
+	// 	fmt.Println(err.Error())
+	// }
+
+	// fmt.Println(result.AssumedRoleUser)
+
 	// fmt.Println(cresRes)
+
+	// return cresRes, nil
+
+	_ = authResult
+	_ = cresRes
 
 	return cresRes, nil
 
