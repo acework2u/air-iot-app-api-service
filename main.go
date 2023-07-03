@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"net/http"
-	"os"
 
 	conf "github.com/acework2u/air-iot-app-api-service/config"
 	"github.com/acework2u/air-iot-app-api-service/configs"
@@ -48,27 +47,16 @@ var (
 	//Auth
 	AuthRouter   routers.AuthController
 	ThingsRouter routers.ThingController
-
-	EnvPaht string
 )
 
 func init() {
 
 	ctx = context.TODO()
 
-	appMode := os.Getenv("APP_MODE")
-
-	if appMode == "Dev" {
-		EnvPaht = "."
-	} else {
-		EnvPaht = "~/air-iot-app-api-service/bin"
-	}
+	envConf, _ := conf.LoadCongig("")
 
 	mongoclient = configs.ConnectDB()
 	userCollection = configs.GetCollection(mongoclient, "user")
-	// authCollection = configs.GetCollection(mongoclient, "user")
-	// userRepo = repository.NewUserRepositoryDB(authCollection, ctx)
-	// UserService = services.NewUserService(userRepo)
 
 	userRepository := repository.NewUserRepositoryDB(userCollection, ctx)
 	customerService := service.NewUserService(&userRepository)
@@ -90,9 +78,9 @@ func init() {
 
 	// demo
 	// cognitoRegion := "us-east-1"
-	cognitoRegion := "ap-southeast-1"
-	cognitoClientId := "68io9hfdm8qacori5t4v6ao0rv"
-	userPoolId := "ap-southeast-1_yW7AZdShx"
+	cognitoRegion := envConf.CognRegion
+	cognitoClientId := envConf.CognClientId
+	userPoolId := envConf.CognUserPoolId
 
 	//Client
 	CustService = clientCog.NewCognitoService(cognitoRegion, cognitoClientId)
@@ -122,23 +110,9 @@ func init() {
 // @BasePath /api
 func main() {
 
-	config, _ := conf.LoadCongig(EnvPaht)
+	config, _ := conf.LoadCongig("")
 
-	// config := *conf.Config
-	// var err error
-
-	// if appMode == "Dev" {
-	// 	config, _ = conf.LoadCongig(".")
-	// } else {
-	// 	config, err = conf.LoadCongig("~/air-iot-app-api-service/bin")
-	// }
-
-	// if err != nil {
-	// 	log.Fatal("Could not load config", err)
-	// }
-
-	//fmt.Print(config)
-
+	// DB Connect
 	defer mongoclient.Disconnect(ctx)
 	startGinServer(config)
 }

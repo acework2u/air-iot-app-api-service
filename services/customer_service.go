@@ -35,6 +35,15 @@ func (cs *customerService) CreateNewCustomer(customer *CreateCustomerRequest) (*
 	return usersResponse, nil
 
 }
+
+func (cs *customerService) CreateNewCustomer2(customer *CreateCustomerRequest2) (*DbCustomerResponse2, error) {
+
+	var userResponse *DbCustomerResponse2
+
+	return userResponse, nil
+
+}
+
 func (cs *customerService) AllCustomers() ([]*DBCustomer, error) {
 
 	cusRes, err := cs.cusRepo.FindCustomers()

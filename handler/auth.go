@@ -42,3 +42,35 @@ func (h *AuthHandler) PostSignIn(c *gin.Context) {
 		"message": res,
 	})
 }
+
+func (h *AuthHandler) PostSignUp(c *gin.Context) {
+
+	var authSignUp *services.SignUpRequest
+
+	err := c.ShouldBindJSON(&authSignUp)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err.Error(),
+		})
+
+		return
+	}
+
+	result, ok := h.authService.SignUp(authSignUp.Username, authSignUp.Password, authSignUp.Phone_no)
+	if ok != nil {
+
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": ok.Error(),
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": result,
+	})
+}

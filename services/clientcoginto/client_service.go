@@ -33,11 +33,11 @@ func NewCognitoService(cognitoRegion string, cognitoClientId string) ClientCogni
 }
 
 // SigUp implements ClientCognito
-func (sc *CognitoService) SignUp(emil string, password string) (string, error) {
+func (sc *CognitoService) SignUp(email string, password string) (string, error) {
 
 	//phone_no := 0945968514
 
-	userName := strings.Split(emil, "@")
+	userName := strings.Split(email, "@")
 
 	user := &cognito.SignUpInput{
 		ClientId: &sc.appClientId,
@@ -46,7 +46,7 @@ func (sc *CognitoService) SignUp(emil string, password string) (string, error) {
 		UserAttributes: []*cognito.AttributeType{
 			{
 				Name:  aws.String("email"),
-				Value: aws.String(emil),
+				Value: aws.String(email),
 			},
 			{
 				Name:  aws.String("name"),

@@ -10,6 +10,16 @@ import (
 )
 
 func ConnectDB() *mongo.Client {
+
+	// var mogoUrl string
+
+	// if len(dbUrl) > 0 {
+	// 	mogoUrl = string(dbUrl)
+	// } else {
+	// 	mogoUrl = string(EnvMongoURI())
+
+	// }
+
 	client, err := mongo.NewClient(options.Client().ApplyURI(EnvMongoURI()))
 
 	if err != nil {

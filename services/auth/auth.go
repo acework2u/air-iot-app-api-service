@@ -1,17 +1,20 @@
 package auth
 
+import "github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
+
 type AuthService interface {
 	SignIn(string, string) (string, error)
-	SignUp(string, string) (string, error)
+	SignUp(string, string, string) (*cognitoidentityprovider.SignUpOutput, error)
 }
 
 type SignInRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }
 type SignUpRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+	Phone_no string `json:"phone_no" binding:"required"`
 }
 type SignInResponse struct {
 	// The access token.

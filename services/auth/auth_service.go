@@ -4,20 +4,23 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/acework2u/air-iot-app-api-service/repository"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
-	_ "github.com/aws/aws-sdk-go-v2/config"
 	cip "github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider/types"
 )
 
 var ctx = context.TODO()
 
-type CognitoClient struct {
-	AppClientId string
-	UserPoolId  string
+// var customerCollection = configs.GetCollection(mongoclient, "customers")
+// var customerRepository = repository.NewCustomerRepositoryDB(customerCollection, ctx)
 
-	ClientCog *cip.Client
+type CognitoClient struct {
+	AppClientId   string
+	UserPoolId    string
+	ClientCognito *cip.Client
+	cusRepo       repository.CustomerRepository
 }
 
 func NewCognitoClient(cognitoRegion string, userPoolId string, cognitoClientId string) AuthService {
@@ -28,9 +31,9 @@ func NewCognitoClient(cognitoRegion string, userPoolId string, cognitoClientId s
 	}
 
 	return &CognitoClient{
-		AppClientId: cognitoClientId,
-		UserPoolId:  userPoolId,
-		ClientCog:   cip.NewFromConfig(cfg),
+		AppClientId:   cognitoClientId,
+		UserPoolId:    userPoolId,
+		ClientCognito: cip.NewFromConfig(cfg),
 	}
 
 }
@@ -50,7 +53,7 @@ func (s *CognitoClient) SignIn(email string, password string) (string, error) {
 		UserPoolId:     &s.UserPoolId,
 	}
 
-	res, err := s.ClientCog.AdminInitiateAuth(ctx, signInInput)
+	res, err := s.ClientCognito.AdminInitiateAuth(ctx, signInInput)
 
 	if err != nil {
 		fmt.Println(err)
@@ -85,19 +88,30 @@ func (s *CognitoClient) SignIn(email string, password string) (string, error) {
 	// return *res.Session, nil
 
 }
-func (s *CognitoClient) SignUp(email string, passeorf string) (string, error) {
-	return "", nil
+func (s *CognitoClient) SignUp(email string, password string, phoneNo string) (*cip.SignUpOutput, error) {
+
+	userSignUp := &cip.SignUpInput{
+		ClientId: &s.AppClientId,
+		Username: aws.String(email),
+		Password: aws.String(password),
+		UserAttributes: []types.AttributeType{
+			{
+				Name:  aws.String("email"),
+				Value: aws.String(email),
+			},
+			{
+				Name:  aws.String("phone_number"),
+				Value: aws.String(phoneNo),
+			},
+		},
+	}
+
+	result, err := s.ClientCognito.SignUp(ctx, userSignUp)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+
 }
-
-// func init() *CognitoClient {
-// 	cfg, err := config.LoadDefaultConfig(context.Background())
-// 	if err != nil {
-// 		panic(err)
-// 	}
-
-// 	return &CognitoClient{
-// 		os.Getenv("COGNITO_APP_CLIENT_ID"),
-// 		os.Getenv("COGNITO_USER_POOL_ID"),
-// 		cip.NewFromConfig(cfg),
-// 	}
-// }

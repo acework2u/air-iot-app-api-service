@@ -99,11 +99,8 @@ func NewThingClient(cognitoRegion string, userPoolId string, cognitoClientId str
 	// cfg, err := config.LoadDefaultConfig(context.Background(),config.With)
 	if err != nil {
 		// log.Fatalln("Failed to load AWS config:", err)
-		panic(fmt.Sprintf("Error configuring AWS: %s", err))
+		// panic(fmt.Sprintf("Error configuring AWS: %s", err))
 	}
-
-	fmt.Println("CFG")
-	fmt.Println(cfg)
 
 	//assumeCnf, _ := config.LoadDefaultConfig(context.Background(), config.WithRegion(cognitoRegion))
 

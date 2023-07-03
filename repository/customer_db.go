@@ -58,6 +58,40 @@ func (r *CustomerRepositoryDB) CreateCustomer(customer *CreateCustomerRequest) (
 
 	return newCustomer, nil
 }
+
+func (r *CustomerRepositoryDB) NewCustomer(customer *CreateCustomerRequest2) (*DBCustomer2, error) {
+	var newCustomer *DBCustomer2
+
+	customer.CreateAt = time.Now()
+	customer.UpdateAt = customer.CreateAt
+
+	res, err := r.cusCollection.InsertOne(r.ctx, customer)
+
+	if err != nil {
+		if er, ok := err.(mongo.WriteException); ok && er.WriteErrors[0].Code == 11000 {
+
+			return nil, errors.New("name already exits")
+
+		}
+		return nil, err
+	}
+
+	opt := options.Index()
+	opt.SetUnique(true)
+
+	index := mongo.IndexModel{Keys: bson.M{"name": 1}, Options: opt}
+	if _, err := r.cusCollection.Indexes().CreateOne(r.ctx, index); err != nil {
+		return nil, errors.New("could not create index for name")
+	}
+
+	query := bson.M{"_id": res.InsertedID}
+	if err = r.cusCollection.FindOne(r.ctx, query).Decode(&newCustomer); err != nil {
+		return nil, err
+	}
+
+	return newCustomer, nil
+}
+
 func (r *CustomerRepositoryDB) UpdateCustomer(id string, data *UpdateCustomer) (*DBCustomer, error) {
 	doc, err := utils.ToDoc(data)
 	if err != nil {
