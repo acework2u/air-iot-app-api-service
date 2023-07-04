@@ -69,6 +69,8 @@ func (h *AuthHandler) PostSignUp(c *gin.Context) {
 		return
 	}
 
+	// Add to Customer
+
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
 		"message": result,

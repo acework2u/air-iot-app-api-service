@@ -3,7 +3,6 @@ package auth
 import (
 	"context"
 	"fmt"
-
 	"github.com/acework2u/air-iot-app-api-service/repository"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -23,7 +22,7 @@ type CognitoClient struct {
 	cusRepo       repository.CustomerRepository
 }
 
-func NewCognitoClient(cognitoRegion string, userPoolId string, cognitoClientId string) AuthService {
+func NewCognitoClient(cognitoRegion string, userPoolId string, cognitoClientId string, cusRepo repository.CustomerRepository) AuthService {
 
 	cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(cognitoRegion))
 	if err != nil {
@@ -34,6 +33,7 @@ func NewCognitoClient(cognitoRegion string, userPoolId string, cognitoClientId s
 		AppClientId:   cognitoClientId,
 		UserPoolId:    userPoolId,
 		ClientCognito: cip.NewFromConfig(cfg),
+		cusRepo:       cusRepo,
 	}
 
 }
@@ -107,6 +107,25 @@ func (s *CognitoClient) SignUp(email string, password string, phoneNo string) (*
 	}
 
 	result, err := s.ClientCognito.SignUp(ctx, userSignUp)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Register Customer success
+
+	userInfo := &repository.CreateCustomerRequest2{
+		UserSub:       *result.UserSub,
+		Email:         *result.CodeDeliveryDetails.Destination,
+		UserConfirmed: result.UserConfirmed,
+	}
+
+	responseUserDB, err := s.cusRepo.NewCustomer(userInfo)
+
+	_ = responseUserDB
+
+	fmt.Println("responseUserDB")
+	fmt.Println(responseUserDB)
 
 	if err != nil {
 		return nil, err

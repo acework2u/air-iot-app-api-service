@@ -79,7 +79,7 @@ func (r *CustomerRepositoryDB) NewCustomer(customer *CreateCustomerRequest2) (*D
 	opt := options.Index()
 	opt.SetUnique(true)
 
-	index := mongo.IndexModel{Keys: bson.M{"name": 1}, Options: opt}
+	index := mongo.IndexModel{Keys: bson.M{"usersub": 1}, Options: opt}
 	if _, err := r.cusCollection.Indexes().CreateOne(r.ctx, index); err != nil {
 		return nil, errors.New("could not create index for name")
 	}
