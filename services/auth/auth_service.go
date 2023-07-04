@@ -116,8 +116,9 @@ func (s *CognitoClient) SignUp(email string, password string, phoneNo string) (*
 
 	userInfo := &repository.CreateCustomerRequest2{
 		UserSub:       *result.UserSub,
-		Email:         *result.CodeDeliveryDetails.Destination,
+		Email:         email,
 		UserConfirmed: result.UserConfirmed,
+		Mobile:        phoneNo,
 	}
 
 	responseUserDB, err := s.cusRepo.NewCustomer(userInfo)
