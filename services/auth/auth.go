@@ -2,33 +2,47 @@ package auth
 
 import "github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
 
-type AuthService interface {
+type AuthenServices interface {
 	SignIn(string, string) (string, error)
-	SignUp(string, string, string) (*cognitoidentityprovider.SignUpOutput, error)
+	SignUp(string, string, string) (string, error)
+	UserConfirm(string, string) (interface{}, error)
+	ResendConfirmCode(string) (*cognitoidentityprovider.ResendConfirmationCodeOutput, error)
 }
 
-type SignInRequest struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
-}
-type SignUpRequest struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
-	Phone_no string `json:"phone_no" binding:"required"`
-}
-type SignInResponse struct {
-	// The access token.
-	AccessToken *string `json:"access_token"`
+type (
+	SignInRequest struct {
+		Username string `json:"username" binding:"required"`
+		Password string `json:"password" binding:"required"`
+	}
 
-	// The expiration period of the authentication result in seconds.
-	ExpiresIn int32 `json:"expires_in"`
+	UserConfirm struct {
+		ConfirmationCode string `json:"confirmationCode" validate:"required" binding:"required"`
+		User             string `json:"username" validate:"required" binding:"required"`
+	}
 
-	// The ID token.
-	IdToken *string `json:"id_token"`
+	ResendConfirmCode struct {
+		Username string `json:"username" validate:"required" binding:"required"`
+	}
 
-	// The refresh token.
-	RefreshToken *string `json:"refresh_token"`
+	SignUpRequest struct {
+		Username string `json:"username" binding:"required"`
+		Password string `json:"password" binding:"required"`
+		PhoneNo  string `json:"phone_no" binding:"required"`
+	}
+	SignInResponse struct {
+		// The access token.
+		AccessToken *string `json:"access_token"`
 
-	// The token type.
-	TokenType *string `json:"token_type"`
-}
+		// The expiration period of the authentication result in seconds.
+		ExpiresIn int32 `json:"expires_in"`
+
+		// The ID token.
+		IdToken *string `json:"id_token"`
+
+		// The refresh token.
+		RefreshToken *string `json:"refresh_token"`
+
+		// The token type.
+		TokenType *string `json:"token_type"`
+	}
+)

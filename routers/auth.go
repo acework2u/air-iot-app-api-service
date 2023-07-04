@@ -18,5 +18,7 @@ func (rc *AuthController) AuthRoute(rg *gin.RouterGroup) {
 
 	router.POST("/signin", rc.authHandler.PostSignIn)
 	router.POST("/signup", rc.authHandler.PostSignUp)
+	router.POST("/confirm", rc.authHandler.PostConfirm)
+	router.POST("/resend-confirm-code", rc.authHandler.PostResendConfirmCode)
 
 }

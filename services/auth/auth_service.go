@@ -22,7 +22,7 @@ type CognitoClient struct {
 	cusRepo       repository.CustomerRepository
 }
 
-func NewCognitoClient(cognitoRegion string, userPoolId string, cognitoClientId string, cusRepo repository.CustomerRepository) AuthService {
+func NewCognitoClient(cognitoRegion string, userPoolId string, cognitoClientId string, cusRepo repository.CustomerRepository) AuthenServices {
 
 	cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(cognitoRegion))
 	if err != nil {
@@ -88,7 +88,7 @@ func (s *CognitoClient) SignIn(email string, password string) (string, error) {
 	// return *res.Session, nil
 
 }
-func (s *CognitoClient) SignUp(email string, password string, phoneNo string) (*cip.SignUpOutput, error) {
+func (s *CognitoClient) SignUp(email string, password string, phoneNo string) (string, error) {
 
 	userSignUp := &cip.SignUpInput{
 		ClientId: &s.AppClientId,
@@ -109,7 +109,7 @@ func (s *CognitoClient) SignUp(email string, password string, phoneNo string) (*
 	result, err := s.ClientCognito.SignUp(ctx, userSignUp)
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	// Register Customer success
@@ -121,17 +121,48 @@ func (s *CognitoClient) SignUp(email string, password string, phoneNo string) (*
 		Mobile:        phoneNo,
 	}
 
-	responseUserDB, err := s.cusRepo.NewCustomer(userInfo)
+	_, ok := s.cusRepo.NewCustomer(userInfo)
 
-	_ = responseUserDB
+	msgSuccess := fmt.Sprintf("ลงทะเบียนสำเร็จ กรุณายืนยันข้อมูลที่ email:  %v", *result.CodeDeliveryDetails.Destination)
 
-	fmt.Println("responseUserDB")
-	fmt.Println(responseUserDB)
+	//_ = msgSuccess
 
+	if ok != nil {
+		return "", err
+	}
+
+	return msgSuccess, nil
+
+}
+func (s *CognitoClient) UserConfirm(username string, confirmCode string) (interface{}, error) {
+
+	confirmSignUpInput := &cip.ConfirmSignUpInput{
+		Username:         aws.String(username),
+		ConfirmationCode: aws.String(confirmCode),
+		ClientId:         aws.String(s.AppClientId),
+	}
+
+	result, err := s.ClientCognito.ConfirmSignUp(ctx, confirmSignUpInput)
+
+	if err != nil {
+		return "", err
+	}
+
+	return result, nil
+
+}
+func (s *CognitoClient) ResendConfirmCode(username string) (*cip.ResendConfirmationCodeOutput, error) {
+
+	resendConfirmCodeInput := &cip.ResendConfirmationCodeInput{
+		ClientId: aws.String(s.AppClientId),
+		Username: aws.String(username),
+	}
+
+	resConfOut, err := s.ClientCognito.ResendConfirmationCode(ctx, resendConfirmCodeInput)
 	if err != nil {
 		return nil, err
 	}
 
-	return result, nil
+	return resConfOut, nil
 
 }

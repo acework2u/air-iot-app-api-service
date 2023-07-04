@@ -1,9 +1,8 @@
 package services
 
 import (
-	"time"
-
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"time"
 )
 
 type CreateCustomerRequest struct {
@@ -12,7 +11,7 @@ type CreateCustomerRequest struct {
 	Tel      string    `json:"tel" bson:"tel" binding:"required"`
 	Email    string    `json:"email" bson:"email"`
 	CreateAt time.Time `json:"created_date,omitempty" bson:"created_date,omitempty"`
-	UpdateAt time.Time `json:"updated_date,omitempty" bson:"updated_date,omtiempty`
+	UpdateAt time.Time `json:"updated_date,omitempty" bson:"updated_date,omtiempty"`
 }
 
 type CreateCustomerRequest2 struct {
@@ -46,7 +45,7 @@ type DBCustomer struct {
 	Tel      string             `json:"tel" bson:"tel"`
 	Email    string             `json:"email" bson:"email"`
 	CreateAt time.Time          `json:"created_date,omitempty" bson:"created_date,omitempty"`
-	UpdateAt time.Time          `json:"updated_date,omitempty" bson:"updated_date,omtiempty`
+	UpdateAt time.Time          `json:"updated_date,omitempty" bson:"updated_date,omtiempty"`
 }
 
 type CustomerResponse struct {
@@ -57,7 +56,7 @@ type UpdateCustomer struct {
 	Lastname string    `json:"last_name"`
 	Tel      string    `json:"tel" bson:"tel"`
 	Email    string    `json:"email" bson:"emil"`
-	UpdateAt time.Time `json:"updated_date,omitempty" bson:"updated_date,omtiempty`
+	UpdateAt time.Time `json:"updated_date,omitempty" bson:"updated_date,omtiempty"`
 }
 
 type CustomerService interface {

@@ -77,11 +77,11 @@ func (sc *CognitoService) ConfirmeSignUp(email string, code string) (string, err
 	result, err := sc.cognitoClient.ConfirmSignUp(confirmSignUpInput)
 
 	if err != nil {
-		fmt.Println(err)
+		//	fmt.Println(err)
 		return "", err
 	}
 
-	fmt.Println(result)
+	//fmt.Println(result)
 
 	return result.String(), nil
 }
@@ -108,7 +108,7 @@ func (sc *CognitoService) SignIn(email string, password string) (string, *cognit
 
 		fmt.Println(err.Error())
 
-		return "Authen Eror" + userName[0], nil, err
+		return "Authentication Error" + userName[0], nil, err
 	}
 
 	// fmt.Println("res.AuthenticationResult")
