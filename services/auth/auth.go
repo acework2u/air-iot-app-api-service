@@ -3,7 +3,7 @@ package auth
 import "github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
 
 type AuthenServices interface {
-	SignIn(string, string) (string, error)
+	SignIn(string, string) (*cognitoidentityprovider.InitiateAuthOutput, error)
 	SignUp(string, string, string) (string, error)
 	UserConfirm(string, string) (interface{}, error)
 	ResendConfirmCode(string) (*cognitoidentityprovider.ResendConfirmationCodeOutput, error)

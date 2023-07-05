@@ -38,54 +38,54 @@ func NewCognitoClient(cognitoRegion string, userPoolId string, cognitoClientId s
 
 }
 
-func (s *CognitoClient) SignIn(email string, password string) (string, error) {
+func (s *CognitoClient) SignIn(email string, password string) (*cip.InitiateAuthOutput, error) {
 
-	params := map[string]string{
-		"USERNAME": *aws.String(email),
-		"PASSWPRD": *aws.String(password),
-	}
+	//params := map[string]string{
+	//	"USERNAME": *aws.String(email),
+	//	"PASSWPRD": *aws.String(password),
+	//}
 
-	signInInput := &cip.AdminInitiateAuthInput{
-
-		AuthFlow:       types.AuthFlowTypeAdminUserPasswordAuth,
-		AuthParameters: params,
-		ClientId:       &s.AppClientId,
-		UserPoolId:     &s.UserPoolId,
-	}
-
-	res, err := s.ClientCognito.AdminInitiateAuth(ctx, signInInput)
-
-	if err != nil {
-		fmt.Println(err)
-		return "Notwork", err
-	}
-	fmt.Println(res)
-
-	return "work", nil
+	//signInInput := &cip.AdminInitiateAuthInput{
+	//
+	//	AuthFlow:       types.AuthFlowTypeAdminUserPasswordAuth,
+	//	AuthParameters: params,
+	//	ClientId:       &s.AppClientId,
+	//	UserPoolId:     &s.UserPoolId,
+	//}
+	//
+	//res, err := s.ClientCognito.AdminInitiateAuth(ctx, signInInput)
+	//
+	//if err != nil {
+	//	fmt.Println(err)
+	//	return "Notwork", err
+	//}
+	//fmt.Println(res)
+	//
+	//return "work", nil
 
 	// Work
 
-	// flow := aws.String("USER_PASSWORD_AUTH")
-	// params := map[string]string{
-	// 	"USERNAME": *aws.String(email),
-	// 	"PASSWORD": *aws.String(password),
-	// }
+	flow := aws.String("USER_PASSWORD_AUTH")
+	params := map[string]string{
+		"USERNAME": *aws.String(email),
+		"PASSWORD": *aws.String(password),
+	}
 
-	// signInInput := &cip.InitiateAuthInput{
-	// 	AuthFlow:       types.AuthFlowType(*flow),
-	// 	AuthParameters: params,
-	// 	ClientId:       &s.AppClientId,
-	// }
+	signInInput := &cip.InitiateAuthInput{
+		AuthFlow:       types.AuthFlowType(*flow),
+		AuthParameters: params,
+		ClientId:       &s.AppClientId,
+	}
 
-	// res, err := s.ClientCog.InitiateAuth(ctx, signInInput)
+	result, err := s.ClientCognito.InitiateAuth(ctx, signInInput)
 
-	// if err != nil {
-	// 	return "Error DB Conncetion", err
-	// }
+	if err != nil {
+		return nil, err
+	}
 
-	// fmt.Println(res)
+	//return *res.Session, nil
 
-	// return *res.Session, nil
+	return result, nil
 
 }
 func (s *CognitoClient) SignUp(email string, password string, phoneNo string) (string, error) {
