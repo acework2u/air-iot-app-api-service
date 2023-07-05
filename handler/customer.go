@@ -2,28 +2,26 @@ package handler
 
 import (
 	"fmt"
-	"log"
-	"net/http"
-	"reflect"
-
 	"github.com/acework2u/air-iot-app-api-service/services"
 	"github.com/acework2u/air-iot-app-api-service/utils"
 	"github.com/gin-gonic/gin"
+	"log"
+	"net/http"
 )
 
 type UserInfo struct {
-	Username              string `json:"username" structs:"username"`
-	Email                 string `json:"email" structs:"email"`
-	Email_verified        bool   `json:"email_verifyed" json:"email_verifyed"`
-	Exp                   string `json:"exp" structs:"exp"`
-	Iat                   string `json:"iat" structs:"iat"`
-	Iss                   string `json:"iss" structs:"iss"`
-	Jti                   string `json:"jti" structs:"jti"`
-	Origin_jti            string `json:"origin_jti" structs:"origin_jti"`
-	Phone_number          string `json:"phone_number" structs:"phone_number"`
-	Phone_number_verified bool   `json:"phone_number_verified" structs:"phone_number_verified"`
-	Sub                   string `json:"sub" structs:"sub"`
-	Token_use             string `json:"token_use" structs:"token_use"`
+	Username            string `json:"username" structs:"username"`
+	Email               string `json:"email" structs:"email"`
+	EmailVerified       bool   `json:"emailVerified" json:"emailVerified"`
+	Exp                 string `json:"exp" structs:"exp"`
+	Iat                 string `json:"iat" structs:"iat"`
+	Iss                 string `json:"iss" structs:"iss"`
+	Jti                 string `json:"jti" structs:"jti"`
+	OriginJti           string `json:"origin_jti" structs:"origin_jti"`
+	PhoneNumber         string `json:"phone_number" structs:"phone_number"`
+	PhoneNumberVerified bool   `json:"phone_number_verified" structs:"phone_number_verified"`
+	Sub                 string `json:"sub" structs:"sub"`
+	TokenUse            string `json:"token_use" structs:"token_use"`
 }
 
 type CustomerHandler struct {
@@ -33,21 +31,16 @@ type CustomerHandler struct {
 func NewCustomerHandler(cusService services.CustomerService) CustomerHandler {
 	return CustomerHandler{cusService}
 }
-
 func (h *CustomerHandler) GetCustomer(ctx *gin.Context) {
 
 	userToken, check := ctx.Get("UserToken")
-
 	userName, _ := ctx.Get("UserId")
 
 	if check {
-
 		res, err := h.cusService.AllCustomers()
-
-		fmt.Println("userName")
+		fmt.Println("userNameID")
 		fmt.Println(userName)
-
-		// fmt.Sprintf("format string %T", userToken)
+		//fmt.Println(userToken)
 
 		if err != nil {
 			log.Println(err)
@@ -68,6 +61,38 @@ func (h *CustomerHandler) GetCustomer(ctx *gin.Context) {
 
 	}
 
+}
+
+func (h *CustomerHandler) GetCustomerById(c *gin.Context) {
+
+	//userId := c.Param("id")
+	userId, ok := c.Get("UserId")
+
+	if ok {
+		result, err := h.cusService.CustomerById(userId.(string))
+
+		_ = result
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"status":  http.StatusBadRequest,
+				"message": "no data",
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"status":  http.StatusOK,
+			"message": result,
+		})
+
+		return
+
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": fmt.Sprintf("%s", userId),
+	})
 }
 
 // CreateCustomer godoc
@@ -177,25 +202,25 @@ func (h *CustomerHandler) DelCustomer(ctx *gin.Context) {
 	})
 }
 
-func AcceptAnyValue(arg any) {
-	switch v := arg.(type) {
-	case string:
-		fmt.Printf("String: %s", v)
-	case int:
-		fmt.Printf("Int32: %d", v)
-	case float64:
-		fmt.Printf("float64: %f", v)
-	case map[string]int:
-		fmt.Printf("map[string]int: %+v", v)
-	case map[int]string:
-		fmt.Printf("map[int]string: %+v", v)
-	case map[string]map[any]any:
-		fmt.Printf("map[string]map[any]any: %+v", v)
-	case []int:
-		fmt.Printf("[]int: %+v", v)
-	default:
-		fmt.Printf("Undefined type: %s", reflect.TypeOf(v))
-	}
-
-	fmt.Println()
-}
+//func AcceptAnyValue(arg any) {
+//	switch v := arg.(type) {
+//	case string:
+//		fmt.Printf("String: %s", v)
+//	case int:
+//		fmt.Printf("Int32: %d", v)
+//	case float64:
+//		fmt.Printf("float64: %f", v)
+//	case map[string]int:
+//		fmt.Printf("map[string]int: %+v", v)
+//	case map[int]string:
+//		fmt.Printf("map[int]string: %+v", v)
+//	case map[string]map[any]any:
+//		fmt.Printf("map[string]map[any]any: %+v", v)
+//	case []int:
+//		fmt.Printf("[]int: %+v", v)
+//	default:
+//		fmt.Printf("Undefined type: %s", reflect.TypeOf(v))
+//	}
+//
+//	fmt.Println()
+//}

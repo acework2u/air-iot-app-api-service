@@ -1,11 +1,10 @@
 package handler
 
 import (
-	"log"
-	"net/http"
-
 	"github.com/acework2u/air-iot-app-api-service/services"
 	"github.com/gin-gonic/gin"
+	"log"
+	"net/http"
 )
 
 type UserHandler struct {

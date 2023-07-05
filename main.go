@@ -147,7 +147,7 @@ func startGinServer(config conf.Config) {
 
 	//Uat
 	UserRouterCtl.UserRoute(router)
-	CustomerRouter.CustRoute(router)
+	CustomerRouter.CustomerRoute(router)
 	ClientRouter.ClientRoute(router)
 	AuthRouter.AuthRoute(router)
 	ThingsRouter.ThingsRoute(router)
@@ -155,7 +155,7 @@ func startGinServer(config conf.Config) {
 	// Pro
 	routerPro := server.Group("/api/v2")
 	UserRouterCtl.UserRoute(routerPro)
-	CustomerRouter.CustRoute(routerPro)
+	CustomerRouter.CustomerRoute(routerPro)
 	ClientRouter.ClientRoute(routerPro)
 
 	//Pro

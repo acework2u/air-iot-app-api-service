@@ -15,10 +15,11 @@ func NewCustomerRouter(cusHandler handler.CustomerHandler) CustomerController {
 
 }
 
-func (rc *CustomerController) CustRoute(rg *gin.RouterGroup) {
+func (rc *CustomerController) CustomerRoute(rg *gin.RouterGroup) {
 	router := rg.Group("/customers", middleware.CognitoAuthMiddleware())
 	router.GET("/", rc.cusHandler.GetCustomer)
+	router.GET("/:id", rc.cusHandler.GetCustomerById)
 	router.POST("/", rc.cusHandler.PostCustomer)
 	router.PUT("/:id", rc.cusHandler.UpdateCustomer)
-	router.DELETE("/:id", rc.cusHandler.DelCustomer)
+	//router.DELETE("/:id", rc.cusHandler.DelCustomer)
 }

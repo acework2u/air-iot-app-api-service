@@ -32,7 +32,7 @@ type DBCustomer2 struct {
 	Name          string             `json:"name" bson:"name"`
 	Lastname      string             `json:"last_name" bson:"last_name"`
 	Email         string             `json:"email" bson:"email"`
-	Mobile        string             `json:"mobile_no" bson:"mobile"`
+	Mobile        string             `json:"mobile" bson:"mobile"`
 	UserConfirmed bool               `json:"UserConfirmed" bson:"UserConfirmed"`
 	CreateAt      time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdateAt      time.Time          `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
@@ -47,6 +47,7 @@ type DBCustomer struct {
 	CreateAt time.Time          `json:"created_date,omitempty" bson:"created_date,omitempty"`
 	UpdateAt time.Time          `json:"updated_date,omitempty" bson:"updated_date,omtiempty"`
 }
+
 type UpdateCustomer struct {
 	Name     string    `json:"name" bson:"name"`
 	Lastname string    `json:"last_name" bson:"last_name"`
@@ -62,4 +63,5 @@ type CustomerRepository interface {
 	FindCustomerById(string) (*DBCustomer, error)
 	FindCustomers() ([]*DBCustomer, error)
 	DeleteCustomer(string) error
+	FindCustomerID(string) (*DBCustomer2, error)
 }

@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/acework2u/air-iot-app-api-service/utils"
@@ -113,7 +114,25 @@ func (r *CustomerRepositoryDB) UpdateCustomer(id string, data *UpdateCustomer) (
 
 }
 func (r *CustomerRepositoryDB) FindCustomerById(id string) (*DBCustomer, error) {
+
+	//query := bson.M{"usersub": id}
+	//var customers *DBCustomer
+	//
+	//cursor, err := r.cusCollection.Find(r.ctx, query)
+	//fmt.Println("FindCustomer")
+	//fmt.Println(err)
+	//
+	//defer cursor.Close(r.ctx)
+	//if err != nil {
+	//	if err == mongo.ErrNoDocuments {
+	//		return nil, err
+	//	}
+	//	return nil, err
+	//}
+	//cursor.Decode(&customers)
+
 	return nil, nil
+
 }
 func (r *CustomerRepositoryDB) FindCustomers() ([]*DBCustomer, error) {
 
@@ -166,4 +185,19 @@ func (r *CustomerRepositoryDB) DeleteCustomer(id string) error {
 	}
 
 	return nil
+}
+func (r *CustomerRepositoryDB) FindCustomerID(uid string) (*DBCustomer2, error) {
+
+	fmt.Println("In Repository")
+	fmt.Println(uid)
+	query := bson.M{"usersub": uid}
+	var result *DBCustomer2
+	err := r.cusCollection.FindOne(r.ctx, query).Decode(&result)
+
+	if err != nil {
+		return nil, err
+		panic(err)
+	}
+
+	return result, nil
 }
