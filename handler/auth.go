@@ -31,7 +31,10 @@ func (h *AuthHandler) PostSignIn(c *gin.Context) {
 	res, err := h.authService.SignIn(authInput.Username, authInput.Password)
 
 	if err != nil {
-		c.JSON(http.StatusNotFound, c.Error(err))
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": "NotAuthorizedException: Incorrect username or password",
+		})
 		return
 	}
 

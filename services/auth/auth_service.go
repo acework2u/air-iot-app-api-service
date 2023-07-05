@@ -166,3 +166,8 @@ func (s *CognitoClient) ResendConfirmCode(username string) (*cip.ResendConfirmat
 	return resConfOut, nil
 
 }
+
+func checkError(message string) (resMsg string) {
+
+	return ""
+}
