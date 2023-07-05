@@ -31,10 +31,7 @@ func (h *AuthHandler) PostSignIn(c *gin.Context) {
 	res, err := h.authService.SignIn(authInput.Username, authInput.Password)
 
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"status":  http.StatusNotFound,
-			"message": err.Error(),
-		})
+		c.JSON(http.StatusNotFound, c.Error(err))
 		return
 	}
 
