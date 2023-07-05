@@ -64,7 +64,7 @@ func (sc *CognitoService) SignUp(email string, password string) (string, error) 
 	return result.String(), nil
 }
 
-func (sc *CognitoService) ConfirmeSignUp(email string, code string) (string, error) {
+func (sc *CognitoService) ConfirmSignUp(email string, code string) (string, error) {
 
 	//phone_no := 0945968514
 

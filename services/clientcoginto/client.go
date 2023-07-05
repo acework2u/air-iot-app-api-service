@@ -49,7 +49,7 @@ type (
 
 type ClientCognito interface {
 	SignUp(string, string) (string, error)
-	ConfirmeSignUp(string, string) (string, error)
+	ConfirmSignUp(string, string) (string, error)
 	SignIn(string, string) (string, *cognito.InitiateAuthOutput, error)
 	GetUserPoolId() (string, error)
 }

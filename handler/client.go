@@ -96,7 +96,7 @@ func (h *ClientHandler) PostConfirmSignUp(ctx *gin.Context) {
 
 	//
 
-	result, ok := h.clientService.ConfirmeSignUp(user.User, user.ConfirmationCode)
+	result, ok := h.clientService.ConfirmSignUp(user.User, user.ConfirmationCode)
 
 	if ok != nil {
 
