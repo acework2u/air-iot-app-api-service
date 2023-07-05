@@ -1,1 +1,2 @@
 app/bin/server filter=lfs diff=lfs merge=lfs -text
+[[:space:]]app/bin/server filter=lfs diff=lfs merge=lfs -text
