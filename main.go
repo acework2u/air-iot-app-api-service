@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"github.com/acework2u/air-iot-app-api-service/middleware"
 	"log"
 	"net/http"
 
@@ -124,9 +123,10 @@ func startGinServer(config conf.Config) {
 	corsConfig.AllowOrigins = []string{config.Origin}
 	corsConfig.AllowCredentials = true
 	server.Use(cors.New(corsConfig))
-	server.Use(
-		middleware.ErrorHandler(),
-	)
+
+	//server.Use(
+	//	middleware.ErrorHandler(),
+	//)
 
 	// server.Use(middleware.CognitoIoTAuthMiddleware())
 

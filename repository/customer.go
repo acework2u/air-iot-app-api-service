@@ -50,10 +50,9 @@ type DBCustomer struct {
 
 type UpdateCustomer struct {
 	Name     string    `json:"name" bson:"name"`
-	Lastname string    `json:"last_name" bson:"last_name"`
-	Tel      string    `json:"tel" bson:"tel"`
-	Email    string    `json:"email" bson:"email"`
-	UpdateAt time.Time `json:"updated_date,omitempty" bson:"updated_date,omtiempty"`
+	Lastname string    `json:"lastname" bson:"last_name"`
+	Mobile   string    `json:"mobile" bson:"mobile"`
+	UpdateAt time.Time `json:"updatedAt,omitempty" bson:"updated_at,omitempty"`
 }
 
 type CustomerRepository interface {

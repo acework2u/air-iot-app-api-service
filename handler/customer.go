@@ -5,8 +5,8 @@ import (
 	"github.com/acework2u/air-iot-app-api-service/services"
 	"github.com/acework2u/air-iot-app-api-service/utils"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
+	"time"
 )
 
 type UserInfo struct {
@@ -31,47 +31,15 @@ type CustomerHandler struct {
 func NewCustomerHandler(cusService services.CustomerService) CustomerHandler {
 	return CustomerHandler{cusService}
 }
-func (h *CustomerHandler) GetCustomer(ctx *gin.Context) {
+func (h *CustomerHandler) GetCustomer(c *gin.Context) {
 
-	userToken, check := ctx.Get("UserToken")
-	userName, _ := ctx.Get("UserId")
+	userToken, check := c.Get("UserToken")
+	userId, _ := c.Get("UserId")
+
+	_ = userToken
 
 	if check {
-		res, err := h.cusService.AllCustomers()
-		fmt.Println("userNameID")
-		fmt.Println(userName)
-		//fmt.Println(userToken)
-
-		if err != nil {
-			log.Println(err)
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"status":  http.StatusBadRequest,
-				"message": err.Error(),
-			})
-
-			return
-		}
-
-		_ = res
-
-		ctx.JSON(http.StatusOK, gin.H{
-			"status":  "success",
-			"message": userToken,
-		})
-
-	}
-
-}
-
-func (h *CustomerHandler) GetCustomerById(c *gin.Context) {
-
-	//userId := c.Param("id")
-	userId, ok := c.Get("UserId")
-
-	if ok {
 		result, err := h.cusService.CustomerById(userId.(string))
-
-		_ = result
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status":  http.StatusBadRequest,
@@ -85,14 +53,42 @@ func (h *CustomerHandler) GetCustomerById(c *gin.Context) {
 			"message": result,
 		})
 
-		return
-
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": fmt.Sprintf("%s", userId),
-	})
+}
+
+func (h *CustomerHandler) GetCustomerById(c *gin.Context) {
+
+	ReqId := c.Param("id")
+	userId, ok := c.Get("UserId")
+
+	if ok {
+
+		if ReqId == userId {
+			result, err := h.cusService.CustomerById(userId.(string))
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"status":  http.StatusBadRequest,
+					"message": "no data",
+				})
+				return
+			}
+
+			c.JSON(http.StatusOK, gin.H{
+				"status":  http.StatusOK,
+				"message": result,
+			})
+
+			return
+
+		}
+
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": "id is required",
+		})
+		return
+	}
 }
 
 // CreateCustomer godoc
@@ -127,52 +123,98 @@ func (h *CustomerHandler) PostCustomer(ctx *gin.Context) {
 	})
 
 }
-func (h *CustomerHandler) UpdateCustomer(ctx *gin.Context) {
+func (h *CustomerHandler) UpdateCustomer(c *gin.Context) {
 
-	custId := ctx.Param("id")
+	cusID := c.Query("id")
+	userId, ok := c.Get("UserId")
 
-	_ = custId
+	infoUpdate := services.UpdateInfoRequest{}
 
-	//var customer *interface{}
+	if ok {
 
-	var customer *services.UpdateCustomer
-	err := ctx.ShouldBindJSON(&customer)
-	if err != nil {
-		// utils.StatusBadRequest("Data no match")
-		ctx.JSON(http.StatusBadGateway, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": err,
-		})
+		if cusID == userId {
 
-		return
+			if err := c.ShouldBindJSON(&infoUpdate); err != nil {
+
+				c.JSON(http.StatusBadRequest, gin.H{
+					"status":  http.StatusBadRequest,
+					"message": err.Error(),
+				})
+				return
+			}
+			infoUpdate.UpdateAt = time.Now()
+
+			updateId := userId.(string)
+
+			resInfo, ok := h.cusService.UpdateCustomer(updateId, &infoUpdate)
+
+			if ok != nil {
+				fmt.Println("In handler error")
+				fmt.Println(ok.Error())
+			}
+
+			_ = resInfo
+
+			c.JSON(http.StatusOK, gin.H{
+				"status":  http.StatusOK,
+				"message": infoUpdate,
+			})
+
+		} else {
+
+			// userId do not match
+			c.JSON(http.StatusBadRequest, gin.H{
+				"status":  http.StatusBadRequest,
+				"message": fmt.Sprintf("customer id %s and User id %s", cusID, userId),
+			})
+			return
+		}
+
 	}
 
-	if len(customer.Name) == 0 {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": "this len",
-		})
-		// utils.StatusBadRequest("Name is required")
-		return
-	}
-
-	doc, err := h.cusService.UpdateCustomer(custId, customer)
-
-	//doc, err := utils.ToDoc(customer)
-
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	ctx.JSON(http.StatusAccepted, gin.H{
-		"status":  http.StatusAccepted,
-		"message": "Update Success",
-		"data":    doc,
-	})
+	//
+	//_ = custId
+	//
+	////var customer *interface{}
+	//
+	//var customer *services.UpdateCustomer
+	//err := ctx.ShouldBindJSON(&customer)
+	//if err != nil {
+	//	// utils.StatusBadRequest("Data no match")
+	//	ctx.JSON(http.StatusBadGateway, gin.H{
+	//		"status":  http.StatusBadRequest,
+	//		"message": err,
+	//	})
+	//
+	//	return
+	//}
+	//
+	//if len(customer.Name) == 0 {
+	//	ctx.JSON(http.StatusBadRequest, gin.H{
+	//		"status":  http.StatusBadRequest,
+	//		"message": "this len",
+	//	})
+	//	// utils.StatusBadRequest("Name is required")
+	//	return
+	//}
+	//
+	//doc, err := h.cusService.UpdateCustomer(custId, customer)
+	//
+	////doc, err := utils.ToDoc(customer)
+	//
+	//if err != nil {
+	//	ctx.JSON(http.StatusBadRequest, gin.H{
+	//		"status":  http.StatusBadRequest,
+	//		"message": err.Error(),
+	//	})
+	//	return
+	//}
+	//
+	//ctx.JSON(http.StatusAccepted, gin.H{
+	//	"status":  http.StatusAccepted,
+	//	"message": "Update Success",
+	//	"data":    doc,
+	//})
 }
 
 func (h *CustomerHandler) DelCustomer(ctx *gin.Context) {

@@ -46,10 +46,12 @@ func CognitoAuthMiddleware() gin.HandlerFunc {
 		splitAuthHeader := strings.Split(idToken, " ")
 
 		if len(splitAuthHeader) != 2 {
+
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status":  http.StatusBadRequest,
 				"message": "Missing or invalid authorization header",
 			})
+
 			return
 		}
 
@@ -79,7 +81,7 @@ func CognitoAuthMiddleware() gin.HandlerFunc {
 				"status":  http.StatusUnauthorized,
 				"message": err.Error(),
 			})
-			// c.Abort()
+			c.Abort()
 			return
 		}
 
@@ -123,11 +125,6 @@ func CognitoAuthMiddleware() gin.HandlerFunc {
 		c.Set("UserSub", sub)
 		c.Set("UserIat", iat)
 		c.Set("UserExp", exp)
-
-		// c.JSON(http.StatusOK, gin.H{
-		// 	"status":  http.StatusOK,
-		// 	"message": username,
-		// })
 
 		c.Next()
 	}

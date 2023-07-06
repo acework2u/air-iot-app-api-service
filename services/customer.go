@@ -60,6 +60,13 @@ type (
 		UpdateAt time.Time `json:"updated_date,omitempty" bson:"updated_date,omtiempty"`
 	}
 
+	UpdateInfoRequest struct {
+		Name     string    `json:"name" binding:"required" `
+		Lastname string    `json:"lastname" binding:"required"`
+		Mobile   string    `json:"mobile" binding:"required"`
+		UpdateAt time.Time `json:"updateAt,omitempty"`
+	}
+
 	DbUpdateCustomer struct {
 		Name          string    `json:"name" bson:"name"`
 		Lastname      string    `json:"lastname" bson:"last_name"`
@@ -73,7 +80,7 @@ type (
 type CustomerService interface {
 	CreateNewCustomer(*CreateCustomerRequest) (*DBCustomer, error)
 	AllCustomers() ([]*DBCustomer, error)
-	UpdateCustomer(string, *UpdateCustomer) (*DBCustomer, error)
+	UpdateCustomer(string, *UpdateInfoRequest) (*DBCustomer, error)
 	DeleteCustomer(string) error
 	CustomerById(string) (*repository.DBCustomer2, error)
 }

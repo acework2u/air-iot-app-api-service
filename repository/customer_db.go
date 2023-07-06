@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/acework2u/air-iot-app-api-service/utils"
@@ -94,13 +93,16 @@ func (r *CustomerRepositoryDB) NewCustomer(customer *CreateCustomerRequest2) (*D
 }
 
 func (r *CustomerRepositoryDB) UpdateCustomer(id string, data *UpdateCustomer) (*DBCustomer, error) {
+
 	doc, err := utils.ToDoc(data)
+
 	if err != nil {
 		return nil, err
 	}
 
-	obId, _ := primitive.ObjectIDFromHex(id)
-	query := bson.D{{Key: "_id", Value: obId}}
+	//obId, _ := primitive.ObjectIDFromHex(id)
+
+	query := bson.D{{Key: "usersub", Value: id}}
 	update := bson.D{{Key: "$set", Value: doc}}
 
 	res := r.cusCollection.FindOneAndUpdate(r.ctx, query, update, options.FindOneAndUpdate().SetReturnDocument(1))
@@ -188,8 +190,6 @@ func (r *CustomerRepositoryDB) DeleteCustomer(id string) error {
 }
 func (r *CustomerRepositoryDB) FindCustomerID(uid string) (*DBCustomer2, error) {
 
-	fmt.Println("In Repository")
-	fmt.Println(uid)
 	query := bson.M{"usersub": uid}
 	var result *DBCustomer2
 	err := r.cusCollection.FindOne(r.ctx, query).Decode(&result)

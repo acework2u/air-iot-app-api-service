@@ -1,7 +1,6 @@
 package services
 
 import (
-	"fmt"
 	"github.com/acework2u/air-iot-app-api-service/repository"
 )
 
@@ -68,18 +67,15 @@ func (cs *customerService) AllCustomers() ([]*DBCustomer, error) {
 
 	return customers, nil
 }
-func (cs *customerService) UpdateCustomer(id string, data *UpdateCustomer) (*DBCustomer, error) {
+func (cs *customerService) UpdateCustomer(id string, data *UpdateInfoRequest) (*DBCustomer, error) {
 
-	cusId := id
-
-	cusData := data
-
-	res, err := cs.cusRepo.UpdateCustomer(cusId, (*repository.UpdateCustomer)(cusData))
+	response, err := cs.cusRepo.UpdateCustomer(id, (*repository.UpdateCustomer)(data))
 	if err != nil {
 		return nil, err
 	}
 
-	return (*DBCustomer)(res), nil
+	return (*DBCustomer)(response), nil
+
 }
 func (cs *customerService) DeleteCustomer(id string) error {
 
@@ -104,7 +100,7 @@ func (cs *customerService) CustomerById(uid string) (*repository.DBCustomer2, er
 	//var userInfo *DbCustomerResponse2
 
 	//userInfo.Id = result.Id
-	fmt.Println(result)
+	//fmt.Println(result)
 
 	return result, nil
 }
