@@ -23,7 +23,7 @@ func LoadCongig(path string) (config Config, err error) {
 	fileEnvType := "env"
 	fileEnvName := "app"
 
-	envPath := "~/air-iot-app-api-service/bin"
+	envPath := "/home/ubuntu/air-iot-app-api-service/bin"
 
 	if len(path) > 0 {
 		envPath = path

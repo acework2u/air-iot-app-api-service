@@ -28,6 +28,10 @@ type CustomerHandler struct {
 	cusService services.CustomerService
 }
 
+type User struct {
+	Id string `json:"id" uri:"id" binding:"required"`
+}
+
 func NewCustomerHandler(cusService services.CustomerService) CustomerHandler {
 	return CustomerHandler{cusService}
 }
@@ -63,7 +67,6 @@ func (h *CustomerHandler) GetCustomerById(c *gin.Context) {
 	userId, ok := c.Get("UserId")
 
 	if ok {
-
 		if ReqId == userId {
 			result, err := h.cusService.CustomerById(userId.(string))
 			if err != nil {

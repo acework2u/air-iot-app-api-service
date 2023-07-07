@@ -100,7 +100,8 @@ func init() {
 	thingHandler := handler.NewThingsHandler(thingService)
 	ThingsRouter = routers.NewThingsRouter(thingHandler)
 
-	server = gin.Default()
+	//server = gin.Default()
+	server = gin.New()
 
 }
 
@@ -122,7 +123,11 @@ func startGinServer(config conf.Config) {
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowOrigins = []string{config.Origin}
 	corsConfig.AllowCredentials = true
+	corsConfig.AllowHeaders = []string{"Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With"}
 	server.Use(cors.New(corsConfig))
+	server.Use(gin.Recovery())
+
+	//   c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
 
 	//server.Use(
 	//	middleware.ErrorHandler(),
