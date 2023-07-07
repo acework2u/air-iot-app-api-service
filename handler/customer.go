@@ -165,7 +165,7 @@ func (h *CustomerHandler) UpdateCustomer(c *gin.Context) {
 			// userId do not match
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status":  http.StatusBadRequest,
-				"message": fmt.Sprintf("customer id %s and User id %s", cusID, userId),
+				"message": "Access don't allowed",
 			})
 			return
 		}

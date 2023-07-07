@@ -93,16 +93,13 @@ func (h *AuthHandler) PostConfirm(c *gin.Context) {
 	}
 
 	// Confirm
-
 	result, err := h.authService.UserConfirm(user.User, user.ConfirmationCode)
 
 	if err != nil {
 
-		fmt.Println(err)
-
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  http.StatusBadRequest,
-			"message": err.Error(),
+			"message": "Invalid verification code provided, please try again.",
 		})
 
 		return
