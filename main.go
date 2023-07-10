@@ -100,8 +100,8 @@ func init() {
 	thingHandler := handler.NewThingsHandler(thingService)
 	ThingsRouter = routers.NewThingsRouter(thingHandler)
 
-	//server = gin.Default()
-	server = gin.New()
+	server = gin.Default()
+	//server = gin.New()
 
 }
 
@@ -167,5 +167,5 @@ func startGinServer(config conf.Config) {
 	// UserRouterCtl.UserRoute(routePro, UserService)
 
 	// log.Fatal(server.Run(":" + config.Port))
-	log.Fatal(server.Run(":3000"))
+	log.Fatal(server.Run(":8080"))
 }
