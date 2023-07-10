@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/lestrrat-go/jwx/jwk"
 	"github.com/lestrrat-go/jwx/jwt"
+	"github.com/spf13/viper"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -47,17 +47,25 @@ func CognitoAuthMiddleware() gin.HandlerFunc {
 
 		if len(splitAuthHeader) != 2 {
 
-			c.JSON(http.StatusBadRequest, gin.H{
-				"status":  http.StatusBadRequest,
-				"message": "Missing or invalid authorization header",
-			})
+			//c.JSON(http.StatusBadRequest, gin.H{
+			//	"status":  http.StatusBadRequest,
+			//	"message": "Missing or invalid authorization header",
+			//})
+
+			c.AbortWithStatus(http.StatusUnauthorized)
 
 			return
 		}
 
 		// Verified Check Key
+
 		pubKeyURL := "https://cognito-idp.%s.amazonaws.com/%s/.well-known/jwks.json"
-		formattedURL := fmt.Sprintf(pubKeyURL, os.Getenv("AWS_REGION"), os.Getenv("USER_POOL_ID"))
+		//formattedURL := fmt.Sprintf(pubKeyURL, os.Getenv("AWS_REGION"), os.Getenv("USER_POOL_ID"))
+
+		awsRegion := viper.GetString("AWS_REGION")
+		cognitoUserIdp := viper.GetString("COGNITO_USER_POOL_ID")
+
+		formattedURL := fmt.Sprintf(pubKeyURL, awsRegion, cognitoUserIdp)
 
 		keySet, err := jwk.Fetch(c, formattedURL)
 
