@@ -249,31 +249,29 @@ func (h *CustomerHandler) DelCustomer(ctx *gin.Context) {
 
 func (h *CustomerHandler) PostNewAddress(c *gin.Context) {
 	userId, _ := c.Get("UserId")
-
 	var addressInfo *services.CustomerAddress
-
 	err := c.ShouldBindJSON(&addressInfo)
-
 	if err != nil {
-
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  http.StatusBadRequest,
 			"message": err.Error(),
 		})
-
 		return
 	}
 	addressInfo.CustomerId = userId.(string)
 	addressInfo.UpdateAt = time.Now()
-
 	// Insert to DB
 	res, err := h.cusService.CustomerNewAddress(addressInfo)
-
-	_ = res
-
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err.Error(),
+		})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
-		"message": addressInfo,
+		"message": res,
 	})
 }
 

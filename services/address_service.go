@@ -1,7 +1,6 @@
 package services
 
 import (
-	"fmt"
 	"github.com/acework2u/air-iot-app-api-service/repository"
 )
 
@@ -15,7 +14,14 @@ func NewAddressService(addrRepo repository.AddressRepository) AddressService {
 
 func (s *addressService) NewAddress(address *CustomerAddress) (*DBAddress, error) {
 
-	fmt.Println(address)
+	var userAddress *repository.CustomerAddress = (*repository.CustomerAddress)(address)
 
-	return nil, nil
+	addressRes, err := s.addrRepo.CreateNewAddress(userAddress)
+
+	if err != nil {
+		return nil, err
+	}
+	var responseData *DBAddress = (*DBAddress)(addressRes)
+
+	return responseData, nil
 }
