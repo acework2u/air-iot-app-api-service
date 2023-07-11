@@ -4,12 +4,15 @@ import (
 	"github.com/acework2u/air-iot-app-api-service/repository"
 )
 
+var AddrRepo *repository.AddressRepository
+
 type customerService struct {
-	cusRepo repository.CustomerRepository
+	cusRepo  repository.CustomerRepository
+	addrRepo *repository.AddressRepository
 }
 
 func NewCustomerService(cusRepo repository.CustomerRepository) customerService {
-	return customerService{cusRepo}
+	return customerService{cusRepo: cusRepo, addrRepo: AddrRepo}
 }
 
 func (cs *customerService) CreateNewCustomer(customer *CreateCustomerRequest) (*DBCustomer, error) {
@@ -103,4 +106,18 @@ func (cs *customerService) CustomerById(uid string) (*repository.DBCustomer2, er
 	//fmt.Println(result)
 
 	return result, nil
+}
+func (cs *customerService) CustomerNewAddress(address *CustomerAddress) (*repository.DBAddress, error) {
+
+	var userAddress *repository.CustomerAddress = (*repository.CustomerAddress)(address)
+	client := *repository.Client
+	collection := client.Database("airs").Collection("cus_address")
+	_ = collection
+	addrUser := repository.NewAddressRepositoryDB(collection, ctx)
+	res, err := addrUser.CreateNewAddress(userAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }

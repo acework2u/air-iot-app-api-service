@@ -83,4 +83,5 @@ type CustomerService interface {
 	UpdateCustomer(string, *UpdateInfoRequest) (*DBCustomer, error)
 	DeleteCustomer(string) error
 	CustomerById(string) (*repository.DBCustomer2, error)
+	CustomerNewAddress(*CustomerAddress) (*repository.DBAddress, error)
 }

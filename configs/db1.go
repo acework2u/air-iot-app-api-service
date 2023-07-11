@@ -44,7 +44,7 @@ func ConnectDB() *mongo.Client {
 
 }
 
-var DB *mongo.Client = ConnectDB()
+//var DB *mongo.Client = ConnectDB()
 
 // getting datatbase collections
 

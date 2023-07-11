@@ -3,20 +3,60 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"log"
+	"os"
 	"time"
 )
 
-//var ctx context.Context
+var Client *mongo.Client
+
+func init() {
+	fmt.Println("address repository")
+	err := godotenv.Load()
+	//var mongoUrl *string
+	if err != nil {
+		fmt.Println("Error loading .env file")
+		fmt.Println(err.Error())
+		//return os.Getenv("MONGURI")
+
+	}
+	dbUrl := os.Getenv("MONGURI")
+
+	Client, err = mongo.NewClient(options.Client().ApplyURI(dbUrl))
+
+	//client, err := mongo.NewClient(options.Client().ApplyURI(dbUrl))
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = Client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Ping the Database
+	err = Client.Ping(ctx, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+}
 
 type AddressRepositoryDB struct {
 	addrCollection *mongo.Collection
 	ctx            context.Context
+	client         *mongo.Client
 }
 
 func NewAddressRepositoryDB(addrCollection *mongo.Collection, ctx context.Context) AddressRepository {
-	return &AddressRepositoryDB{addrCollection, ctx}
+
+	return &AddressRepositoryDB{addrCollection: addrCollection, ctx: ctx, client: Client}
 }
 
 func (r *AddressRepositoryDB) CreateNewAddress(address *CustomerAddress) (*DBAddress, error) {

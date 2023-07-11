@@ -11,7 +11,7 @@ type (
 		Name            string    `json:"name" bson:"name"`
 		LastName        string    `json:"lastName" bson:"lastName"`
 		Tel             string    `json:"tel" bson:"tel"`
-		Address_1       string    `json:"address_1" bson:"address_1"`
+		Address         string    `json:"address" bson:"address"`
 		Zipcode         int       `json:"zipcode" bson:"zipcode"`
 		District        string    `json:"district" bson:"district"`
 		Amphur          string    `json:"amphur" bson:"amphur"`
