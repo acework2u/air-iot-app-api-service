@@ -114,9 +114,10 @@ func init() {
 }
 
 // @title Air IoT API Service 2023
-// @version 1.1.0
+// @version 1.0
 // @description Air Smart IoT App API Service
-// @BasePath /api
+// @host localhost:8080
+// @BasePath /api/v1
 func main() {
 
 	config, _ := conf.LoadCongig("")
