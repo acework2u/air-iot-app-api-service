@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
@@ -85,8 +86,8 @@ func (r *AddressRepositoryDB) UpdateAddress(id string, address *UpdateCustomer) 
 	return nil, nil
 }
 func (r *AddressRepositoryDB) DeleteAddress(id string) error {
-
-	filter := bson.M{"id": id}
+	objID, _ := primitive.ObjectIDFromHex(id)
+	filter := bson.M{"_id": objID}
 	res, err := r.addrCollection.DeleteOne(r.ctx, filter)
 	if err != nil {
 		return err

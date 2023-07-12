@@ -95,6 +95,6 @@ func (h *AddressHandler) DeleteAddress(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
-		"message": fmt.Sprintf("Address ID %v", addId),
+		"message": fmt.Sprintf("Delete Address ID %v Successful", addId),
 	})
 }
