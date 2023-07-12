@@ -85,10 +85,47 @@ func (r *AddressRepositoryDB) UpdateAddress(id string, address *UpdateCustomer) 
 	return nil, nil
 }
 func (r *AddressRepositoryDB) DeleteAddress(id string) error {
+
+	filter := bson.M{"id": id}
+	res, err := r.addrCollection.DeleteOne(r.ctx, filter)
+	if err != nil {
+		return err
+	}
+
+	if res.DeletedCount == 0 {
+		return errors.New("no address with that Id exists")
+	}
+
 	return nil
+
 }
-func (r *AddressRepositoryDB) FindAddress() ([]*DBAddress, error) {
-	return nil, nil
+func (r *AddressRepositoryDB) FindAddress(userId string) ([]*DBAddress, error) {
+
+	filter := bson.M{"customerId": userId}
+
+	cursor, err := r.addrCollection.Find(r.ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(r.ctx)
+
+	var myAddress []*DBAddress
+	for cursor.Next(r.ctx) {
+		addr := &DBAddress{}
+		err := cursor.Decode(addr)
+		if err != nil {
+			return nil, err
+		}
+		myAddress = append(myAddress, addr)
+	}
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+	if len(myAddress) == 0 {
+		return []*DBAddress{}, nil
+	}
+
+	return myAddress, nil
 }
 func (r *AddressRepositoryDB) FindAddressId(string) (*DBAddress, error) {
 	return nil, nil

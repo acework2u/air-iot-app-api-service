@@ -19,5 +19,6 @@ func (ra *AddressController) AddressRoute(rg *gin.RouterGroup) {
 	router := rg.Group("/address", middleware.CognitoAuthMiddleware())
 	router.GET("", ra.addrHandler.GetAddress)
 	router.POST("", ra.addrHandler.PostNewAddress)
+	router.DELETE("/:id", ra.addrHandler.DeleteAddress)
 
 }

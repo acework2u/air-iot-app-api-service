@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	service "github.com/acework2u/air-iot-app-api-service/services"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -16,9 +17,28 @@ func NewAddressHandler(addrService service.AddressService) AddressHandler {
 }
 
 func (h *AddressHandler) GetAddress(c *gin.Context) {
+
+	userID, _ := c.Get("UserId")
+	if len(userID.(string)) < 1 {
+		c.JSON(http.StatusBadGateway, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": "something wrong!",
+		})
+		return
+	}
+
+	resData, err := h.addrService.AllAddress(userID.(string))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": "sorry, i can't this service",
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
-		"message": "address list",
+		"message": resData,
 	})
 }
 
@@ -58,4 +78,23 @@ func (h *AddressHandler) PostNewAddress(c *gin.Context) {
 
 	}
 
+}
+
+func (h *AddressHandler) DeleteAddress(c *gin.Context) {
+
+	addId := c.Param("id")
+
+	err := h.addrService.DelAddress(addId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": fmt.Sprintf("Address ID %v", addId),
+	})
 }
