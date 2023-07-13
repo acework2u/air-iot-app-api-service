@@ -16,6 +16,19 @@ func NewAuthHandler(authService services.AuthenServices) AuthHandler {
 	return AuthHandler{authService: authService}
 }
 
+// Authenticate godoc
+// @Summary Air IoT User Authentication
+// @Description Authenticates a user and provides a JWT to Authorize API Calls
+// @ID Authentication
+// @Tags Authentication
+// @Consume application/x-www-form-urlencoded
+// @Produce json
+// @Param username formData string true "User Credentials"
+// @Param password formData string true "User Credentials"
+// @Success 200 {object} utils.ApiResponse
+// @Failure 401 {object} utils.ApiResponse
+// @Failure 400 {object} utils.ApiResponse
+// @Router /auth/signin [post]
 func (h *AuthHandler) PostSignIn(c *gin.Context) {
 	authInput := &services.SignInRequest{}
 	err := c.ShouldBindJSON(authInput)

@@ -1,9 +1,76 @@
 basePath: /api/v1
+definitions:
+  handler.Response:
+    properties:
+      message: {}
+      status:
+        type: integer
+    type: object
+  utils.ApiResponse:
+    properties:
+      message:
+        items:
+          type: string
+        type: array
+      status:
+        type: integer
+    type: object
 host: localhost:8080
 info:
   contact: {}
   description: Air Smart IoT App API Service
   title: Air IoT API Service 2023
   version: "1.0"
-paths: {}
+paths:
+  /auth/signin:
+    post:
+      description: Authenticates a user and provides a JWT to Authorize API Calls
+      operationId: Authentication
+      parameters:
+      - description: User Credentials
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: User Credentials
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+      summary: Air IoT User Authentication
+      tags:
+      - Authentication
+  /my:
+    get:
+      description: Return User Information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Response'
+      summary: Get User info
+      tags:
+      - Users
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

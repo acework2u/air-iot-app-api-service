@@ -118,6 +118,9 @@ func init() {
 // @description Air Smart IoT App API Service
 // @host localhost:8080
 // @BasePath /api/v1
+// @securityDefinitions.apiKey	BearerAuth
+// @in header
+// @name Authorization
 func main() {
 
 	config, _ := conf.LoadCongig("")

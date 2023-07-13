@@ -9,6 +9,11 @@ import (
 	"time"
 )
 
+type Response struct {
+	Status  int         `json:"status"`
+	Message interface{} `json:"message,omitempty"`
+}
+
 type UserInfo struct {
 	Username            string `json:"username" structs:"username"`
 	Email               string `json:"email" structs:"email"`
@@ -35,6 +40,14 @@ type User struct {
 func NewCustomerHandler(cusService services.CustomerService) CustomerHandler {
 	return CustomerHandler{cusService}
 }
+
+// GetCustomer  godoc
+// @Summary  Get User info
+// @Description Return User Information
+// @Produce  application/json
+// @Tags  Users
+// @Success 200 {object} Response{}
+// @Router  /my [get]
 func (h *CustomerHandler) GetCustomer(c *gin.Context) {
 
 	userToken, check := c.Get("UserToken")
@@ -44,11 +57,18 @@ func (h *CustomerHandler) GetCustomer(c *gin.Context) {
 
 	if check {
 		result, err := h.cusService.CustomerById(userId.(string))
+
+		webres := &Response{
+			Status:  http.StatusBadRequest,
+			Message: "No Data",
+		}
+
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"status":  http.StatusBadRequest,
-				"message": "no data",
-			})
+
+			//response.Status = http.StatusBadRequest
+			//response.Message = "No data"
+			c.Header("Content-Type", "application/json")
+			c.JSON(http.StatusBadRequest, webres)
 			return
 		}
 
@@ -93,16 +113,6 @@ func (h *CustomerHandler) GetCustomerById(c *gin.Context) {
 		return
 	}
 }
-
-// CreateCustomer godoc
-// @Summary Create Customer
-// @Description Save customer data in DB
-// @Param customer body services.CreateCustomerRequest true "Create Customer"
-// @Produce application/json
-// @Tags customers
-// @Success 200 {object} response{}
-// @Router /customers [get]
-
 func (h *CustomerHandler) PostCustomer(ctx *gin.Context) {
 
 	var customer *services.CreateCustomerRequest

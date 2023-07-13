@@ -15,7 +15,109 @@ const docTemplate = `{
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {}
+    "paths": {
+        "/auth/signin": {
+            "post": {
+                "description": "Authenticates a user and provides a JWT to Authorize API Calls",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Air IoT User Authentication",
+                "operationId": "Authentication",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User Credentials",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User Credentials",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/my": {
+            "get": {
+                "description": "Return User Information",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get User info",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Response"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "handler.Response": {
+            "type": "object",
+            "properties": {
+                "message": {},
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
+        "utils.ApiResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it

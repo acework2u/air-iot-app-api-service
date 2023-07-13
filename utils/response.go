@@ -13,6 +13,11 @@ type Response struct {
 	Error   []string
 }
 
+type ApiResponse struct {
+	Status  int      `json:"status"`
+	Message []string `json:"message"`
+}
+
 func SendResponse(c *gin.Context, response Response) {
 	if len(response.Message) > 0 {
 		c.JSON(response.Status, map[string]interface{}{"message": strings.Join(response.Message, "; ")})
@@ -28,9 +33,8 @@ func ResponseSuccess(c *gin.Context, msg string) {
 	})
 }
 
-func ResponseFail(c *gin.Context, msg string) {
-	c.JSON(http.StatusBadRequest, gin.H{
-		"status":  http.StatusBadRequest,
-		"message": msg,
-	})
+func ResponseFailed(c *gin.Context, msg *ApiResponse) {
+
+	c.Header("Content-Type", "application/json")
+	c.JSON(http.StatusBadRequest, msg)
 }
