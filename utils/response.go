@@ -27,18 +27,11 @@ func SendResponse(c *gin.Context, response Response) {
 }
 
 func ResponseSuccess(c *gin.Context, msg *ApiResponse) {
-	//c.JSON(200, gin.H{
-	//	"status":  http.StatusOK,
-	//	"message": msg,
-	//})
-
 	c.Header("Content-Type", "application/json")
-	c.JSON(http.StatusBadRequest, msg)
-
+	c.JSON(http.StatusOK, msg)
 }
 
 func ResponseFailed(c *gin.Context, msg *ApiResponse) {
-
 	c.Header("Content-Type", "application/json")
 	c.JSON(http.StatusBadRequest, msg)
 }

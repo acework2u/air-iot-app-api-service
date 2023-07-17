@@ -138,10 +138,6 @@ func (r *CustomerRepositoryDB) FindCustomerById(id string) (*DBCustomer, error) 
 }
 func (r *CustomerRepositoryDB) FindCustomers() ([]*DBCustomer, error) {
 
-	// opt := options.FindOptions{}
-	// opt.SetLimit(int64(1))
-	// opt.SetSkip(int64(10))
-
 	query := bson.M{}
 
 	cursor, err := r.cusCollection.Find(r.ctx, query)

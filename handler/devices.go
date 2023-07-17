@@ -26,6 +26,7 @@ func (h *DevicesHandler) GetDevice(c *gin.Context) {
 	}
 
 	deviceResponse, err := h.deviceService.ListDevice(deviceReq)
+
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  http.StatusBadRequest,
@@ -33,11 +34,17 @@ func (h *DevicesHandler) GetDevice(c *gin.Context) {
 		})
 		return
 	}
-	mesRes := &utils.ApiResponse{
-		Status:  http.StatusOK,
-		Message: deviceResponse,
-	}
-	utils.ResponseSuccess(c, mesRes)
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": deviceResponse,
+	})
+
+	//mesRes := &utils.ApiResponse{
+	//	Status:  http.StatusOK,
+	//	Message: deviceResponse,
+	//}
+	//utils.ResponseSuccess(c, mesRes)
 }
 
 func (h *DevicesHandler) PostDevice(c *gin.Context) {

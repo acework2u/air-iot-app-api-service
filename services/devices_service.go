@@ -2,7 +2,6 @@ package services
 
 import (
 	"errors"
-	"fmt"
 	"github.com/acework2u/air-iot-app-api-service/repository"
 	"time"
 )
@@ -46,8 +45,7 @@ func (s *deviceService) NewDevice(device *Device) (*ResponseDevice, error) {
 	return respDevice, nil
 }
 func (s *deviceService) ListDevice(request *DeviceRequest) ([]*ResponseDevice, error) {
-	fmt.Println(request)
-	fmt.Println("Device Service Working...")
+
 	var err error
 	if len(request.UserId) > 0 {
 
