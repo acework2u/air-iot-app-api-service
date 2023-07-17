@@ -19,21 +19,24 @@ func NewDeviceHandler(deviceService service.DevicesService) DevicesHandler {
 
 func (h *DevicesHandler) GetDevice(c *gin.Context) {
 
-	var deviceInfo *service.Device
+	userId, _ := c.Get("UserId")
 
-	if err := c.ShouldBindJSON(&deviceInfo); err != nil {
+	deviceReq := &service.DeviceRequest{
+		UserId: userId.(string),
+	}
+
+	deviceResponse, err := h.deviceService.ListDevice(deviceReq)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  http.StatusBadRequest,
 			"message": err.Error(),
 		})
 		return
 	}
-
 	mesRes := &utils.ApiResponse{
 		Status:  http.StatusOK,
-		Message: deviceInfo,
+		Message: deviceResponse,
 	}
-
 	utils.ResponseSuccess(c, mesRes)
 }
 
@@ -50,8 +53,6 @@ func (h *DevicesHandler) PostDevice(c *gin.Context) {
 		})
 		return
 	}
-
-	//
 	deviceInfo.UserId = userId.(string)
 	deviceInfo.SerialNo = strings.ToUpper(deviceInfo.SerialNo)
 	resInfo, err := h.deviceService.NewDevice(deviceInfo)

@@ -11,7 +11,11 @@ type Device struct {
 	Warranty string `json:"warranty" validate:"required"`
 }
 
-type responseDevice struct {
+type DeviceRequest struct {
+	UserId string `json:"userid" binding:"required"`
+}
+
+type ResponseDevice struct {
 	Id       primitive.ObjectID `json:"id" bson:"_id,omitempty"`
 	Name     string             `json:"name"`
 	SerialNo string             `json:"serialNo"`
@@ -21,7 +25,8 @@ type responseDevice struct {
 }
 
 type DevicesService interface {
-	NewDevice(*Device) (*responseDevice, error)
+	NewDevice(*Device) (*ResponseDevice, error)
+	ListDevice(*DeviceRequest) ([]*ResponseDevice, error)
 	//RegisterDevice()
 	//UpdateDevice()
 	//DeleteDevice()

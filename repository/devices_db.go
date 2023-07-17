@@ -41,6 +41,36 @@ func (r *deviceRepositoryDB) CreateDevice(device *Device) (*DBDevice, error) {
 
 	return newDevice, nil
 }
-func (r *deviceRepositoryDB) FindDevices() ([]*DBDevice, error) {
-	return nil, nil
+func (r *deviceRepositoryDB) FindDevices(request *DeviceRequest) ([]*DBDevice, error) {
+
+	query := bson.M{"userId": request.UserId}
+	cursor, err := r.devicesCollection.Find(r.ctx, query)
+
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(r.ctx)
+
+	var devices []*DBDevice
+
+	for cursor.Next(r.ctx) {
+		device := &DBDevice{}
+		err := cursor.Decode(device)
+
+		if err != nil {
+			return nil, err
+		}
+
+		devices = append(devices, device)
+
+	}
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+	if len(devices) == 0 {
+		return []*DBDevice{}, nil
+	}
+
+	return devices, err
+
 }

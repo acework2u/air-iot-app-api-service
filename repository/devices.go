@@ -28,7 +28,11 @@ type DBDevice struct {
 	UpdatedAt time.Time          `json:"updatedAt" bson:"updatedAt"`
 }
 
+type DeviceRequest struct {
+	UserId string `json:"userid" bson:"userId"`
+}
+
 type DevicesRepository interface {
 	CreateDevice(device *Device) (*DBDevice, error)
-	FindDevices() ([]*DBDevice, error)
+	FindDevices(request *DeviceRequest) ([]*DBDevice, error)
 }
