@@ -125,7 +125,13 @@ func (h *CustomerHandler) PostCustomer(ctx *gin.Context) {
 	response, err := h.cusService.CreateNewCustomer(customer)
 
 	if err != nil {
-		utils.ResponseSuccess(ctx, err.Error())
+
+		msgFailerd := &utils.ApiResponse{
+			Status:  http.StatusBadRequest,
+			Message: err.Error(),
+		}
+
+		utils.ResponseSuccess(ctx, msgFailerd)
 		return
 	}
 

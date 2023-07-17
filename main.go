@@ -34,6 +34,7 @@ var (
 	userCollection     *mongo.Collection
 	customerCollection *mongo.Collection
 	addressCollection  *mongo.Collection
+	deviceCollection   *mongo.Collection
 
 	UserService services.UserService
 	// UserRouterCtl routers.UserRouteController
@@ -42,6 +43,10 @@ var (
 
 	// address
 	AddressRouter routers.AddressController
+
+	// Device
+	DeviceHandler handler.DevicesHandler
+	DeviceRouter  routers.DeviceRouter
 
 	//'Client'
 	CustService   clientCog.ClientCognito
@@ -77,6 +82,13 @@ func init() {
 	addrService := service.NewAddressService(addrRepo)
 	addrHandler := handler.NewAddressHandler(addrService)
 	AddressRouter = routers.NewAddressRouter(addrHandler)
+
+	// devices
+	deviceCollection = configs.GetCollection(mongoclient, "devices")
+	deviceRepo := repository.NewDeviceRepositoryDB(ctx, deviceCollection)
+	deviceService := service.NewDeviceService(deviceRepo)
+	deviceHandler := handler.NewDeviceHandler(deviceService)
+	DeviceRouter = routers.NewDeviceRouter(deviceHandler)
 
 	// Cognito Config
 	// Pro
@@ -169,6 +181,7 @@ func startGinServer(config conf.Config) {
 	AuthRouter.AuthRoute(router)
 	ThingsRouter.ThingsRoute(router)
 	AddressRouter.AddressRoute(router)
+	DeviceRouter.DeviceRoute(router)
 
 	// Pro
 	routerPro := server.Group("/api/v2")

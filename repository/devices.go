@@ -7,9 +7,11 @@ import (
 
 type Device struct {
 	Name      string    `json:"name" bson:"name"`
-	UserId    string    `json:"userId" bson:"userId"`
+	Title     string    `json:"title" bson:"title"`
+	Model     string    `json:"model" bson:"model"`
 	SerialNo  string    `json:"serialNo" bson:"serialNo"`
 	Warranty  string    `json:"warranty" bson:"warranty"`
+	UserId    string    `json:"userId" bson:"userId"`
 	CreatedAt time.Time `json:"createdAt" bson:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt" bson:"updatedAt"`
 }
@@ -18,6 +20,8 @@ type DBDevice struct {
 	Id        primitive.ObjectID `json:"id" bson:"_id,omitempty"`
 	UserId    string             `json:"userId" bson:"userId"`
 	Name      string             `json:"name" bson:"name"`
+	Title     string             `json:"title" bson:"title"`
+	Model     string             `json:"model" bson:"model"`
 	SerialNo  string             `json:"serialNo" bson:"serialNo"`
 	Warranty  string             `json:"warranty" bson:"warranty"`
 	CreatedAt time.Time          `json:"createdAt" bson:"createdAt"`
