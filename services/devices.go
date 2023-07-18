@@ -41,8 +41,4 @@ type DevicesService interface {
 	NewDevice(*Device) (*ResponseDevice, error)
 	ListDevice(*DeviceRequest) ([]*ResponseDevice, error)
 	CheckDup(string, string) int32
-	//RegisterDevice()
-	//UpdateDevice()
-	//DeleteDevice()
-	//ConnectDevice()
 }

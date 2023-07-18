@@ -167,7 +167,6 @@ func (r *CustomerRepositoryDB) FindCustomers() ([]*DBCustomer, error) {
 
 	return customers, nil
 }
-
 func (r *CustomerRepositoryDB) DeleteCustomer(id string) error {
 	objId, _ := primitive.ObjectIDFromHex(id)
 
