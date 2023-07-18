@@ -90,3 +90,28 @@ func (s *deviceService) CheckDup(userId string, serialNo string) int32 {
 
 	return checkCount
 }
+func (s *deviceService) UpdateDevice(id string, device *ReqUpdateDevice) (*ResponseDevice, error) {
+
+	reqDevice := &repository.DeviceUpdateReq{
+		Name:      device.Name,
+		Title:     device.Title,
+		Model:     device.Model,
+		SerialNo:  device.SerialNo,
+		Warranty:  device.Warranty,
+		UpdatedAt: time.Now(),
+	}
+	resDevice, err := s.deviceRepo.UpdateDevice(id, reqDevice)
+	if err != nil {
+		return nil, err
+	}
+	deviceUpdate := &ResponseDevice{
+		Id:       resDevice.Id,
+		Name:     resDevice.Name,
+		SerialNo: resDevice.SerialNo,
+		Title:    resDevice.Title,
+		Model:    resDevice.Model,
+		Warranty: resDevice.Warranty,
+	}
+
+	return deviceUpdate, nil
+}

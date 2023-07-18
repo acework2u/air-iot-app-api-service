@@ -3,8 +3,12 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
+	"github.com/acework2u/air-iot-app-api-service/utils"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"strings"
 	"time"
 )
@@ -91,4 +95,28 @@ func (r *deviceRepositoryDB) CheckDupDevice(userId string, serialNo string) (int
 		return 0, err
 	}
 	return cursor, nil
+}
+func (r *deviceRepositoryDB) UpdateDevice(userid string, device *DeviceUpdateReq) (*DBDevice, error) {
+
+	objId, _ := primitive.ObjectIDFromHex(userid)
+
+	doc, err := utils.ToDoc(device)
+	if err != nil {
+		return nil, err
+	}
+	query := bson.D{{Key: "_id", Value: objId}}
+	update := bson.D{{Key: "$set", Value: doc}}
+
+	fmt.Println("Working in Repo")
+	fmt.Println(userid)
+	fmt.Println(query)
+
+	res := r.devicesCollection.FindOneAndUpdate(r.ctx, query, update, options.FindOneAndUpdate().SetReturnDocument(1))
+
+	var deviceInfo *DBDevice
+	if err := res.Decode(&deviceInfo); err != nil {
+		return nil, errors.New("no device with that Id exists")
+	}
+
+	return deviceInfo, nil
 }

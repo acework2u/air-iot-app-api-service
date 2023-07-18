@@ -84,9 +84,8 @@ func (h *DevicesHandler) PostDevice(c *gin.Context) {
 }
 
 func (h *DevicesHandler) PutDevice(c *gin.Context) {
-
-	var deviceInfo *service.UpdateDevice
-	err := c.ShouldBindJSON(deviceInfo)
+	var deviceInfo *service.ReqUpdateDevice
+	err := c.ShouldBindJSON(&deviceInfo)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  http.StatusBadRequest,
@@ -94,12 +93,25 @@ func (h *DevicesHandler) PutDevice(c *gin.Context) {
 		})
 		return
 	}
-
 	userId, _ := c.Get("UserId")
+
+	deviceId := c.Param("id")
+
+	_ = userId
+
+	resDevice, err := h.deviceService.UpdateDevice(deviceId, deviceInfo)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err.Error(),
+		})
+
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
-		"message": fmt.Sprintf("Update Devicve %v", userId),
+		"message": resDevice,
 	})
 }
 

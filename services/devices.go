@@ -14,7 +14,7 @@ type Device struct {
 	Warranty string `json:"warranty" validate:"required"`
 }
 
-type UpdateDevice struct {
+type ReqUpdateDevice struct {
 	Name      string    `json:"name" validate:"required"`
 	UserId    string    `json:"userId" bson:"userId"`
 	SerialNo  string    `json:"serialNo" validate:"required"`
@@ -41,4 +41,5 @@ type DevicesService interface {
 	NewDevice(*Device) (*ResponseDevice, error)
 	ListDevice(*DeviceRequest) ([]*ResponseDevice, error)
 	CheckDup(string, string) int32
+	UpdateDevice(string, *ReqUpdateDevice) (*ResponseDevice, error)
 }
