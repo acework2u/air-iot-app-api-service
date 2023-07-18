@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"github.com/acework2u/air-iot-app-api-service/repository"
 	"time"
 )
@@ -114,4 +115,20 @@ func (s *deviceService) UpdateDevice(id string, device *ReqUpdateDevice) (*Respo
 	}
 
 	return deviceUpdate, nil
+}
+func (s *deviceService) DeleteDevice(filter *DeviceFilter) (bool, error) {
+
+	fmt.Println("Working Service")
+	fmt.Println(filter)
+
+	delFilter := &repository.DeviceFilter{
+		Id:     filter.Id,
+		UserId: filter.UserId,
+	}
+
+	resDel, err := s.deviceRepo.DeleteDevice(delFilter)
+	if err != nil {
+		return false, err
+	}
+	return resDel, nil
 }

@@ -117,6 +117,21 @@ func (r *deviceRepositoryDB) UpdateDevice(userid string, device *DeviceUpdateReq
 	if err := res.Decode(&deviceInfo); err != nil {
 		return nil, errors.New("no device with that Id exists")
 	}
-
 	return deviceInfo, nil
+}
+func (r *deviceRepositoryDB) DeleteDevice(filter *DeviceFilter) (bool, error) {
+
+	userID := filter.UserId
+	objId, _ := primitive.ObjectIDFromHex(filter.Id)
+
+	query := bson.M{"_id": objId, "userId": userID}
+
+	resDel, err := r.devicesCollection.DeleteOne(r.ctx, query)
+	if err != nil {
+		return false, err
+	}
+	if resDel.DeletedCount == 0 {
+		return false, errors.New("no document with that Id exists")
+	}
+	return true, nil
 }

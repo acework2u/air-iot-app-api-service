@@ -132,3 +132,27 @@ func (h *DevicesHandler) GetCheckDup(c *gin.Context) {
 		"message": fmt.Sprintf("Check Dup %v", textVal),
 	})
 }
+
+func (h *DevicesHandler) DelDevice(c *gin.Context) {
+
+	deviceID := c.Param("id")
+	userID, _ := c.Get("UserId")
+	filter := &service.DeviceFilter{
+		UserId: userID.(string),
+		Id:     deviceID,
+	}
+	_, err := h.deviceService.DeleteDevice(filter)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err.Error(),
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": "Delete Completed",
+	})
+}

@@ -40,10 +40,15 @@ type DBDevice struct {
 type DeviceRequest struct {
 	UserId string `json:"userid" bson:"userId"`
 }
+type DeviceFilter struct {
+	UserId string `json:"userId" bson:"userId"`
+	Id     string `json:"id" bson:"_id"`
+}
 
 type DevicesRepository interface {
 	CreateDevice(device *Device) (*DBDevice, error)
 	FindDevices(request *DeviceRequest) ([]*DBDevice, error)
 	CheckDupDevice(userId string, serialNo string) (int64, error)
 	UpdateDevice(string, *DeviceUpdateReq) (*DBDevice, error)
+	DeleteDevice(filter *DeviceFilter) (bool, error)
 }

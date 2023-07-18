@@ -28,6 +28,11 @@ type DeviceRequest struct {
 	UserId string `json:"userid" binding:"required"`
 }
 
+type DeviceFilter struct {
+	UserId string `json:"userId" bson:"userId,omitempty"`
+	Id     string `json:"id" bson:"_id,omitempty"`
+}
+
 type ResponseDevice struct {
 	Id       primitive.ObjectID `json:"id" bson:"_id,omitempty"`
 	Name     string             `json:"name"`
@@ -42,4 +47,5 @@ type DevicesService interface {
 	ListDevice(*DeviceRequest) ([]*ResponseDevice, error)
 	CheckDup(string, string) int32
 	UpdateDevice(string, *ReqUpdateDevice) (*ResponseDevice, error)
+	DeleteDevice(filter *DeviceFilter) (bool, error)
 }

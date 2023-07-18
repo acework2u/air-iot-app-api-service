@@ -21,4 +21,5 @@ func (r *DeviceRouter) DeviceRoute(rg *gin.RouterGroup) {
 	router.GET("/checkdup", r.deviceHandler.GetCheckDup)
 	router.POST("", r.deviceHandler.PostDevice)
 	router.PUT("/:id", r.deviceHandler.PutDevice)
+	router.DELETE("/:id", r.deviceHandler.DelDevice)
 }
