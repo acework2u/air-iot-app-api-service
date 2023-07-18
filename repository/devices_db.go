@@ -5,6 +5,7 @@ import (
 	"errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"strings"
 	"time"
 )
 
@@ -25,10 +26,20 @@ func (r *deviceRepositoryDB) CreateDevice(device *Device) (*DBDevice, error) {
 	device.CreatedAt = time.Now()
 	device.UpdatedAt = device.CreatedAt
 
+	check, _ := r.CheckDupDevice(device.UserId, device.SerialNo)
+
+	if check > 0 {
+
+		err := errors.New("Your device is a duplicate.")
+
+		return nil, err
+
+	}
+
 	res, err := r.devicesCollection.InsertOne(r.ctx, device)
 	if err != nil {
 		if er, ok := err.(mongo.WriteException); ok && er.WriteErrors[0].Code == 11000 {
-			return nil, errors.New("Serial No already exits")
+			return nil, errors.New("Serial No. already exists.")
 		}
 		return nil, err
 	}
@@ -73,4 +84,11 @@ func (r *deviceRepositoryDB) FindDevices(request *DeviceRequest) ([]*DBDevice, e
 
 	return devices, err
 
+}
+func (r *deviceRepositoryDB) CheckDupDevice(userId string, serialNo string) (int64, error) {
+	cursor, err := r.devicesCollection.CountDocuments(r.ctx, bson.M{"userId": userId, "serialNo": strings.ToUpper(serialNo)})
+	if err != nil {
+		return 0, err
+	}
+	return cursor, nil
 }

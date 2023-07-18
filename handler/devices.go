@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	service "github.com/acework2u/air-iot-app-api-service/services"
 	"github.com/acework2u/air-iot-app-api-service/utils"
 	"github.com/gin-gonic/gin"
@@ -69,6 +70,8 @@ func (h *DevicesHandler) PostDevice(c *gin.Context) {
 			"status":  http.StatusBadRequest,
 			"message": err.Error(),
 		})
+
+		return
 	}
 
 	mesRes := &utils.ApiResponse{
@@ -78,4 +81,42 @@ func (h *DevicesHandler) PostDevice(c *gin.Context) {
 
 	utils.ResponseSuccess(c, mesRes)
 
+}
+
+func (h *DevicesHandler) PutDevice(c *gin.Context) {
+
+	var deviceInfo *service.UpdateDevice
+	err := c.ShouldBindJSON(deviceInfo)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	userId, _ := c.Get("UserId")
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": fmt.Sprintf("Update Devicve %v", userId),
+	})
+}
+
+func (h *DevicesHandler) GetCheckDup(c *gin.Context) {
+
+	userId, _ := c.Get("UserId")
+	serialNo := strings.ToUpper("33f3qwi0008222920")
+	dup := h.deviceService.CheckDup(userId.(string), serialNo)
+
+	textVal := "dup < = 0"
+
+	if dup > 0 {
+		textVal = "dup > 0"
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": fmt.Sprintf("Check Dup %v", textVal),
+	})
 }

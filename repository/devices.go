@@ -35,4 +35,5 @@ type DeviceRequest struct {
 type DevicesRepository interface {
 	CreateDevice(device *Device) (*DBDevice, error)
 	FindDevices(request *DeviceRequest) ([]*DBDevice, error)
+	CheckDupDevice(userId string, serialNo string) (int64, error)
 }

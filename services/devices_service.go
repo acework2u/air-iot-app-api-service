@@ -82,3 +82,11 @@ func (s *deviceService) ListDevice(request *DeviceRequest) ([]*ResponseDevice, e
 	err = errors.New("Don't have data")
 	return nil, err
 }
+func (s *deviceService) CheckDup(userId string, serialNo string) int32 {
+
+	var checkCount int32 = 0
+	countDoc, _ := s.deviceRepo.CheckDupDevice(userId, serialNo)
+	checkCount = int32(countDoc)
+
+	return checkCount
+}

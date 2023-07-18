@@ -18,5 +18,7 @@ func (r *DeviceRouter) DeviceRoute(rg *gin.RouterGroup) {
 
 	router := rg.Group("/devices", middleware.CognitoAuthMiddleware())
 	router.GET("", r.deviceHandler.GetDevice)
+	router.GET("/checkdup", r.deviceHandler.GetCheckDup)
 	router.POST("", r.deviceHandler.PostDevice)
+	router.PUT("/:id", r.deviceHandler.PutDevice)
 }
