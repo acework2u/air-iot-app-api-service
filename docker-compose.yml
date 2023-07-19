@@ -9,6 +9,7 @@ services:
       target: development
     volumes:
       - .:/app
+      - ~/.aws/:/root/.aws:ro
     depends_on:
       - database  
     ports:
