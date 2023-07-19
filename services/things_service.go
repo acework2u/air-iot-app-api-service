@@ -5,24 +5,28 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"mime/multipart"
 	"os"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	cid "github.com/aws/aws-sdk-go-v2/service/cognitoidentity"
 	cip "github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider/types"
 	"github.com/aws/aws-sdk-go-v2/service/iot"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
-
-	// _ "github.com/aws/aws-sdk-go/service/iot"
 	"github.com/lestrrat-go/jwx/jwk"
 	"github.com/lestrrat-go/jwx/jwt"
 
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 	mqtt "github.com/tech-sumit/aws-iot-device-sdk-go"
 )
+
+var s3client *s3.Client
+var Ctx context.Context
 
 type STSAssumeRoleAPI interface {
 	AssumeRole(ctx context.Context,
@@ -65,6 +69,8 @@ type CogClient struct {
 	IotClient   *iot.Client
 	StsSvc      *sts.Client
 	Cfg         *aws.Config
+	S3client    *s3.Client
+	Ctx         context.Context
 }
 
 func NewThingClient(cognitoRegion string, userPoolId string, cognitoClientId string) ThinksService {
@@ -94,8 +100,35 @@ func NewThingClient(cognitoRegion string, userPoolId string, cognitoClientId str
 	// fmt.Println("<-------customResolver---------->")
 	// fmt.Println(customResolver)
 
+	awsEndpoint := "https://s3.ap-southeast-1.amazonaws.com"
+	customResolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+		if awsEndpoint != "" {
+			return aws.Endpoint{
+				PartitionID:   "aws",
+				URL:           awsEndpoint,
+				SigningRegion: *aws.String("ap-southeast-1"),
+			}, nil
+		}
+		return aws.Endpoint{}, &aws.EndpointNotFoundError{}
+	})
+	_ = customResolver
+	//customResolver := aws.EndpointResolverFunc(func(service, region string) (aws.Endpoint, error) {
+	//	if awsEndpoint != "" {
+	//		return aws.Endpoint{
+	//			PartitionID:   "aws",
+	//			URL:           awsEndpoint,
+	//			SigningRegion: awsRegion,
+	//		}, nil
+	//	}
+	//
+	//	// returning EndpointNotFoundError will allow the service to fallback to it's default resolution
+	//	return aws.Endpoint{}, &aws.EndpointNotFoundError{}
+	//})
+
 	// cfg, err := config.LoadDefaultConfig(context.Background(), config.WithEndpointResolverWithOptions(customResolver), config.WithClientLogMode(1))
 	cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(cognitoRegion), config.WithSharedConfigProfile("default"))
+	//cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion("ap-southeast-1"), config.WithEndpointResolverWithOptions(customResolver))
+
 	// cfg, err := config.LoadDefaultConfig(context.Background(),config.With)
 	if err != nil {
 		// log.Fatalln("Failed to load AWS config:", err)
@@ -107,6 +140,7 @@ func NewThingClient(cognitoRegion string, userPoolId string, cognitoClientId str
 	cognitoIdentityProviderClient := cip.NewFromConfig(cfg)
 	stsClient := sts.NewFromConfig(cfg)
 	iotClient := iot.NewFromConfig(cfg)
+	s3client = s3.NewFromConfig(cfg)
 
 	return &CogClient{
 		AppClientId: cognitoClientId,
@@ -115,6 +149,8 @@ func NewThingClient(cognitoRegion string, userPoolId string, cognitoClientId str
 		StsSvc:      stsClient,
 		IotClient:   iotClient,
 		Cfg:         &cfg,
+		S3client:    s3client,
+		Ctx:         context.TODO(),
 	}
 
 }
@@ -240,6 +276,40 @@ func (s *CogClient) GetCerds() (interface{}, error) {
 
 	return cresRes, nil
 
+}
+func (s *CogClient) GetUserCert(user *UserReq) (interface{}, error) {
+
+	fmt.Println("User Login")
+	fmt.Println(user)
+
+	fmt.Println("Working in Service")
+
+	return user, nil
+
+}
+func (s *CogClient) UploadToS3(file *multipart.FileHeader) (interface{}, error) {
+
+	fmt.Println("Working in Service")
+	fmt.Printf("type of c is %T\n", file)
+
+	f, openErr := file.Open()
+	if openErr != nil {
+		return "", openErr
+	}
+	uploader := manager.NewUploader(s.S3client)
+
+	result, uploadErr := uploader.Upload(context.TODO(), &s3.PutObjectInput{
+		Bucket: aws.String("airiotbucket"),
+		Key:    aws.String("image/" + file.Filename),
+		Body:   f,
+		//ACL:    "public-read",
+	})
+
+	if uploadErr != nil {
+		return "", uploadErr
+	}
+
+	return result, nil
 }
 
 // func (s *CogClient) GetCerds() (interface{}, error) {

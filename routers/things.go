@@ -16,6 +16,8 @@ func NewThingsRouter(thingsHandler handler.ThingsHandler) ThingController {
 func (rc *ThingController) ThingsRoute(rg *gin.RouterGroup) {
 	router := rg.Group("/iot")
 
-	router.GET("/things", rc.thingsHandler.ConnectThing)
-	router.POST("/things", rc.thingsHandler.ConnectThing)
+	router.GET("/certs", rc.thingsHandler.ThingsCert)
+	router.POST("/upload", rc.thingsHandler.UploadFile)
+	//router.GET("/things", rc.thingsHandler.ConnectThing)
+	//router.POST("/things", rc.thingsHandler.ConnectThing)
 }

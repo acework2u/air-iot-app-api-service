@@ -101,7 +101,6 @@ func init() {
 	cognitoRegion := envConf.CognRegion
 	cognitoClientId := envConf.CognClientId
 	userPoolId := envConf.CognUserPoolId
-
 	//Client
 	CustService = clientCog.NewCognitoService(cognitoRegion, cognitoClientId)
 	ClientHandler = handler.NewClientHandler(CustService)
