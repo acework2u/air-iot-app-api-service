@@ -84,6 +84,8 @@ github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.14.4 h1:hx4WksB0NRQ9ut
 github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.14.4/go.mod h1:JniVpqvw90sVjNqanGLufrVapWySL28fhBlYgl96Q/w=
 github.com/aws/aws-sdk-go-v2/service/iot v1.38.2 h1:Cm9hnD0XM0u5Bj83BLSpnclgNeokLuY8v9U6DqGJgGI=
 github.com/aws/aws-sdk-go-v2/service/iot v1.38.2/go.mod h1://F2qkWxDgkmVSNW0Wr3g5sJyOkFFhdYK8Cm9WurfFg=
+github.com/aws/aws-sdk-go-v2/service/iotdataplane v1.15.5 h1:1iYFMBUbgDK3chW+JuMgXW21xlwmtOOFuwaG5AQEx3s=
+github.com/aws/aws-sdk-go-v2/service/iotdataplane v1.15.5/go.mod h1:oTijCW726pTCHS8WyGFYDdtZr/X/dJd3Nt4nfu1HECs=
 github.com/aws/aws-sdk-go-v2/service/s3 v1.37.0 h1:PalLOEGZ/4XfQxpGZFTLaoJSmPoybnqJYotaIZEf/Rg=
 github.com/aws/aws-sdk-go-v2/service/s3 v1.37.0/go.mod h1:PwyKKVL0cNkC37QwLcrhyeCrAk+5bY8O2ou7USyAS2A=
 github.com/aws/aws-sdk-go-v2/service/sso v1.12.13 h1:sWDv7cMITPcZ21QdreULwxOOAmE05JjEsT6fCDtDA9k=

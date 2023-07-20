@@ -28,6 +28,10 @@ type UserInfo struct {
 	Token_use             string    `json:"token_use"`
 }
 
+type UserToken struct {
+	UserTokenAuth []*byte
+}
+
 func (u *UserInfo) GetVal(name string) any {
 	switch name {
 	default:
@@ -76,6 +80,8 @@ func CognitoAuthMiddleware() gin.HandlerFunc {
 			})
 			return
 		}
+		
+		c.Set("UserAuthToken", splitAuthHeader[1])
 
 		token, err := jwt.Parse(
 			[]byte(splitAuthHeader[1]),

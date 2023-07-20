@@ -48,6 +48,10 @@ var (
 	DeviceHandler handler.DevicesHandler
 	DeviceRouter  routers.DeviceRouter
 
+	//AirThings
+	airThingHandler handler.AirThingHandler
+	AirThingRouter  routers.AirThingRouter
+
 	//'Client'
 	CustService   clientCog.ClientCognito
 	ClientHandler handler.ClientHandler
@@ -63,6 +67,10 @@ func init() {
 	ctx = context.TODO()
 
 	envConf, _ := conf.LoadCongig("")
+	// Env
+	cognitoRegion := envConf.CognRegion
+	cognitoClientId := envConf.CognClientId
+	userPoolId := envConf.CognUserPoolId
 
 	mongoclient = configs.ConnectDB()
 	userCollection = configs.GetCollection(mongoclient, "user")
@@ -90,17 +98,11 @@ func init() {
 	deviceHandler := handler.NewDeviceHandler(deviceService)
 	DeviceRouter = routers.NewDeviceRouter(deviceHandler)
 
-	// Cognito Config
-	// Pro
-	// cognitoRegion := "ap-southeast-1"
-	// cognitoClientId := "qq74q62sm1jfg8t7qetmo3a86"
-	// userPoolId := "ap-southeast-1_EqxkPGgmk"
+	//AirThing
+	airThingService := service.NewAirThingService(cognitoRegion)
+	airThingHandler = handler.NewAirThingHandler(airThingService)
+	AirThingRouter = routers.NewAirThingRouter(airThingHandler)
 
-	// demo
-	// cognitoRegion := "us-east-1"
-	cognitoRegion := envConf.CognRegion
-	cognitoClientId := envConf.CognClientId
-	userPoolId := envConf.CognUserPoolId
 	//Client
 	CustService = clientCog.NewCognitoService(cognitoRegion, cognitoClientId)
 	ClientHandler = handler.NewClientHandler(CustService)
@@ -181,6 +183,7 @@ func startGinServer(config conf.Config) {
 	ThingsRouter.ThingsRoute(router)
 	AddressRouter.AddressRoute(router)
 	DeviceRouter.DeviceRoute(router)
+	AirThingRouter.AirThingRoute(router)
 
 	// Pro
 	routerPro := server.Group("/api/v2")
