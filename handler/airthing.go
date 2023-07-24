@@ -13,7 +13,6 @@ type AirThingHandler struct {
 func NewAirThingHandler(airThingService service.AirThinkService) AirThingHandler {
 	return AirThingHandler{airThingService}
 }
-
 func (h *AirThingHandler) GetCerts(c *gin.Context) {
 
 	userToken, _ := c.Get("UserAuthToken")
@@ -32,5 +31,17 @@ func (h *AirThingHandler) GetCerts(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
 		"message": res,
+	})
+}
+func (h *AirThingHandler) Connect(c *gin.Context) {
+
+	TokenID, _ := c.Get("UserAuthToken")
+
+	respCert, _ := h.airThingService.ThingConnect(TokenID.(string))
+
+	_ = respCert
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": respCert,
 	})
 }

@@ -69,7 +69,18 @@ func (s *airthingService) GetCerts(idToken string) (interface{}, error) {
 
 	return cresRes, nil
 }
-func (s *airthingService) ThingConnect() error {
+func (s *airthingService) ThingConnect(idToken string) (interface{}, error) {
 
-	return nil
+	myRoleArn = *aws.String("arn:aws:iam::513310385702:role/service-role/customer_air_iot_2023")
+	assumeRoleOutput, err := s.StsSvc.AssumeRole(context.TODO(), &sts.AssumeRoleInput{
+		RoleArn:         &myRoleArn,
+		RoleSessionName: aws.String("cogCert"),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("assumeRoleOutput")
+
+	return assumeRoleOutput, nil
 }
