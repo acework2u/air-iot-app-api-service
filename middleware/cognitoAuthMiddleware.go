@@ -80,7 +80,7 @@ func CognitoAuthMiddleware() gin.HandlerFunc {
 			})
 			return
 		}
-		
+
 		c.Set("UserAuthToken", splitAuthHeader[1])
 
 		token, err := jwt.Parse(
@@ -138,6 +138,7 @@ func CognitoAuthMiddleware() gin.HandlerFunc {
 		c.Set("UserPhone", phone_number)
 		c.Set("UserSub", sub)
 		c.Set("UserIat", iat)
+		c.Set("UserIss", iss)
 		c.Set("UserExp", exp)
 
 		c.Next()

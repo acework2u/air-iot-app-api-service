@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	"log"
 	"mime/multipart"
 	"os"
@@ -16,6 +17,7 @@ import (
 	cip "github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider/types"
 	"github.com/aws/aws-sdk-go-v2/service/iot"
+	"github.com/aws/aws-sdk-go-v2/service/iotdataplane"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/lestrrat-go/jwx/jwk"
@@ -310,6 +312,146 @@ func (s *CogClient) UploadToS3(file *multipart.FileHeader) (interface{}, error) 
 	}
 
 	return result, nil
+}
+func (s *CogClient) ThingRegister(idToken string) (interface{}, error) {
+
+	cognitoIdentityId := "ap-southeast-1:4c5dc3d1-cf9d-4980-8fc8-fdd737f6b84b"
+	//#AttachIotPolicyToIdentity
+	attachPolicyOutput, err := s.IotClient.AttachPolicy(context.TODO(), &iot.AttachPolicyInput{
+		PolicyName: aws.String("AirThingPolicy"),
+		Target:     aws.String(cognitoIdentityId),
+	})
+
+	fmt.Println("attachPolicyOutput")
+	fmt.Println(attachPolicyOutput)
+	//
+	//s.IotClient.UpdateThing()
+
+	//fmt.Println("ClientID")
+	//fmt.Println(clientId)
+
+	//attachThingPrincipalOutput, err := s.IotClient.AttachThingPrincipal(context.TODO(), &iot.AttachThingPrincipalInput{
+	//	Principal: aws.String("arn:aws:cognito-identity:ap-southeast-1:513310385702:identitypool/ap-southeast-1:4c5dc3d1-cf9d-4980-8fc8-fdd737f6b84b"),
+	//	ThingName: aws.String("23F05110000126"),
+	//})
+
+	//fmt.Println("attachPolicyOutput")
+	//fmt.Println(attachPolicyOutput)
+
+	/*
+		connection, err := mqtt.NewConnection(mqtt.Config{
+			KeyPath:  "./certs/cert7/57c2a591aca1a833d146cb9283ce66770ed9d65a4be0cd90a754ec8f92679371-private.pem.key",
+			CertPath: "./certs/cert7/57c2a591aca1a833d146cb9283ce66770ed9d65a4be0cd90a754ec8f92679371-certificate.pem.crt",
+			CAPath:   "./certs/cert7/AmazonRootCA1.pem",
+			ClientId: *aws.String(cognitoIdentityId),
+			Endpoint: "a18xth5rea73tz-ats.iot.ap-southeast-1.amazonaws.com",
+		})
+	*/
+	if err != nil {
+
+		fmt.Println(err)
+		panic(err)
+
+	}
+
+	//_ = connection
+
+	return attachPolicyOutput, nil
+}
+func (s *CogClient) ThingsConnected(idToken string) (*iotdataplane.PublishOutput, error) {
+
+	client := iotdataplane.NewFromConfig(*s.Cfg)
+
+	//getThingShadowOutput, err := client.GetThingShadow(context.TODO(), &iotdataplane.GetThingShadowInput{
+	//	ThingName:  aws.String("23F05110000126"),
+	//	ShadowName: aws.String("air-users"),
+	//})
+	//AirCon := map[string]int{
+	//	"setTemp":  55,
+	//	"roomTemp": 50,
+	//	"co2":      45,
+	//}
+	//bytes, _ := json.Marshal(AirCon)
+
+	airPayload := make([]byte, 40)
+	copy(airPayload[0:], string(1))
+	copy(airPayload[1:], string(3))
+	copy(airPayload[2:], string(60))
+	copy(airPayload[3:], string(120))
+	copy(airPayload[4:], string(1))
+	copy(airPayload[14:], string(1))
+
+	reg2000 := make([]byte, 40)
+	reg3000 := make([]byte, 160)
+	reg4000 := make([]byte, 40)
+
+	airCon := map[string][]byte{
+		"reg1000": airPayload,
+		"reg2000": reg2000,
+		"reg3000": reg3000,
+		"reg4000": reg4000,
+	}
+
+	bytes, _ := json.Marshal(airCon)
+
+	var publishOutput *iotdataplane.PublishOutput
+
+	publishOutput, err := client.Publish(context.TODO(), &iotdataplane.PublishInput{
+		Topic:   aws.String("23F05110000126"),
+		Payload: bytes,
+	})
+
+	fmt.Println("publishOutput")
+	fmt.Println(publishOutput)
+
+	if err != nil {
+		fmt.Println("Service Error")
+		fmt.Println(err)
+	}
+	//return getThingShadowOutput, nil
+	return publishOutput, nil
+
+}
+func (s *CogClient) ThingsCert(idToken string) (interface{}, error) {
+
+	cogClient := cid.NewFromConfig(*s.Cfg)
+	IdToken := &idToken
+	idUser, err := cogClient.GetId(context.TODO(), &cid.GetIdInput{
+		IdentityPoolId: aws.String("ap-southeast-1:4c5dc3d1-cf9d-4980-8fc8-fdd737f6b84b"),
+		Logins: map[string]string{
+			"cognito-idp.ap-southeast-1.amazonaws.com/ap-southeast-1_EqxkPGgmk": *IdToken,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Get Cert AssumeRole
+	myRoleArn = *aws.String("arn:aws:iam::513310385702:role/service-role/customer_air_iot_2023")
+	assumeRoleOutput, err := s.StsSvc.AssumeRole(context.TODO(), &sts.AssumeRoleInput{
+		RoleArn:         &myRoleArn,
+		RoleSessionName: aws.String("cogCert"),
+	})
+
+	// Get CredentialForIdentity
+	svs := cid.NewFromConfig(*s.Cfg)
+	cresRes, err := svs.GetCredentialsForIdentity(context.TODO(), &cid.GetCredentialsForIdentityInput{
+		IdentityId: idUser.IdentityId,
+		Logins: map[string]string{
+			"cognito-idp.ap-southeast-1.amazonaws.com/ap-southeast-1_EqxkPGgmk": *IdToken,
+		},
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	airCon := map[string]interface{}{
+		"CredentIden": cresRes,
+		"CertAssume":  assumeRoleOutput.Credentials,
+	}
+
+	return airCon, nil
 }
 
 // func (s *CogClient) GetCerds() (interface{}, error) {
