@@ -22,6 +22,7 @@ func (rc *ThingController) ThingsRoute(rg *gin.RouterGroup) {
 	router.GET("/thing/register", rc.thingsHandler.ThingsRegister)
 	router.GET("/thing/connected", rc.thingsHandler.ThingConnect)
 	router.GET("/thing/cert", rc.thingsHandler.ThingsCert)
+	router.GET("/thing/cmd", rc.thingsHandler.CmdThing)
 
 	//router.GET("/things", rc.thingsHandler.ConnectThing)
 	//router.POST("/things", rc.thingsHandler.ConnectThing)

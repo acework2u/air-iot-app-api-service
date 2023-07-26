@@ -4,7 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-
+	"github.com/acework2u/air-iot-app-api-service/utils"
+	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
 	"log"
 	"mime/multipart"
 	"os"
@@ -29,6 +30,18 @@ import (
 
 var s3client *s3.Client
 var Ctx context.Context
+
+type AirCmdToAws struct {
+	SerialNumber string     `json:"serialNumber"`
+	Data         AirCommand `json:"data"`
+}
+type AirCommand struct {
+	Cmd string `json:"cmd"`
+}
+
+type AirPayload struct {
+	Message string `json:"message"`
+}
 
 type STSAssumeRoleAPI interface {
 	AssumeRole(ctx context.Context,
@@ -391,13 +404,26 @@ func (s *CogClient) ThingsConnected(idToken string) (*iotdataplane.PublishOutput
 		"reg3000": reg3000,
 		"reg4000": reg4000,
 	}
+	_ = airCon
+	cmd := "on"
 
-	bytes, _ := json.Marshal(airCon)
+	//dataFrame := utils.AirPower(cmd)
+	dataFrame2 := utils.AirPower2(cmd)
+
+	payload := &AirCmdToAws{
+		SerialNumber: string("2300F15050017"),
+		Data:         AirCommand{Cmd: fmt.Sprintf("%x", dataFrame2)},
+	}
+
+	fmt.Println("Data Frame")
+	fmt.Println(dataFrame2)
+
+	bytes, _ := json.Marshal(payload)
 
 	var publishOutput *iotdataplane.PublishOutput
 
 	publishOutput, err := client.Publish(context.TODO(), &iotdataplane.PublishInput{
-		Topic:   aws.String("23F05110000126"),
+		Topic:   aws.String("2300F15050017/CD/2300F15050017"),
 		Payload: bytes,
 	})
 
@@ -446,9 +472,13 @@ func (s *CogClient) ThingsCert(idToken string) (interface{}, error) {
 		return nil, err
 	}
 
+	credsNew := stscreds.NewAssumeRoleProvider(s.StsSvc, myRoleArn)
+	certNew := aws.NewCredentialsCache(credsNew)
+
 	airCon := map[string]interface{}{
 		"CredentIden": cresRes,
 		"CertAssume":  assumeRoleOutput.Credentials,
+		"CertNew":     certNew,
 	}
 
 	return airCon, nil

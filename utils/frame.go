@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"sync"
+	"unsafe"
 )
 
 var crcTable []uint16
@@ -17,6 +18,26 @@ type RTUFrame struct {
 	Data     []byte
 	CRC      uint16
 }
+
+type BytePacket struct {
+	Address  uint8
+	Function uint8
+	RegisHi  uint8
+	RegisLo  uint8
+	PresetHi uint8
+	PresetLo uint8
+}
+
+type ByteOrder interface {
+	Uint16([]byte) uint16
+	Uint32([]byte) uint32
+	Uint64([]byte) uint64
+	PutUint16([]byte, uint16)
+	PutUint32([]byte, uint32)
+	PutUint64([]byte, uint64)
+	String() string
+}
+
 type Framer interface {
 	Bytes() []byte
 	Copy() Framer
@@ -25,6 +46,18 @@ type Framer interface {
 	GetFunction() uint8
 	SetException(exception *Exception)
 	SetData(data []byte)
+}
+
+func NewSaijoFrame(packet []byte) ([]byte, error) {
+	// Check the CRC.
+	pLen := len(packet)
+	crcExpect := binary.LittleEndian.Uint16(packet[pLen-2 : pLen])
+	crcCalc := crcModbus(packet[0 : pLen-2])
+	if crcCalc != crcExpect {
+		return nil, fmt.Errorf("RTU Frame error: CRC (expected 0x%x, got 0x%x)", crcExpect, crcCalc)
+	}
+
+	return packet, nil
 }
 
 func NewRTUFrame(packet []byte) (*RTUFrame, error) {
@@ -101,6 +134,29 @@ func (frame *RTUFrame) SetException(exception *Exception) {
 	frame.Data = []byte{byte(*exception)}
 }
 
+func (frame *RTUFrame) IntToByteArray(num int64) []byte {
+	size := int(unsafe.Sizeof(num))
+	arr := make([]byte, size)
+	for i := 0; i < size; i++ {
+		byt := *(*uint8)(unsafe.Pointer(uintptr(unsafe.Pointer(&num)) + uintptr(i)))
+		arr[i] = byt
+	}
+	return arr
+}
+
+func (frame *RTUFrame) DecimalToHex(num int) string {
+	hexDecimal := ""
+	for num > 0 {
+		remainder := num % 16
+		switch {
+		case remainder < 10:
+
+		}
+	}
+
+	return hexDecimal
+}
+
 func crcInitTable() {
 	crc16IBM := uint16(0xA001)
 	crcTable = make([]uint16, 256)
@@ -137,4 +193,14 @@ func crcModbus(data []byte) (crc uint16) {
 	}
 
 	return crc
+}
+
+func IntToByteArray(num int64) []byte {
+	size := int(unsafe.Sizeof(num))
+	arr := make([]byte, size)
+	for i := 0; i < size; i++ {
+		byt := *(*uint8)(unsafe.Pointer(uintptr(unsafe.Pointer(&num)) + uintptr(i)))
+		arr[i] = byt
+	}
+	return arr
 }

@@ -3,10 +3,12 @@ package handler
 import (
 	"encoding/hex"
 	"fmt"
-	"net/http"
-
 	"github.com/acework2u/air-iot-app-api-service/services"
+	"github.com/acework2u/air-iot-app-api-service/utils"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"math"
+	"net/http"
 )
 
 type ThingsHandler struct {
@@ -151,4 +153,66 @@ func (h *ThingsHandler) ThingConnect(c *gin.Context) {
 		"status":  http.StatusOK,
 		"message": &resp,
 	})
+}
+
+func (h *ThingsHandler) CmdThing(c *gin.Context) {
+
+	cmd := "off"
+
+	dataFrame := utils.AirPower(cmd)
+	dataFrame2 := utils.AirPower2(cmd)
+	secretKey := "SaijoDenkiSmartIOT"
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"serialNumber": "2300F15050017",
+		"data": map[string]string{
+			"cmd": fmt.Sprintf("%x", dataFrame2),
+		},
+	})
+
+	// Sign the token with the secret key
+	tokenString, err := token.SignedString([]byte(secretKey))
+
+	if err != nil {
+		fmt.Println("Jwt Error")
+		fmt.Println(err)
+	}
+
+	fmt.Println(dataFrame)
+	fmt.Println(dataFrame2)
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": tokenString,
+	})
+}
+
+func decimalToBinary(num int) {
+	var binary []int
+
+	for num != 0 {
+		binary = append(binary, num%2)
+		num = num / 2
+	}
+	if len(binary) == 0 {
+		fmt.Printf("%d\n", 0)
+	} else {
+		for i := len(binary) - 1; i >= 0; i-- {
+			fmt.Printf("%d", binary[i])
+		}
+		fmt.Println()
+	}
+}
+
+func binaryToDecimal(num int) int {
+	var remainder int
+	index := 0
+	decimalNum := 0
+	for num != 0 {
+		remainder = num % 10
+		num = num / 10
+		decimalNum = decimalNum + remainder*int(math.Pow(2, float64(index)))
+		index++
+	}
+	return decimalNum
 }
