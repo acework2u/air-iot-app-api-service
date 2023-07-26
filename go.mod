@@ -6,7 +6,7 @@ require (
 	github.com/aws/aws-sdk-go v1.44.284
 	github.com/aws/aws-sdk-go-v2 v1.19.0
 	github.com/aws/aws-sdk-go-v2/config v1.18.28
-	github.com/aws/aws-sdk-go-v2/credentials v1.13.27 // indirect
+	github.com/aws/aws-sdk-go-v2/credentials v1.13.27
 	github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider v1.22.12
 	github.com/aws/aws-sdk-go-v2/service/iot v1.38.2
 	github.com/aws/aws-sdk-go-v2/service/sts v1.19.3
