@@ -374,35 +374,26 @@ func (s *CogClient) ThingsConnected(idToken string, things string) (*iotdataplan
 
 	client := iotdataplane.NewFromConfig(*s.Cfg)
 
-	//getThingShadowOutput, err := client.GetThingShadow(context.TODO(), &iotdataplane.GetThingShadowInput{
-	//	ThingName:  aws.String("23F05110000126"),
-	//	ShadowName: aws.String("air-users"),
-	//})
-	//AirCon := map[string]int{
-	//	"setTemp":  55,
-	//	"roomTemp": 50,
-	//	"co2":      45,
-	//}
-	//bytes, _ := json.Marshal(AirCon)
-	var getThingShadowOutput *iotdataplane.GetThingShadowOutput
-	go func() {
-		var err error
-		getThingShadowOutput, err = client.GetThingShadow(context.TODO(), &iotdataplane.GetThingShadowInput{
-			ThingName:  aws.String(things),
-			ShadowName: aws.String("air-users"),
-		})
+	//var getThingShadowOutput *iotdataplane.GetThingShadowOutput
 
-		if err != nil {
-			fmt.Println("Shadow Error")
-			fmt.Println(err)
-			return
-		}
-		fmt.Println("Shadow")
-		rep := map[string]interface{}{}
-		_ = json.Unmarshal([]byte(getThingShadowOutput.Payload), &rep)
-		fmt.Println(rep["metadata"])
-
-	}()
+	//go func() {
+	//	var err error
+	//	getThingShadowOutput, err = client.GetThingShadow(context.TODO(), &iotdataplane.GetThingShadowInput{
+	//		ThingName:  aws.String(things),
+	//		ShadowName: aws.String("air-users"),
+	//	})
+	//
+	//	if err != nil {
+	//		fmt.Println("Shadow Error")
+	//		fmt.Println(err)
+	//		return
+	//	}
+	//	fmt.Println("Shadow")
+	//	rep := map[string]interface{}{}
+	//	_ = json.Unmarshal([]byte(getThingShadowOutput.Payload), &rep)
+	//	fmt.Println(rep["metadata"])
+	//
+	//}()
 
 	payload := &AirPayload{
 		Message: idToken,

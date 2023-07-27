@@ -13,6 +13,7 @@ const secretKey = "SaijoDenkiSmartIOT"
 
 type AirCmd interface {
 	power() ([]byte, error)
+	setTemp() ([]byte, error)
 	Action() error
 	GetPayload() string
 }
@@ -39,7 +40,17 @@ func (u *Air) Action() error {
 
 		return nil
 
-	case "off":
+	case "temp":
+		u.Payload, err = u.setTemp()
+
+		if err != nil {
+			return err
+		}
+	case "mode":
+		u.Payload, err = u.mode()
+		if err != nil {
+			return err
+		}
 
 	}
 
@@ -47,9 +58,8 @@ func (u *Air) Action() error {
 }
 
 func (u *Air) power() ([]byte, error) {
-	//cmdPow := strings.ToLower(u.Cmd)
-	val, _ := strconv.Atoi(u.Value)
 
+	val, _ := strconv.Atoi(u.Value)
 	if val > 1 || val < 0 {
 		return nil, errors.New("data is wrong")
 	}
@@ -74,6 +84,63 @@ func (u *Air) power() ([]byte, error) {
 
 	return newPayload, nil
 }
+
+func (u *Air) setTemp() ([]byte, error) {
+
+	tempVal, _ := strconv.ParseFloat(u.Value, 32)
+	tempVal = tempVal * 2
+
+	fmt.Println("Set Temp")
+	val := uint64(tempVal)
+
+	fmt.Println(val)
+	if val < 0 || val > 60 {
+		return nil, errors.New("value is wrong")
+	}
+	regAdd := RegisterAddr + 2
+	rtuFrame := &RTUFrame{
+		Address:  uint8(1),
+		Function: uint8(6),
+	}
+	payload := make([]byte, 4)
+	payload[0] = uint8(regAdd >> 8)
+	payload[1] = uint8(regAdd & 0xff)
+	payload[2] = uint8(val >> 8)
+	payload[3] = uint8(val & 0xff)
+
+	rtuFrame.SetData(payload)
+	var dataFrame []byte = rtuFrame.Bytes()
+	newPayload, _ := NewSaijoFrame(dataFrame)
+
+	return newPayload, nil
+}
+func (u *Air) mode() ([]byte, error) {
+
+	fmt.Println("Set Mode Ac")
+	val, _ := strconv.Atoi(u.Value)
+
+	fmt.Println(val)
+	if val < 0 || val > 4 {
+		return nil, errors.New("value is wrong")
+	}
+	regAdd := RegisterAddr + 1
+	rtuFrame := &RTUFrame{
+		Address:  uint8(1),
+		Function: uint8(6),
+	}
+	payload := make([]byte, 4)
+	payload[0] = uint8(regAdd >> 8)
+	payload[1] = uint8(regAdd & 0xff)
+	payload[2] = uint8(val >> 8)
+	payload[3] = uint8(val & 0xff)
+
+	rtuFrame.SetData(payload)
+	var dataFrame []byte = rtuFrame.Bytes()
+	newPayload, _ := NewSaijoFrame(dataFrame)
+
+	return newPayload, nil
+}
+
 func (u *Air) GetPayload() string {
 
 	if len(u.Payload) > 0 {
