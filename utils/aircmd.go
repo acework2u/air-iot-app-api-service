@@ -38,23 +38,39 @@ func (u *Air) Action() error {
 			return err
 		}
 
-		return nil
-
 	case "temp":
 		u.Payload, err = u.setTemp()
-
 		if err != nil {
 			return err
 		}
+
 	case "mode":
 		u.Payload, err = u.mode()
+
 		if err != nil {
 			return err
 		}
+	case "fan":
+		u.Payload, err = u.fan()
+		if err != nil {
+			return err
+		}
+	case "swing":
+		u.Payload, err = u.swing()
+		if err != nil {
+			return err
+		}
+	case "option":
+		u.Payload, err = u.option()
+		if err != nil {
+			return err
+		}
+	default:
 
+		return errors.New("command is wrong")
 	}
 
-	return nil
+	return err
 }
 
 func (u *Air) power() ([]byte, error) {
@@ -84,13 +100,35 @@ func (u *Air) power() ([]byte, error) {
 
 	return newPayload, nil
 }
+func (u *Air) mode() ([]byte, error) {
 
+	val, _ := strconv.Atoi(u.Value)
+
+	if val < 0 || val > 4 {
+		return nil, errors.New("value is wrong")
+	}
+	regAdd := RegisterAddr + 1
+	rtuFrame := &RTUFrame{
+		Address:  uint8(1),
+		Function: uint8(6),
+	}
+	payload := make([]byte, 4)
+	payload[0] = uint8(regAdd >> 8)
+	payload[1] = uint8(regAdd & 0xff)
+	payload[2] = uint8(val >> 8)
+	payload[3] = uint8(val & 0xff)
+
+	rtuFrame.SetData(payload)
+	var dataFrame []byte = rtuFrame.Bytes()
+	newPayload, _ := NewSaijoFrame(dataFrame)
+
+	return newPayload, nil
+}
 func (u *Air) setTemp() ([]byte, error) {
 
 	tempVal, _ := strconv.ParseFloat(u.Value, 32)
 	tempVal = tempVal * 2
 
-	fmt.Println("Set Temp")
 	val := uint64(tempVal)
 
 	fmt.Println(val)
@@ -114,16 +152,20 @@ func (u *Air) setTemp() ([]byte, error) {
 
 	return newPayload, nil
 }
-func (u *Air) mode() ([]byte, error) {
+func (u *Air) fan() ([]byte, error) {
 
-	fmt.Println("Set Mode Ac")
 	val, _ := strconv.Atoi(u.Value)
-
-	fmt.Println(val)
-	if val < 0 || val > 4 {
+	//Value 0 : Fan Auto
+	//Value 1 : Fan Low
+	//Value 2 : Fan Med
+	//Value 3 : Fan High
+	//Value 4 : Fan Hi Hi
+	//Value 5 : Fan Turbo
+	if val < 0 || val > 5 {
 		return nil, errors.New("value is wrong")
 	}
-	regAdd := RegisterAddr + 1
+
+	regAdd := RegisterAddr + 6
 	rtuFrame := &RTUFrame{
 		Address:  uint8(1),
 		Function: uint8(6),
@@ -140,7 +182,66 @@ func (u *Air) mode() ([]byte, error) {
 
 	return newPayload, nil
 }
+func (u *Air) swing() ([]byte, error) {
 
+	val, _ := strconv.Atoi(u.Value)
+	//Value 0 :  Auto (Swing)
+	//Value 1 :  Level 1
+	//Value 2 :  Level 2
+	//Value 3 :  Level 3
+	//Value 4 :  Level 4
+	//Value 5 :  Level 5
+	if val < 0 || val > 5 {
+		return nil, errors.New("value is wrong")
+	}
+
+	regAdd := RegisterAddr + 7
+	rtuFrame := &RTUFrame{
+		Address:  uint8(1),
+		Function: uint8(6),
+	}
+	payload := make([]byte, 4)
+	payload[0] = uint8(regAdd >> 8)
+	payload[1] = uint8(regAdd & 0xff)
+	payload[2] = uint8(val >> 8)
+	payload[3] = uint8(val & 0xff)
+
+	rtuFrame.SetData(payload)
+	var dataFrame []byte = rtuFrame.Bytes()
+	newPayload, _ := NewSaijoFrame(dataFrame)
+
+	return newPayload, nil
+}
+func (u *Air) option() ([]byte, error) {
+
+	val, _ := strconv.Atoi(u.Value)
+	//Value 0 :  Auto (Swing)
+	//Value 1 :  Level 1
+	//Value 2 :  Level 2
+	//Value 3 :  Level 3
+	//Value 4 :  Level 4
+	//Value 5 :  Level 5
+	if val < 0 || val > 5 {
+		return nil, errors.New("value is wrong")
+	}
+
+	regAdd := RegisterAddr + 8
+	rtuFrame := &RTUFrame{
+		Address:  uint8(1),
+		Function: uint8(6),
+	}
+	payload := make([]byte, 4)
+	payload[0] = uint8(regAdd >> 8)
+	payload[1] = uint8(regAdd & 0xff)
+	payload[2] = uint8(val >> 8)
+	payload[3] = uint8(val & 0xff)
+
+	rtuFrame.SetData(payload)
+	var dataFrame []byte = rtuFrame.Bytes()
+	newPayload, _ := NewSaijoFrame(dataFrame)
+
+	return newPayload, nil
+}
 func (u *Air) GetPayload() string {
 
 	if len(u.Payload) > 0 {

@@ -185,7 +185,7 @@ func (h *ThingsHandler) CmdThing(c *gin.Context) {
 	if ok != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  http.StatusBadRequest,
-			"message": ok,
+			"message": "command is wrong",
 		})
 
 		return
