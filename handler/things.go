@@ -157,7 +157,7 @@ func (h *ThingsHandler) ThingConnect(c *gin.Context) {
 
 func (h *ThingsHandler) CmdThing(c *gin.Context) {
 
-	cmd := "off"
+	cmd := "on"
 
 	dataFrame := utils.AirPower(cmd)
 	dataFrame2 := utils.AirPower2(cmd)
