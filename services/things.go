@@ -15,6 +15,6 @@ type ThinksService interface {
 	GetUserCert(*UserReq) (interface{}, error)
 	UploadToS3(file *multipart.FileHeader) (interface{}, error)
 	ThingRegister(idToken string) (interface{}, error)
-	ThingsConnected(idToken string) (*iotdataplane.PublishOutput, error)
+	ThingsConnected(idToken string, thing string) (*iotdataplane.PublishOutput, error)
 	ThingsCert(idToken string) (interface{}, error)
 }

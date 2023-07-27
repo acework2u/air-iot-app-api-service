@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/acework2u/air-iot-app-api-service/services"
 	"github.com/acework2u/air-iot-app-api-service/utils"
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"math"
 	"net/http"
@@ -13,6 +12,12 @@ import (
 
 type ThingsHandler struct {
 	thingsService services.ThinksService
+}
+
+type airCmdReq struct {
+	SerialNo string `json:"serialNo" validate:"required" binding:"required"`
+	Cmd      string `json:"cmd" validate:"required" binding:"required"`
+	Value    string `json:"value" validate:"required" binding:"required"`
 }
 
 func NewThingsHandler(thingsService services.ThinksService) ThingsHandler {
@@ -139,7 +144,7 @@ func (h *ThingsHandler) ThingConnect(c *gin.Context) {
 
 	userID, _ := c.Get("UserId")
 
-	resp, err := h.thingsService.ThingsConnected(userID.(string))
+	resp, err := h.thingsService.ThingsConnected(userID.(string), "")
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -157,34 +162,103 @@ func (h *ThingsHandler) ThingConnect(c *gin.Context) {
 
 func (h *ThingsHandler) CmdThing(c *gin.Context) {
 
-	cmd := "on"
+	var userCmd *airCmdReq
 
-	dataFrame := utils.AirPower(cmd)
-	dataFrame2 := utils.AirPower2(cmd)
-	secretKey := "SaijoDenkiSmartIOT"
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"serialNumber": "2300F15050017",
-		"data": map[string]string{
-			"cmd": fmt.Sprintf("%x", dataFrame2),
-		},
-	})
-
-	// Sign the token with the secret key
-	tokenString, err := token.SignedString([]byte(secretKey))
-
-	if err != nil {
-		fmt.Println("Jwt Error")
-		fmt.Println(err)
+	if err := c.ShouldBindJSON(&userCmd); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err.Error(),
+		})
+		return
 	}
 
-	fmt.Println(dataFrame)
-	fmt.Println(dataFrame2)
+	if userCmd.Value == "on" {
+		userCmd.Value = "1"
+	}
+	if userCmd.Value == "off" {
+		userCmd.Value = "0"
+	}
+
+	airUser := utils.NewAirCmd(userCmd.SerialNo, userCmd.Cmd, userCmd.Value)
+
+	ok := airUser.Action()
+	if ok != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": ok,
+		})
+
+		return
+	}
+	res := airUser.GetPayload()
+
+	output, err := h.thingsService.ThingsConnected(res, userCmd.SerialNo)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err,
+		})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
-		"message": tokenString,
+		"message": output,
 	})
+
+	//air := "2300F15050017"
+	//cmd := "power"
+	//cmdVal := "1"
+
+	//airUser := utils.NewAirCmd(air, cmd, cmdVal)
+	//
+	//ok := airUser.Action()
+	//if ok != nil {
+	//	c.JSON(http.StatusBadRequest, gin.H{
+	//		"status":  http.StatusBadRequest,
+	//		"message": ok,
+	//	})
+	//
+	//	return
+	//}
+	//res := airUser.GetPayload()
+	//
+	//c.JSON(http.StatusOK, gin.H{
+	//	"status":  http.StatusOK,
+	//	"message": res,
+	//})
+
+	//
+
+	//cmd := "on"
+	//
+	//dataFrame2 := utils.AirPower2(cmd)
+	//secretKey := "SaijoDenkiSmartIOT"
+	//tokenString := ""
+	//_ = secretKey
+	//
+	//token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+	//	"serialNumber": "2300F15050017",
+	//	"data": map[string]string{
+	//		"cmd": fmt.Sprintf("%x", dataFrame2),
+	//	},
+	//})
+	////
+	////// Sign the token with the secret key
+	//tokenString, err := token.SignedString([]byte(secretKey))
+	////
+	//if err != nil {
+	//	fmt.Println("Jwt Error")
+	//	fmt.Println(err)
+	//}
+	//
+	//fmt.Println(dataFrame2)
+	//
+	//c.JSON(http.StatusOK, gin.H{
+	//	"status":  http.StatusOK,
+	//	"message": tokenString,
+	//})
 }
 
 func decimalToBinary(num int) {

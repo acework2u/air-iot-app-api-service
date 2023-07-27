@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/acework2u/air-iot-app-api-service/utils"
 	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
 	"log"
 	"mime/multipart"
@@ -371,7 +370,7 @@ func (s *CogClient) ThingRegister(idToken string) (interface{}, error) {
 
 	return attachPolicyOutput, nil
 }
-func (s *CogClient) ThingsConnected(idToken string) (*iotdataplane.PublishOutput, error) {
+func (s *CogClient) ThingsConnected(idToken string, things string) (*iotdataplane.PublishOutput, error) {
 
 	client := iotdataplane.NewFromConfig(*s.Cfg)
 
@@ -385,57 +384,70 @@ func (s *CogClient) ThingsConnected(idToken string) (*iotdataplane.PublishOutput
 	//	"co2":      45,
 	//}
 	//bytes, _ := json.Marshal(AirCon)
+	var getThingShadowOutput *iotdataplane.GetThingShadowOutput
+	go func() {
+		var err error
+		getThingShadowOutput, err = client.GetThingShadow(context.TODO(), &iotdataplane.GetThingShadowInput{
+			ThingName:  aws.String(things),
+			ShadowName: aws.String("air-users"),
+		})
 
-	airPayload := make([]byte, 40)
-	copy(airPayload[0:], string(1))
-	copy(airPayload[1:], string(3))
-	copy(airPayload[2:], string(60))
-	copy(airPayload[3:], string(120))
-	copy(airPayload[4:], string(1))
-	copy(airPayload[14:], string(1))
+		if err != nil {
+			fmt.Println("Shadow Error")
+			fmt.Println(err)
+			return
+		}
+		fmt.Println("Shadow")
+		rep := map[string]interface{}{}
+		_ = json.Unmarshal([]byte(getThingShadowOutput.Payload), &rep)
+		fmt.Println(rep["metadata"])
 
-	reg2000 := make([]byte, 40)
-	reg3000 := make([]byte, 160)
-	reg4000 := make([]byte, 40)
+	}()
 
-	airCon := map[string][]byte{
-		"reg1000": airPayload,
-		"reg2000": reg2000,
-		"reg3000": reg3000,
-		"reg4000": reg4000,
+	payload := &AirPayload{
+		Message: idToken,
 	}
-	_ = airCon
-	cmd := "on"
-
-	//dataFrame := utils.AirPower(cmd)
-	dataFrame2 := utils.AirPower2(cmd)
-
-	payload := &AirCmdToAws{
-		SerialNumber: string("2300F15050017"),
-		Data:         AirCommand{Cmd: fmt.Sprintf("%x", dataFrame2)},
-	}
-
-	fmt.Println("Data Frame")
-	fmt.Println(dataFrame2)
-
 	bytes, _ := json.Marshal(payload)
-
-	var publishOutput *iotdataplane.PublishOutput
+	pubTopic := fmt.Sprintf("%v/CD/%v", things, things)
+	fmt.Println("pubTopic")
+	fmt.Println(pubTopic)
 
 	publishOutput, err := client.Publish(context.TODO(), &iotdataplane.PublishInput{
-		Topic:   aws.String("2300F15050017/CD/2300F15050017"),
+		Topic:   aws.String(pubTopic),
 		Payload: bytes,
 	})
 
-	fmt.Println("publishOutput")
-	fmt.Println(publishOutput)
-
 	if err != nil {
-		fmt.Println("Service Error")
-		fmt.Println(err)
+		return nil, err
 	}
-	//return getThingShadowOutput, nil
-	return publishOutput, nil
+	return publishOutput, err
+
+	////Shadow Sub
+	//getThingShadowOutput, err := client.GetThingShadow(context.TODO(), &iotdataplane.GetThingShadowInput{
+	//	ThingName:  aws.String("2300F15050017"),
+	//	ShadowName: aws.String("air-users"),
+	//})
+	//
+	//if err != nil {
+	//	return nil, err
+	//}
+	//
+	//fmt.Println("getThingShadowOutput")
+	//fmt.Println(getThingShadowOutput)
+	//
+	//_ = getThingShadowOutput
+	//
+	//
+	//
+	//fmt.Println("publishOutput")
+	//fmt.Println(publishOutput)
+	//
+	//if err != nil {
+	//	fmt.Println("Service Error")
+	//	fmt.Println(err)
+	//}
+	////return getThingShadowOutput, nil
+	//return publishOutput, nil
 
 }
 func (s *CogClient) ThingsCert(idToken string) (interface{}, error) {
