@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"math"
 	"net/http"
+	"strings"
 )
 
 type ThingsHandler struct {
@@ -170,6 +171,15 @@ func (h *ThingsHandler) CmdThing(c *gin.Context) {
 			"message": err.Error(),
 		})
 		return
+	}
+
+	switch strings.ToLower(userCmd.Cmd) {
+	case "power":
+	case "temp":
+	case "mode":
+	case "fan":
+	case "swing":
+
 	}
 
 	if userCmd.Value == "on" {
