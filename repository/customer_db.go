@@ -191,7 +191,6 @@ func (r *CustomerRepositoryDB) FindCustomerID(uid string) (*DBCustomer2, error) 
 
 	if err != nil {
 		return nil, err
-		panic(err)
 	}
 
 	return result, nil
