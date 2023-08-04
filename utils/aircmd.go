@@ -4,12 +4,16 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/spf13/viper"
 	"strconv"
 	"strings"
 )
 
 const RegisterAddr = int64(1000)
-const secretKey = "SaijoDenkiSmartIOT"
+
+var secretKey = "SaijoDenkiSmartIOT"
+
+//var secretKey = viper.GetString("SECRET_KEY")
 
 type AirCmd interface {
 	power() ([]byte, error)
@@ -262,6 +266,39 @@ func (u *Air) GetPayload() string {
 
 	return ""
 
+}
+func GetClaimsFromToken(tokenString string) (jwt.MapClaims, error) {
+	//token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	//	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+	//		return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+	//	}
+	//	return secretKey, nil
+	//})
+	//claims := jwt.MapClaims{}
+	//token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+	//	return []byte(secretKey), nil
+	//})
+
+	secKey := viper.GetString("SECRET_KEY")
+
+	var secret = []byte(secKey)
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("There was an error in parsing")
+		}
+		return secret, nil
+	})
+
+	if err != nil {
+
+		fmt.Println("Error :" + err.Error())
+		return nil, err
+	}
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return claims, nil
+	}
+
+	return nil, err
 }
 
 func AirPower(cmd string) *RTUFrame {
