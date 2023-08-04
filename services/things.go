@@ -10,6 +10,20 @@ type UserReq struct {
 	Password string `json:"password"`
 }
 
+type ShadowsValue struct {
+	State struct {
+		Desired  Desired  `json:"desired"`
+		Reported Reported `json:"reported"`
+	} `json:"state"`
+}
+
+type Desired struct {
+	Cmd string `json:"cmd"`
+}
+type Reported struct {
+	Message string `json:"message"`
+}
+
 type ThinksService interface {
 	GetCerds() (interface{}, error)
 	GetUserCert(*UserReq) (interface{}, error)
@@ -17,4 +31,5 @@ type ThinksService interface {
 	ThingRegister(idToken string) (interface{}, error)
 	ThingsConnected(idToken string, thing string) (*iotdataplane.PublishOutput, error)
 	ThingsCert(idToken string) (interface{}, error)
+	ThinksShadows(idToken string) (*ShadowsValue, error)
 }

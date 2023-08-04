@@ -271,6 +271,16 @@ func (h *ThingsHandler) CmdThing(c *gin.Context) {
 	//})
 }
 
+func (h *ThingsHandler) Shadows(c *gin.Context) {
+	//userID, _ := c.Get("UserId")
+	userID, _ := c.Get("UserSub")
+	shadows, _ := h.thingsService.ThinksShadows(userID.(string))
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": shadows,
+	})
+}
+
 func decimalToBinary(num int) {
 	var binary []int
 

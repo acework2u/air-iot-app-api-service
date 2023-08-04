@@ -140,7 +140,6 @@ func CognitoAuthMiddleware() gin.HandlerFunc {
 		c.Set("UserIat", iat)
 		c.Set("UserIss", iss)
 		c.Set("UserExp", exp)
-
 		c.Next()
 	}
 }

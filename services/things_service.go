@@ -29,6 +29,7 @@ import (
 
 var s3client *s3.Client
 var Ctx context.Context
+var ClientAwsMqtt *mqtt.AWSIoTConnection
 
 type AirCmdToAws struct {
 	SerialNumber string     `json:"serialNumber"`
@@ -485,6 +486,55 @@ func (s *CogClient) ThingsCert(idToken string) (interface{}, error) {
 	}
 
 	return airCon, nil
+}
+func (s *CogClient) ThinksShadows(idToken string) (*ShadowsValue, error) {
+
+	shadowsVal := &ShadowsValue{}
+	shadowsVal.State.Desired.Cmd = idToken
+
+	fmt.Println("Working ThingShadows Servive")
+
+	client, err := NewAwsMqttConnect(idToken)
+	if err != nil {
+		panic(err)
+	}
+
+	shadowsDocTopic := "$aws/things/2300F15050017/shadow/name/air-users/update/documents"
+	shadowsAcceptTopic := "$aws/things/2300F15050017/shadow/name/air-users/update/accepted"
+
+	//Shadows Document
+	go func() {
+		client.SubscribeWithHandler(shadowsAcceptTopic, 0, func(client MQTT.Client, message MQTT.Message) {
+			msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
+			fmt.Println(msgPayload)
+		})
+	}()
+
+	go func() {
+		client.SubscribeWithHandler(shadowsDocTopic, 0, func(client MQTT.Client, message MQTT.Message) {
+			msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
+			fmt.Println(msgPayload)
+		})
+	}()
+
+	return shadowsVal, nil
+}
+
+func NewAwsMqttConnect(cognitoIdentityId string) (*mqtt.AWSIoTConnection, error) {
+	var err error
+	clientMq, err := mqtt.NewConnection(mqtt.Config{
+		KeyPath:  "./certs/cert7/57c2a591aca1a833d146cb9283ce66770ed9d65a4be0cd90a754ec8f92679371-private.pem.key",
+		CertPath: "./certs/cert7/57c2a591aca1a833d146cb9283ce66770ed9d65a4be0cd90a754ec8f92679371-certificate.pem.crt",
+		CAPath:   "./certs/cert7/AmazonRootCA1.pem",
+		ClientId: *aws.String(cognitoIdentityId),
+		Endpoint: "a18xth5rea73tz-ats.iot.ap-southeast-1.amazonaws.com",
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return clientMq, err
 }
 
 // func (s *CogClient) GetCerds() (interface{}, error) {
