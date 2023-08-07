@@ -32,8 +32,8 @@ type AC1000 struct {
 	RoomTemp roomTempFunc `json:"roomTemp"`
 	SetRh    setRhFunc    `json:"setRh"`
 	RoomRh   roomRhFunc   `json:"roomRh"`
-	//FanSpeed fanSpeedFunc `json:"fanSpeed"`
-	//Louver   louverFunc   `json:"louver"`
+	FanSpeed fanSpeedFunc `json:"fanSpeed"`
+	Louver   louverFunc   `json:"louver"`
 }
 
 type IndoorInfo struct {
@@ -43,6 +43,8 @@ type IndoorInfo struct {
 	RoomTemp string `json:"roomTemp"`
 	RhSet    string `json:"rhSet"`
 	RhRoom   string `json:"RhRoom"`
+	FanSpeed string `json:"fanSpeed"`
+	Louver   string `json:"louver"`
 }
 
 func init() {
@@ -75,6 +77,8 @@ func (ut *AcStr) Ac1000() *IndoorInfo {
 		RoomTemp: roomTemp,
 		SetRh:    rh,
 		RoomRh:   rh,
+		FanSpeed: fanSpeed,
+		Louver:   louver,
 	}
 	rs := &IndoorInfo{
 		Power:    ac.Power(int(ut.reg1000[1])),
@@ -83,6 +87,8 @@ func (ut *AcStr) Ac1000() *IndoorInfo {
 		RoomTemp: ac.RoomTemp(int(ut.reg1000[7])),
 		RhSet:    ac.SetRh(int(ut.reg1000[9])),
 		RhRoom:   ac.RoomRh(int(ut.reg1000[11])),
+		FanSpeed: ac.FanSpeed(int(ut.reg1000[13])),
+		Louver:   ac.Louver(int(ut.reg1000[15])),
 	}
 
 	return rs
@@ -167,4 +173,53 @@ func rh(val int) string {
 
 	return displayTxt
 
+}
+func fanSpeed(val int) string {
+	displayTxt := ""
+	//Value 0 : Fan Auto
+	//Value 1 : Fan Low
+	//Value 2 : Fan Med
+	//Value 3 : Fan High
+	//Value 4 : Fan Hi Hi
+	//Value 5 : Fan Turbo
+	switch val {
+	case 0:
+		displayTxt = "auto"
+	case 1:
+		displayTxt = "low"
+	case 2:
+		displayTxt = "med"
+	case 3:
+		displayTxt = "high"
+	case 4:
+		displayTxt = "high+"
+	default:
+		displayTxt = "turbo"
+	}
+	return displayTxt
+}
+func louver(val int) string {
+	displayTxt := ""
+	//Value 0 :  Auto (Swing)
+	//Value 1 :  Level 1
+	//Value 2 :  Level 2
+	//Value 3 :  Level 3
+	//Value 4 :  Level 4
+	//Value 5 :  Level 5
+
+	switch val {
+	case 0:
+		displayTxt = "auto"
+	case 1:
+		displayTxt = "level 1"
+	case 2:
+		displayTxt = "level 2"
+	case 3:
+		displayTxt = "level 3"
+	case 4:
+		displayTxt = "level 4"
+	default:
+		displayTxt = "err"
+	}
+	return displayTxt
 }
