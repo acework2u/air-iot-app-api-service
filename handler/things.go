@@ -247,19 +247,27 @@ func (h *ThingsHandler) Shadows(c *gin.Context) {
 	////fmt.Printf("%t", acData)
 	////sqlid := Map["metadata"].(map[string]interface{})["sqlid"].(int)
 	reg1000 := shadows["data"].(map[string]interface{})["reg1000"].(string)
+
 	//pack1000 := []byte(reg1000)
 	//
 	data, err := hex.DecodeString(reg1000)
 	if err != nil {
 		panic(err)
 	}
+	acVal := utils.NewGetAcVal(reg1000)
+	ac1000 := acVal.Ac1000()
 
 	fmt.Println(data)
+	fmt.Println("ac1000")
+	fmt.Println(ac1000)
+	utils.NewGetAcVal(reg1000)
 	fmt.Println("len")
+	fmt.Println(len(reg1000))
 	fmt.Println(len(data))
 	if len(data) == 20 {
 		fmt.Println("Power")
 		fmt.Println(data[1])
+
 	}
 
 	//dataPack, ok := utils.NewRTUFrame(pack1000)
@@ -277,7 +285,7 @@ func (h *ThingsHandler) Shadows(c *gin.Context) {
 	//fmt.Printf("% x", data)
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": shadows,
+		"message": ac1000,
 	})
 }
 
