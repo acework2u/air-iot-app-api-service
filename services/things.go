@@ -16,6 +16,11 @@ type ShadowsValue struct {
 		Reported Reported `json:"reported"`
 	} `json:"state"`
 }
+type ShadowsCommand struct {
+	State struct {
+		Desired Desired `json:"desired"`
+	} `json:"state"`
+}
 
 type Desired struct {
 	Cmd string `json:"cmd"`
@@ -31,5 +36,5 @@ type ThinksService interface {
 	ThingRegister(idToken string) (interface{}, error)
 	ThingsConnected(idToken string, thing string) (*iotdataplane.PublishOutput, error)
 	ThingsCert(idToken string) (interface{}, error)
-	ThinksShadows(idToken string, rs string) (*ShadowsValue, error)
+	ThinksShadows(idToken string, rs string) (interface{}, error)
 }

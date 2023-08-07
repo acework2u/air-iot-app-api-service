@@ -4,14 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
-	"log"
-	"mime/multipart"
-	"os"
-	"time"
-
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	cid "github.com/aws/aws-sdk-go-v2/service/cognitoidentity"
 	cip "github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
@@ -20,11 +15,14 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/iotdataplane"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
+	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"github.com/lestrrat-go/jwx/jwk"
 	"github.com/lestrrat-go/jwx/jwt"
-
-	MQTT "github.com/eclipse/paho.mqtt.golang"
 	mqtt "github.com/tech-sumit/aws-iot-device-sdk-go"
+	"log"
+	"mime/multipart"
+	"os"
+	"time"
 )
 
 var s3client *s3.Client
@@ -487,10 +485,15 @@ func (s *CogClient) ThingsCert(idToken string) (interface{}, error) {
 
 	return airCon, nil
 }
-func (s *CogClient) ThinksShadows(idToken string, res string) (*ShadowsValue, error) {
+func (s *CogClient) ThinksShadows(idToken string, res string) (interface{}, error) {
 
-	shadowsVal := &ShadowsValue{}
+	shadowsVal := &ShadowsCommand{}
+	//shadowsVal = &Desired{Cmd: res}
+
+	//shadowsVal := &Desired{}
+	//shadowsVal.State.Desired.Cmd = "res"
 	shadowsVal.State.Desired.Cmd = res
+	//shadowsVal.State.Desired.Cmd = "res45"
 
 	fmt.Println("Working ThingShadows Servive")
 	fmt.Println(res)
@@ -501,7 +504,9 @@ func (s *CogClient) ThinksShadows(idToken string, res string) (*ShadowsValue, er
 	}
 
 	shadowsDocTopic := "$aws/things/2300F15050017/shadow/name/air-users/update/documents"
+	//shadowsDocTopic := "$aws/things/2300F15050017/shadow/name/demo-1/update/documents"
 	shadowsAcceptTopic := "$aws/things/2300F15050017/shadow/name/air-users/update/accepted"
+	//shadowsAcceptTopic := "$aws/things/2300F15050017/shadow/name/demo-1/update/accepted"
 
 	//Shadows Document
 	go func() {
@@ -518,13 +523,27 @@ func (s *CogClient) ThinksShadows(idToken string, res string) (*ShadowsValue, er
 		})
 	}()
 	pubTopic := "$aws/things/2300F15050017/shadow/name/air-users/update"
+	//pubTopic := "$aws/things/2300F15050017/shadow/name/demo-1/update"
+
+	_ = pubTopic
+
 	//
-	err = client.Publish(pubTopic, shadowsVal, 0)
+	fmt.Println("Pub----------<")
+	fmt.Println(shadowsVal)
+
+	shadowsPayload, err := json.Marshal(shadowsVal)
+
+	//fmt.Println("shadowsPayload")
+	//fmt.Println(shadowsPayload)
+	resP := &ShadowsCommand{}
+	json.Unmarshal(shadowsPayload, resP)
+
+	err = client.Publish(pubTopic, shadowsPayload, 0)
 	if err != nil {
 		return nil, err
 	}
 
-	return shadowsVal, nil
+	return resP, nil
 }
 
 func NewAwsMqttConnect(cognitoIdentityId string) (*mqtt.AWSIoTConnection, error) {
@@ -543,6 +562,113 @@ func NewAwsMqttConnect(cognitoIdentityId string) (*mqtt.AWSIoTConnection, error)
 
 	return clientMq, err
 }
+func GetClientId(idToken string) (string, error) {
+
+	pubKeyURL := "https://cognito-idp.%s.amazonaws.com/%s/.well-known/jwks.json"
+	formattedURL := fmt.Sprintf(pubKeyURL, os.Getenv("AWS_REGION"), os.Getenv("USER_POOL_ID"))
+	keySet, err := jwk.Fetch(context.TODO(), formattedURL)
+	if err != nil {
+		return "", nil
+	}
+	token, err := jwt.Parse(
+		[]byte(idToken),
+		jwt.WithKeySet(keySet),
+		jwt.WithValidate(true),
+	)
+	if err != nil {
+		return "", nil
+	}
+
+	username, _ := token.Get("cognito:username")
+	cognitoIdentityId := username.(string)
+
+	return cognitoIdentityId, nil
+}
+
+func iotConn(cognitoIdentityId string) {
+	connection, err := mqtt.NewConnection(mqtt.Config{
+		KeyPath:  "./certs/cert7/57c2a591aca1a833d146cb9283ce66770ed9d65a4be0cd90a754ec8f92679371-private.pem.key",
+		CertPath: "./certs/cert7/57c2a591aca1a833d146cb9283ce66770ed9d65a4be0cd90a754ec8f92679371-certificate.pem.crt",
+		CAPath:   "./certs/cert7/AmazonRootCA1.pem",
+		ClientId: *aws.String(cognitoIdentityId),
+		Endpoint: "a18xth5rea73tz-ats.iot.ap-southeast-1.amazonaws.com",
+	})
+
+	if err != nil {
+		panic(err)
+	}
+	go func() {
+		err = connection.SubscribeWithHandler("$aws/certificates/create/json/accepted", 0, func(client MQTT.Client, message MQTT.Message) {
+			//print(string(message.Payload()))
+			fmt.Println("<!-----Certificate Create Accepted--->")
+			msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
+			//fmt.Println(msgPayload)
+
+			ok := json.Unmarshal([]byte(msgPayload), &certIot)
+
+			if ok != nil {
+				fmt.Println(err.Error())
+				//json: Unmarshal(non-pointer main.Request)
+			} else {
+
+				pubPayload := deviceRegister{
+					CertificateOwnershipToken: certIot.CertificateOwnershipToken,
+					Parameters: deviceParam{
+						SerialNumber:        "23F05110000126",
+						AWSIoTCertificateId: string(certIot.CertificateId),
+					},
+				}
+
+				fmt.Println(certIot.CertificateId)
+				data, _ := json.Marshal(pubPayload)
+
+				fmt.Println(string(data))
+
+				regDev := connection.Publish("$aws/provisioning-templates/AirIotProvisionTemplate/provision/json", data, 0)
+				if regDev != nil {
+					fmt.Println(err.Error())
+				}
+
+			}
+
+		})
+
+	}()
+	if err != nil {
+		panic(err)
+	}
+	go func() {
+		err = connection.SubscribeWithHandler("$aws/provisioning-templates/AirIotProvisionTemplate/provision/json/accepted", 0, func(client MQTT.Client, message MQTT.Message) {
+			fmt.Println("<!-----Provision Acceped--->")
+			print(string(message.Payload()))
+
+		})
+
+	}()
+
+	go func() {
+		err = connection.SubscribeWithHandler("$aws/provisioning-templates/AirIotProvisionTemplate/provision/json/rejected", 0, func(client MQTT.Client, message MQTT.Message) {
+			fmt.Println("<!-----Provision Rejected--->")
+			print(string(message.Payload()))
+
+		})
+
+	}()
+	if err != nil {
+		panic(err)
+	}
+
+	err = connection.Publish("$aws/certificates/create/json", "", 0)
+	if err != nil {
+		panic(err)
+	}
+
+	for {
+
+		fmt.Printf("IOT AC =%v \n", time.Now())
+		time.Sleep(4 * time.Second)
+	}
+} // end of func
 
 // func (s *CogClient) GetCerds() (interface{}, error) {
 
@@ -823,111 +949,3 @@ func NewAwsMqttConnect(cognitoIdentityId string) (*mqtt.AWSIoTConnection, error)
 // 	// s.Cfg.Credentials = aws.NewCredentialsCache(assumeRoleResult.Credentials)
 // 	return authResult.AuthenticationResult, nil
 // }
-
-func GetClientId(idToken string) (string, error) {
-
-	pubKeyURL := "https://cognito-idp.%s.amazonaws.com/%s/.well-known/jwks.json"
-	formattedURL := fmt.Sprintf(pubKeyURL, os.Getenv("AWS_REGION"), os.Getenv("USER_POOL_ID"))
-	keySet, err := jwk.Fetch(context.TODO(), formattedURL)
-	if err != nil {
-		return "", nil
-	}
-	token, err := jwt.Parse(
-		[]byte(idToken),
-		jwt.WithKeySet(keySet),
-		jwt.WithValidate(true),
-	)
-	if err != nil {
-		return "", nil
-	}
-
-	username, _ := token.Get("cognito:username")
-	cognitoIdentityId := username.(string)
-
-	return cognitoIdentityId, nil
-}
-
-func iotConn(cognitoIdentityId string) {
-	connection, err := mqtt.NewConnection(mqtt.Config{
-		KeyPath:  "./certs/cert7/57c2a591aca1a833d146cb9283ce66770ed9d65a4be0cd90a754ec8f92679371-private.pem.key",
-		CertPath: "./certs/cert7/57c2a591aca1a833d146cb9283ce66770ed9d65a4be0cd90a754ec8f92679371-certificate.pem.crt",
-		CAPath:   "./certs/cert7/AmazonRootCA1.pem",
-		ClientId: *aws.String(cognitoIdentityId),
-		Endpoint: "a18xth5rea73tz-ats.iot.ap-southeast-1.amazonaws.com",
-	})
-
-	if err != nil {
-		panic(err)
-	}
-	go func() {
-		err = connection.SubscribeWithHandler("$aws/certificates/create/json/accepted", 0, func(client MQTT.Client, message MQTT.Message) {
-			//print(string(message.Payload()))
-			fmt.Println("<!-----Certificate Create Accepted--->")
-			msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
-			//fmt.Println(msgPayload)
-
-			ok := json.Unmarshal([]byte(msgPayload), &certIot)
-
-			if ok != nil {
-				fmt.Println(err.Error())
-				//json: Unmarshal(non-pointer main.Request)
-			} else {
-
-				pubPayload := deviceRegister{
-					CertificateOwnershipToken: certIot.CertificateOwnershipToken,
-					Parameters: deviceParam{
-						SerialNumber:        "23F05110000126",
-						AWSIoTCertificateId: string(certIot.CertificateId),
-					},
-				}
-
-				fmt.Println(certIot.CertificateId)
-				data, _ := json.Marshal(pubPayload)
-
-				fmt.Println(string(data))
-
-				regDev := connection.Publish("$aws/provisioning-templates/AirIotProvisionTemplate/provision/json", data, 0)
-				if regDev != nil {
-					fmt.Println(err.Error())
-				}
-
-			}
-
-		})
-
-	}()
-	if err != nil {
-		panic(err)
-	}
-	go func() {
-		err = connection.SubscribeWithHandler("$aws/provisioning-templates/AirIotProvisionTemplate/provision/json/accepted", 0, func(client MQTT.Client, message MQTT.Message) {
-			fmt.Println("<!-----Provision Acceped--->")
-			print(string(message.Payload()))
-
-		})
-
-	}()
-
-	go func() {
-		err = connection.SubscribeWithHandler("$aws/provisioning-templates/AirIotProvisionTemplate/provision/json/rejected", 0, func(client MQTT.Client, message MQTT.Message) {
-			fmt.Println("<!-----Provision Rejected--->")
-			print(string(message.Payload()))
-
-		})
-
-	}()
-	if err != nil {
-		panic(err)
-	}
-
-	err = connection.Publish("$aws/certificates/create/json", "", 0)
-	if err != nil {
-		panic(err)
-	}
-
-	for {
-
-		fmt.Printf("IOT AC =%v \n", time.Now())
-		time.Sleep(4 * time.Second)
-	}
-} // end of func

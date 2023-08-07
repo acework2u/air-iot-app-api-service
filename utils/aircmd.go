@@ -268,16 +268,6 @@ func (u *Air) GetPayload() string {
 
 }
 func GetClaimsFromToken(tokenString string) (jwt.MapClaims, error) {
-	//token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-	//	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-	//		return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-	//	}
-	//	return secretKey, nil
-	//})
-	//claims := jwt.MapClaims{}
-	//token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-	//	return []byte(secretKey), nil
-	//})
 
 	secKey := viper.GetString("SECRET_KEY")
 
