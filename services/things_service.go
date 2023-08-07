@@ -487,12 +487,13 @@ func (s *CogClient) ThingsCert(idToken string) (interface{}, error) {
 
 	return airCon, nil
 }
-func (s *CogClient) ThinksShadows(idToken string) (*ShadowsValue, error) {
+func (s *CogClient) ThinksShadows(idToken string, res string) (*ShadowsValue, error) {
 
 	shadowsVal := &ShadowsValue{}
-	shadowsVal.State.Desired.Cmd = idToken
+	shadowsVal.State.Desired.Cmd = res
 
 	fmt.Println("Working ThingShadows Servive")
+	fmt.Println(res)
 
 	client, err := NewAwsMqttConnect(idToken)
 	if err != nil {
@@ -516,6 +517,12 @@ func (s *CogClient) ThinksShadows(idToken string) (*ShadowsValue, error) {
 			fmt.Println(msgPayload)
 		})
 	}()
+	pubTopic := "$aws/things/2300F15050017/shadow/name/air-users/update"
+	//
+	err = client.Publish(pubTopic, shadowsVal, 0)
+	if err != nil {
+		return nil, err
+	}
 
 	return shadowsVal, nil
 }

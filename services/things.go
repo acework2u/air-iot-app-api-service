@@ -31,5 +31,5 @@ type ThinksService interface {
 	ThingRegister(idToken string) (interface{}, error)
 	ThingsConnected(idToken string, thing string) (*iotdataplane.PublishOutput, error)
 	ThingsCert(idToken string) (interface{}, error)
-	ThinksShadows(idToken string) (*ShadowsValue, error)
+	ThinksShadows(idToken string, rs string) (*ShadowsValue, error)
 }

@@ -203,6 +203,11 @@ func (h *ThingsHandler) CmdThing(c *gin.Context) {
 	res := airUser.GetPayload()
 
 	output, err := h.thingsService.ThingsConnected(res, userCmd.SerialNo)
+	userID, _ := c.Get("UserSub")
+
+	shadows, _ := h.thingsService.ThinksShadows(userID.(string), res)
+
+	_ = shadows
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -217,64 +222,47 @@ func (h *ThingsHandler) CmdThing(c *gin.Context) {
 		"message": output,
 	})
 
-	//air := "2300F15050017"
-	//cmd := "power"
-	//cmdVal := "1"
-
-	//airUser := utils.NewAirCmd(air, cmd, cmdVal)
-	//
-	//ok := airUser.Action()
-	//if ok != nil {
-	//	c.JSON(http.StatusBadRequest, gin.H{
-	//		"status":  http.StatusBadRequest,
-	//		"message": ok,
-	//	})
-	//
-	//	return
-	//}
-	//res := airUser.GetPayload()
-	//
-	//c.JSON(http.StatusOK, gin.H{
-	//	"status":  http.StatusOK,
-	//	"message": res,
-	//})
-
-	//
-
-	//cmd := "on"
-	//
-	//dataFrame2 := utils.AirPower2(cmd)
-	//secretKey := "SaijoDenkiSmartIOT"
-	//tokenString := ""
-	//_ = secretKey
-	//
-	//token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-	//	"serialNumber": "2300F15050017",
-	//	"data": map[string]string{
-	//		"cmd": fmt.Sprintf("%x", dataFrame2),
-	//	},
-	//})
-	////
-	////// Sign the token with the secret key
-	//tokenString, err := token.SignedString([]byte(secretKey))
-	////
-	//if err != nil {
-	//	fmt.Println("Jwt Error")
-	//	fmt.Println(err)
-	//}
-	//
-	//fmt.Println(dataFrame2)
-	//
-	//c.JSON(http.StatusOK, gin.H{
-	//	"status":  http.StatusOK,
-	//	"message": tokenString,
-	//})
 }
 
 func (h *ThingsHandler) Shadows(c *gin.Context) {
 	//userID, _ := c.Get("UserId")
 	userID, _ := c.Get("UserSub")
-	shadows, _ := h.thingsService.ThinksShadows(userID.(string))
+
+	_ = userID
+	//token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewoJInNlcmlhbE51bWJlciI6CSIyMzAwRjE1MDUwMDE3IiwKCSJ3aWZpIjoJewoJCSJzc2lkIjoJIlJORCIsCgkJImFpck5hbWUiOgkiSW5kb29yMTciLAoJCSJhaXJQYXNzd29yZCI6CSIwMDAwIiwKCQkibWFjQWRkcmVzcyI6CSJBMDc2NEVFMUZCMTgiLAoJCSJpcEFkZHJlc3MiOgkiMTkyLjE2OC4xMS4zOSIsCgkJInZlcnNpb24iOgkiOC4wIgoJfSwKCSJkYXRhIjoJewoJCSJyZWcxMDAwIjoJIjAwMDEwMDAxMDAzMjAwNkEwMDMyMDBGRjAwMDEwMDAwMDAyMTAwMDEiLAoJCSJyZWcyMDAwIjoJIjAwNDEwMEZGMDAwMDAwMDAwMDAwMDAxODAwMUEwMDAwMDAwMDAwMDAiLAoJCSJyZWczMDAwIjoJIjAwRkYwMEZGMDBGRjAwRkYwMDQxMDAwMDAwNTAwMEZGMDAwMDAwMDAwMDAwMDAwMDAwMDAwMkJDMDAwMDAwMDEwMDEyMDAyMzAwMDAwMDA4MDA3ODAwMDAwMDAwMDAwRDAwMDAwMDAwMDAwMDAwMjgwMEZBMDAxODAwMDUwMDAwMDAwMDAwMjgwMDMyMDAzQzAwMDAwMDFBMDAxQTAwMDMiLAoJCSJyZWc0MDAwIjoJIjAwMDAwMDAwMDAwMDAwMDEwMDAxMDAwMDAwMDAwMDAwMDAwMDAwMDAiCgl9Cn0.R70zoixcEUeJlTOw8-VW4oiuqcJF7Q3h_El8_LVH06E"
+
+	//shadows, err := utils.GetClaimsFromToken(token)
+	//if err != nil {
+	//	c.JSON(http.StatusBadRequest, gin.H{
+	//		"error": err,
+	//	})
+	//}
+	res := ""
+	shadows, _ := h.thingsService.ThinksShadows(userID.(string), res)
+	//acData := shadows["data"]
+	////fmt.Printf("%t", acData)
+	////sqlid := Map["metadata"].(map[string]interface{})["sqlid"].(int)
+	//reg1000 := shadows["data"].(map[string]interface{})["reg1000"].(string)
+	//pack1000 := []byte(reg1000)
+	//
+	//data, err := hex.DecodeString(reg1000)
+	//if err != nil {
+	//	panic(err)
+	//}
+
+	//dataPack, ok := utils.NewRTUFrame(pack1000)
+	//if ok != nil {
+	//	fmt.Println(" Error datapack")
+	//	fmt.Println(err)
+	//}
+
+	//fmt.Println(reg1000)
+	//fmt.Println(pack1000)
+	//fmt.Println(pack1000[0])
+	//fmt.Println(data[:2])
+	//fmt.Println(len(data))
+	//fmt.Println(cap(data))
+	//fmt.Printf("% x", data)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": shadows,
