@@ -485,67 +485,110 @@ func (s *CogClient) ThingsCert(idToken string) (interface{}, error) {
 
 	return airCon, nil
 }
-func (s *CogClient) ThinksShadows(idToken string, res string) (interface{}, error) {
+func (s *CogClient) ThinksShadows(idToken string, res string) (*ShadowsValue, error) {
 
-	shadowsVal := &ShadowsCommand{}
-	//shadowsVal = &Desired{Cmd: res}
-
-	//shadowsVal := &Desired{}
-	//shadowsVal.State.Desired.Cmd = "res"
-	shadowsVal.State.Desired.Cmd = res
-	//shadowsVal.State.Desired.Cmd = "res45"
-
-	fmt.Println("Working ThingShadows Servive")
+	fmt.Println("Working ThingShadows Services")
 	fmt.Println(res)
 
-	client, err := NewAwsMqttConnect(idToken)
+	shadowsVal := &ShadowsValue{}
+
+	result := make(chan *ShadowsValue)
+	var err error
+	ClientAwsMqtt, err = NewAwsMqttConnect(idToken)
 	if err != nil {
 		panic(err)
 	}
 
-	shadowsDocTopic := "$aws/things/2300F15050017/shadow/name/air-users/update/documents"
+	//shadowsDocTopic := "$aws/things/2300F15050017/shadow/name/air-users/update/documents"
 	//shadowsDocTopic := "$aws/things/2300F15050017/shadow/name/demo-1/update/documents"
 	shadowsAcceptTopic := "$aws/things/2300F15050017/shadow/name/air-users/update/accepted"
 	//shadowsAcceptTopic := "$aws/things/2300F15050017/shadow/name/demo-1/update/accepted"
 
 	//Shadows Document
-	go func() {
-		client.SubscribeWithHandler(shadowsAcceptTopic, 0, func(client MQTT.Client, message MQTT.Message) {
-			msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
-			fmt.Println(msgPayload)
-		})
-	}()
-
-	go func() {
-		client.SubscribeWithHandler(shadowsDocTopic, 0, func(client MQTT.Client, message MQTT.Message) {
-			msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
-			fmt.Println(msgPayload)
-		})
-	}()
-	pubTopic := "$aws/things/2300F15050017/shadow/name/air-users/update"
-	//pubTopic := "$aws/things/2300F15050017/shadow/name/demo-1/update"
-
-	_ = pubTopic
-
+	go iotSub(shadowsAcceptTopic, result)
+	fmt.Println(<-result)
+	shadowsVal = <-result
+	fmt.Println("<-result")
+	//go func() {
+	//	client.SubscribeWithHandler(shadowsAcceptTopic, 0, func(client MQTT.Client, message MQTT.Message) {
+	//		//msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
 	//
-	fmt.Println("Pub----------<")
-	fmt.Println(shadowsVal)
+	//		err := json.Unmarshal(message.Payload(), &shadowsVal)
+	//
+	//		if err != nil {
+	//			fmt.Println("err")
+	//			fmt.Println(err)
+	//		}
+	//		fmt.Println("shadowsVal")
+	//		fmt.Println(shadowsVal)
+	//	})
+	//}()
 
-	shadowsPayload, err := json.Marshal(shadowsVal)
+	//go func() {
+	//	client.SubscribeWithHandler(shadowsDocTopic, 0, func(client MQTT.Client, message MQTT.Message) {
+	//		//msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
+	//		//fmt.Println(msgPayload)
+	//
+	//		acData := map[string]interface{}{}
+	//
+	//		err := json.Unmarshal(message.Payload(), &acData)
+	//		if err != nil {
+	//			fmt.Println(err)
+	//		}
+	//		fmt.Println("shadowsVal")
+	//		acState := acData["current"]
+	//		//shadowsVal = ShadowsValue (acState)
+	//		fmt.Println("acState")
+	//
+	//		fmt.Println(acState)
+	//	})
+	//}()
 
-	//fmt.Println("shadowsPayload")
-	//fmt.Println(shadowsPayload)
-	resP := &ShadowsCommand{}
-	json.Unmarshal(shadowsPayload, resP)
+	if len(res) > 0 {
+		pubTopic := "$aws/things/2300F15050017/shadow/name/air-users/update"
+		//pubTopic := "$aws/things/2300F15050017/shadow/name/demo-1/update"
 
-	err = client.Publish(pubTopic, shadowsPayload, 0)
-	if err != nil {
-		return nil, err
+		shadowsCmd := &ShadowsCommand{}
+		shadowsCmd.State.Desired.Cmd = res
+
+		//
+		fmt.Println("Pub----------<")
+		fmt.Println(shadowsCmd)
+
+		shadowsPayload, err := json.Marshal(shadowsCmd)
+
+		//fmt.Println("shadowsPayload")
+		//fmt.Println(shadowsPayload)
+		resP := &ShadowsCommand{}
+		json.Unmarshal(shadowsPayload, resP)
+
+		err = ClientAwsMqtt.Publish(pubTopic, shadowsPayload, 0)
+
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	return resP, nil
+	return shadowsVal, nil
 }
 
+func iotSub(topic string, result chan<- *ShadowsValue) {
+	shadowsVal := &ShadowsValue{}
+	ClientAwsMqtt.SubscribeWithHandler(topic, 0, func(client MQTT.Client, message MQTT.Message) {
+		//msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
+
+		err := json.Unmarshal(message.Payload(), &shadowsVal)
+
+		if err != nil {
+			fmt.Println("err")
+			fmt.Println(err)
+		}
+		//fmt.Println("shadowsVal")
+		//fmt.Println(shadowsVal)
+		result <- shadowsVal
+	})
+
+}
 func NewAwsMqttConnect(cognitoIdentityId string) (*mqtt.AWSIoTConnection, error) {
 	var err error
 	clientMq, err := mqtt.NewConnection(mqtt.Config{
