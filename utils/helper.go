@@ -63,7 +63,6 @@ func NewGetAcVal(reg1000 string) AcValue {
 
 	return &AcStr{reg1000: data}
 }
-
 func (ut *AcStr) Ac1000() *IndoorInfo {
 	ac := &AC1000{
 		Power:    power,
@@ -88,7 +87,6 @@ func (ut *AcStr) Ac1000() *IndoorInfo {
 
 	return rs
 }
-
 func power(val int) string {
 	powerTxt := ""
 	switch val {

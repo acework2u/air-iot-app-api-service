@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/acework2u/air-iot-app-api-service/utils"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
@@ -80,6 +81,7 @@ type CogClient struct {
 	UserPoolId  string
 	ClientCog   *cip.Client
 	IotClient   *iot.Client
+	IotData     *iotdataplane.Client
 	StsSvc      *sts.Client
 	Cfg         *aws.Config
 	S3client    *s3.Client
@@ -87,31 +89,6 @@ type CogClient struct {
 }
 
 func NewThingClient(cognitoRegion string, userPoolId string, cognitoClientId string) ThinksService {
-
-	// customResolver := aws.EndpointResolverWithOptions(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-	// 	if service == sts.ServiceID && region == "us-west-2" {
-	// 		return aws.Endpoint{
-	// 			PartitionID:   "aws",
-	// 			URL:           "https://sts.us-west-2.amazonaws.com",
-	// 			SigningRegion: "us-west-2",
-	// 		}, nil
-	// 	}
-	// 	return aws.Endpoint{}, &aws.EndpointNotFoundError{}
-	// })
-
-	// customResolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-	// 	if service == sts.ServiceID && region == *aws.String("us-west-2") {
-	// 		return aws.Endpoint{
-	// 			PartitionID:   *aws.String("aws"),
-	// 			URL:           *aws.String("https://sts.us-west-2.amazonaws.com"),
-	// 			SigningRegion: *aws.String("us-west-2"),
-	// 		}, nil
-	// 	}
-	// 	return aws.Endpoint{}, &aws.EndpointNotFoundError{}
-	// })
-
-	// fmt.Println("<-------customResolver---------->")
-	// fmt.Println(customResolver)
 
 	awsEndpoint := "https://s3.ap-southeast-1.amazonaws.com"
 	customResolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
@@ -125,20 +102,7 @@ func NewThingClient(cognitoRegion string, userPoolId string, cognitoClientId str
 		return aws.Endpoint{}, &aws.EndpointNotFoundError{}
 	})
 	_ = customResolver
-	//customResolver := aws.EndpointResolverFunc(func(service, region string) (aws.Endpoint, error) {
-	//	if awsEndpoint != "" {
-	//		return aws.Endpoint{
-	//			PartitionID:   "aws",
-	//			URL:           awsEndpoint,
-	//			SigningRegion: awsRegion,
-	//		}, nil
-	//	}
-	//
-	//	// returning EndpointNotFoundError will allow the service to fallback to it's default resolution
-	//	return aws.Endpoint{}, &aws.EndpointNotFoundError{}
-	//})
 
-	// cfg, err := config.LoadDefaultConfig(context.Background(), config.WithEndpointResolverWithOptions(customResolver), config.WithClientLogMode(1))
 	cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(cognitoRegion), config.WithSharedConfigProfile("default"))
 	//cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion("ap-southeast-1"), config.WithEndpointResolverWithOptions(customResolver))
 
@@ -154,6 +118,7 @@ func NewThingClient(cognitoRegion string, userPoolId string, cognitoClientId str
 	stsClient := sts.NewFromConfig(cfg)
 	iotClient := iot.NewFromConfig(cfg)
 	s3client = s3.NewFromConfig(cfg)
+	iotData := iotdataplane.NewFromConfig(cfg)
 
 	return &CogClient{
 		AppClientId: cognitoClientId,
@@ -161,6 +126,7 @@ func NewThingClient(cognitoRegion string, userPoolId string, cognitoClientId str
 		ClientCog:   cognitoIdentityProviderClient,
 		StsSvc:      stsClient,
 		IotClient:   iotClient,
+		IotData:     iotData,
 		Cfg:         &cfg,
 		S3client:    s3client,
 		Ctx:         context.TODO(),
@@ -501,7 +467,7 @@ func (s *CogClient) ThinksShadows(idToken string, res string) (*ShadowsValue, er
 
 	//shadowsDocTopic := "$aws/things/2300F15050017/shadow/name/air-users/update/documents"
 	//shadowsDocTopic := "$aws/things/2300F15050017/shadow/name/demo-1/update/documents"
-	shadowsAcceptTopic := "$aws/things/2300F15050017/shadow/name/air-users/update/accepted"
+	shadowsAcceptTopic := "$aws/things/2300F15050023/shadow/name/air-users/update/accepted"
 	//shadowsAcceptTopic := "$aws/things/2300F15050017/shadow/name/demo-1/update/accepted"
 
 	//Shadows Document
@@ -511,24 +477,26 @@ func (s *CogClient) ThinksShadows(idToken string, res string) (*ShadowsValue, er
 	//fmt.Println("<-result")
 	//time.Sleep(time.Second * 1)
 	//fmt.Println("<-End")
-	/*
-		go func(target chan *ShadowsValue) {
-			ClientAwsMqtt.SubscribeWithHandler(shadowsAcceptTopic, 0, func(client MQTT.Client, message MQTT.Message) {
-				//msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
 
-				err := json.Unmarshal(message.Payload(), &shadowsVal)
+	//go func(target chan *ShadowsValue) {
+	//	ClientAwsMqtt.SubscribeWithHandler(shadowsAcceptTopic, 0, func(client MQTT.Client, message MQTT.Message) {
+	//		//msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
+	//
+	//		err := json.Unmarshal(message.Payload(), &shadowsVal)
+	//
+	//		if err != nil {
+	//			fmt.Println("err")
+	//			fmt.Println(err)
+	//		}
+	//		fmt.Println("IN shadowsVal")
+	//		result <- shadowsVal
+	//		fmt.Println(shadowsVal)
+	//	})
+	//}(result)
+	//
+	//fmt.Println("<-result----------->")
+	//fmt.Println(<-result)
 
-				if err != nil {
-					fmt.Println("err")
-					fmt.Println(err)
-				}
-				fmt.Println("IN shadowsVal")
-				result <- shadowsVal
-				fmt.Println(shadowsVal)
-			})
-		}(result)
-
-	*/
 	/*
 		go func() {
 			ClientAwsMqtt.SubscribeWithHandler(shadowsDocTopic, 0, func(client MQTT.Client, message MQTT.Message) {
@@ -562,9 +530,6 @@ func (s *CogClient) ThinksShadows(idToken string, res string) (*ShadowsValue, er
 		fmt.Println(shadowsCmd)
 
 		shadowsPayload, err := json.Marshal(shadowsCmd)
-
-		//fmt.Println("shadowsPayload")
-		//fmt.Println(shadowsPayload)
 		resP := &ShadowsCommand{}
 		json.Unmarshal(shadowsPayload, resP)
 
@@ -577,20 +542,92 @@ func (s *CogClient) ThinksShadows(idToken string, res string) (*ShadowsValue, er
 
 	return shadowsVal, nil
 }
+func (s *CogClient) PubGetShadows(thinkName string, shadowName string) (*IndoorInfo, error) {
+
+	subTopic := &iotdataplane.GetThingShadowInput{
+		ThingName:  aws.String(thinkName),
+		ShadowName: aws.String("air-users"),
+	}
+	getThingShadowOutput, err := s.IotData.GetThingShadow(s.Ctx, subTopic)
+	if err != nil {
+		return nil, err
+	}
+	shadowVal := &ShadowsValue{}
+	err = json.Unmarshal(getThingShadowOutput.Payload, shadowVal)
+	if err != nil {
+		return nil, err
+	}
+
+	decodeShadow, _ := utils.GetClaimsFromToken(shadowVal.State.Reported.Message)
+	reg1000 := decodeShadow["data"].(map[string]interface{})["reg1000"].(string)
+	acVal := utils.NewGetAcVal(reg1000)
+	ac1000 := acVal.Ac1000()
+
+	pubTopic := fmt.Sprintf("$aws/things/%v/shadow/name/air-users/get", thinkName)
+	s.IotData.Publish(s.Ctx, &iotdataplane.PublishInput{Topic: aws.String(pubTopic)})
+
+	acData := (*IndoorInfo)(ac1000)
+
+	return acData, nil
+
+}
+func (s *CogClient) PubUpdateShadows(thinkName string, payload string) (*IndoorInfo, error) {
+
+	shadowsCmd := &ShadowsCommand{}
+	shadowsCmd.State.Desired.Cmd = payload
+	shadowsPayload, err := json.Marshal(shadowsCmd)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = s.IotData.UpdateThingShadow(s.Ctx, &iotdataplane.UpdateThingShadowInput{
+		Payload:    shadowsPayload,
+		ShadowName: aws.String("air-users"),
+		ThingName:  aws.String(thinkName),
+	})
+	if err != nil {
+		return nil, err
+	}
+	time.Sleep(2 * time.Second)
+
+	shadowOutput, _ := s.PubGetShadows(thinkName, "")
+
+	return shadowOutput, nil
+}
+
+func (s *CogClient) NewAwsMqttConnect(cognitoIdentityId string) (*mqtt.AWSIoTConnection, error) {
+	var err error
+	clientMq, err := mqtt.NewConnection(mqtt.Config{
+		KeyPath:  "./certs/cert7/57c2a591aca1a833d146cb9283ce66770ed9d65a4be0cd90a754ec8f92679371-private.pem.key",
+		CertPath: "./certs/cert7/57c2a591aca1a833d146cb9283ce66770ed9d65a4be0cd90a754ec8f92679371-certificate.pem.crt",
+		CAPath:   "./certs/cert7/AmazonRootCA1.pem",
+		ClientId: *aws.String(cognitoIdentityId),
+		Endpoint: "a18xth5rea73tz-ats.iot.ap-southeast-1.amazonaws.com",
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return clientMq, err
+}
 
 func iotSub(topic string, result chan<- *ShadowsValue) {
 	shadowsVal := &ShadowsValue{}
-	ClientAwsMqtt.SubscribeWithHandler(topic, 0, func(client MQTT.Client, message MQTT.Message) {
-		//msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
-		err := json.Unmarshal(message.Payload(), &shadowsVal)
-		if err != nil {
-			fmt.Println("err")
-			fmt.Println(err)
-		}
-		fmt.Println("shadowsVal")
-		fmt.Println(shadowsVal)
-		result <- shadowsVal
-	})
+
+	go func() {
+		ClientAwsMqtt.SubscribeWithHandler(topic, 0, func(client MQTT.Client, message MQTT.Message) {
+			//msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
+			err := json.Unmarshal(message.Payload(), &shadowsVal)
+			if err != nil {
+				fmt.Println("err")
+				fmt.Println(err)
+			}
+			fmt.Println("shadowsVal")
+			fmt.Println(shadowsVal)
+			result <- shadowsVal
+		})
+	}()
 
 }
 func NewAwsMqttConnect(cognitoIdentityId string) (*mqtt.AWSIoTConnection, error) {
@@ -631,7 +668,6 @@ func GetClientId(idToken string) (string, error) {
 
 	return cognitoIdentityId, nil
 }
-
 func iotConn(cognitoIdentityId string) {
 	connection, err := mqtt.NewConnection(mqtt.Config{
 		KeyPath:  "./certs/cert7/57c2a591aca1a833d146cb9283ce66770ed9d65a4be0cd90a754ec8f92679371-private.pem.key",

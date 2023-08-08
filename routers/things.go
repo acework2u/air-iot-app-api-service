@@ -24,6 +24,8 @@ func (rc *ThingController) ThingsRoute(rg *gin.RouterGroup) {
 	router.GET("/thing/cert", rc.thingsHandler.ThingsCert)
 	router.GET("/thing/cmd", rc.thingsHandler.CmdThing)
 	router.GET("/thing/shadows", rc.thingsHandler.Shadows)
+	router.POST("/thing/shadows", rc.thingsHandler.PostShadows)
+	router.GET("/ws/thing/shadows", rc.thingsHandler.WsShadows)
 
 	//router.GET("/things", rc.thingsHandler.ConnectThing)
 	//router.POST("/things", rc.thingsHandler.ConnectThing)

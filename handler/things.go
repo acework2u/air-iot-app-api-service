@@ -8,7 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"math"
 	"net/http"
-	"strings"
 )
 
 type ThingsHandler struct {
@@ -173,22 +172,6 @@ func (h *ThingsHandler) CmdThing(c *gin.Context) {
 		return
 	}
 
-	switch strings.ToLower(userCmd.Cmd) {
-	case "power":
-	case "temp":
-	case "mode":
-	case "fan":
-	case "swing":
-
-	}
-
-	if userCmd.Value == "on" {
-		userCmd.Value = "1"
-	}
-	if userCmd.Value == "off" {
-		userCmd.Value = "0"
-	}
-
 	airUser := utils.NewAirCmd(userCmd.SerialNo, userCmd.Cmd, userCmd.Value)
 
 	ok := airUser.Action()
@@ -197,9 +180,9 @@ func (h *ThingsHandler) CmdThing(c *gin.Context) {
 			"status":  http.StatusBadRequest,
 			"message": "command is wrong",
 		})
-
 		return
 	}
+
 	res := airUser.GetPayload()
 
 	// Normal command
@@ -227,6 +210,50 @@ func (h *ThingsHandler) CmdThing(c *gin.Context) {
 
 }
 
+func (h *ThingsHandler) PostShadows(c *gin.Context) {
+
+	userCmd := &airCmdReq{}
+
+	err := c.ShouldBindJSON(userCmd)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err,
+		})
+		return
+	}
+
+	airUser := utils.NewAirCmd(userCmd.SerialNo, userCmd.Cmd, userCmd.Value)
+
+	ok := airUser.Action()
+	if ok != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": "command is wrong",
+		})
+		return
+	}
+
+	shadowPayload := airUser.GetPayload()
+
+	res, err := h.thingsService.PubUpdateShadows(userCmd.SerialNo, shadowPayload)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": res,
+	})
+
+}
+
 func (h *ThingsHandler) Shadows(c *gin.Context) {
 	//userID, _ := c.Get("UserId")
 	userID, _ := c.Get("UserSub")
@@ -250,6 +277,38 @@ func (h *ThingsHandler) Shadows(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": ac1000,
 	})
+
+}
+
+func (h *ThingsHandler) WsShadows(c *gin.Context) {
+
+	//thingName := "2300F15050017"
+	shadowName := "air-users"
+	acCmdReq := &airCmdReq{}
+
+	err := c.ShouldBindJSON(acCmdReq)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err,
+		})
+		return
+	}
+	thinkName := fmt.Sprintf("%v", acCmdReq.SerialNo)
+	data, err := h.thingsService.PubGetShadows(thinkName, shadowName)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"Message": data,
+	})
+
 }
 
 func decimalToBinary(num int) {

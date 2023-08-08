@@ -37,6 +37,13 @@ func (u *Air) Action() error {
 	var err error
 	switch strings.ToLower(u.Cmd) {
 	case "power":
+
+		if strings.ToLower(u.Value) == "on" {
+			u.Value = "1"
+		}
+		if strings.ToLower(u.Value) == "off" {
+			u.Value = "0"
+		}
 		u.Payload, err = u.power()
 		if err != nil {
 			return err
