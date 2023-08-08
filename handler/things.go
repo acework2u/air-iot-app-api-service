@@ -232,60 +232,23 @@ func (h *ThingsHandler) Shadows(c *gin.Context) {
 	userID, _ := c.Get("UserSub")
 
 	_ = userID
-	//token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewoJInNlcmlhbE51bWJlciI6CSIyMzAwRjE1MDUwMDE3IiwKCSJ3aWZpIjoJewoJCSJzc2lkIjoJIlJORCIsCgkJImFpck5hbWUiOgkiSW5kb29yMTciLAoJCSJhaXJQYXNzd29yZCI6CSIwMDAwIiwKCQkibWFjQWRkcmVzcyI6CSJBMDc2NEVFMUZCMTgiLAoJCSJpcEFkZHJlc3MiOgkiMTkyLjE2OC4xMS4zOSIsCgkJInZlcnNpb24iOgkiOC4wIgoJfSwKCSJkYXRhIjoJewoJCSJyZWcxMDAwIjoJIjAwMDEwMDAxMDAzMjAwNkEwMDMyMDBGRjAwMDEwMDAwMDAyMTAwMDEiLAoJCSJyZWcyMDAwIjoJIjAwNDEwMEZGMDAwMDAwMDAwMDAwMDAxODAwMUEwMDAwMDAwMDAwMDAiLAoJCSJyZWczMDAwIjoJIjAwRkYwMEZGMDBGRjAwRkYwMDQxMDAwMDAwNTAwMEZGMDAwMDAwMDAwMDAwMDAwMDAwMDAwMkJDMDAwMDAwMDEwMDEyMDAyMzAwMDAwMDA4MDA3ODAwMDAwMDAwMDAwRDAwMDAwMDAwMDAwMDAwMjgwMEZBMDAxODAwMDUwMDAwMDAwMDAwMjgwMDMyMDAzQzAwMDAwMDFBMDAxQTAwMDMiLAoJCSJyZWc0MDAwIjoJIjAwMDAwMDAwMDAwMDAwMDEwMDAxMDAwMDAwMDAwMDAwMDAwMDAwMDAiCgl9Cn0.R70zoixcEUeJlTOw8-VW4oiuqcJF7Q3h_El8_LVH06E"
 
-	//shadows, err := utils.GetClaimsFromToken(token)
-
-	//if err != nil {
-	//	c.JSON(http.StatusBadRequest, gin.H{
-	//		"error": err,
-	//	})
-	//}
 	res := ""
-	shadows, _ := h.thingsService.ThinksShadows(userID.(string), res)
-	////acData := shadows["data"]
-	////fmt.Printf("%t", acData)
-	////sqlid := Map["metadata"].(map[string]interface{})["sqlid"].(int)
-	//reg1000 := shadows["data"].(map[string]interface{})["reg1000"].(string)
+	resShadows, _ := h.thingsService.ThinksShadows(userID.(string), res)
 
-	//pack1000 := []byte(reg1000)
-	//
-	//data, err := hex.DecodeString(reg1000)
-	//if err != nil {
-	//	panic(err)
-	//}
-	//acVal := utils.NewGetAcVal(reg1000)
-	//ac1000 := acVal.Ac1000()
-	//
-	//fmt.Println(data)
-	//fmt.Println("ac1000")
-	//fmt.Println(ac1000)
-	//utils.NewGetAcVal(reg1000)
-	//fmt.Println("len")
-	//fmt.Println(len(reg1000))
-	//fmt.Println(len(data))
-	//if len(data) == 20 {
-	//	fmt.Println("Power")
-	//	fmt.Println(data[1])
-	//
-	//}
-
-	//dataPack, ok := utils.NewRTUFrame(pack1000)
-	//if ok != nil {
-	//	fmt.Println(" Error datapack")
-	//	fmt.Println(err)
-	//}
-
-	//fmt.Println(reg1000)
-	//fmt.Println(pack1000)
-	//fmt.Println(pack1000[0])
-	//fmt.Println(data[:2])
-	//fmt.Println(len(data))
-	//fmt.Println(cap(data))
-	//fmt.Printf("% x", data)
+	shadows, err := utils.GetClaimsFromToken(resShadows.State.Reported.Message)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err,
+		})
+	}
+	reg1000 := shadows["data"].(map[string]interface{})["reg1000"].(string)
+	acVal := utils.NewGetAcVal(reg1000)
+	ac1000 := acVal.Ac1000()
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": shadows,
+		"message": ac1000,
 	})
 }
 

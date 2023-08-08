@@ -506,44 +506,50 @@ func (s *CogClient) ThinksShadows(idToken string, res string) (*ShadowsValue, er
 
 	//Shadows Document
 	go iotSub(shadowsAcceptTopic, result)
-	fmt.Println(<-result)
+	//fmt.Println(<-result)
 	shadowsVal = <-result
-	fmt.Println("<-result")
-	//go func() {
-	//	client.SubscribeWithHandler(shadowsAcceptTopic, 0, func(client MQTT.Client, message MQTT.Message) {
-	//		//msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
-	//
-	//		err := json.Unmarshal(message.Payload(), &shadowsVal)
-	//
-	//		if err != nil {
-	//			fmt.Println("err")
-	//			fmt.Println(err)
-	//		}
-	//		fmt.Println("shadowsVal")
-	//		fmt.Println(shadowsVal)
-	//	})
-	//}()
+	//fmt.Println("<-result")
+	//time.Sleep(time.Second * 1)
+	//fmt.Println("<-End")
+	/*
+		go func(target chan *ShadowsValue) {
+			ClientAwsMqtt.SubscribeWithHandler(shadowsAcceptTopic, 0, func(client MQTT.Client, message MQTT.Message) {
+				//msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
 
-	//go func() {
-	//	client.SubscribeWithHandler(shadowsDocTopic, 0, func(client MQTT.Client, message MQTT.Message) {
-	//		//msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
-	//		//fmt.Println(msgPayload)
-	//
-	//		acData := map[string]interface{}{}
-	//
-	//		err := json.Unmarshal(message.Payload(), &acData)
-	//		if err != nil {
-	//			fmt.Println(err)
-	//		}
-	//		fmt.Println("shadowsVal")
-	//		acState := acData["current"]
-	//		//shadowsVal = ShadowsValue (acState)
-	//		fmt.Println("acState")
-	//
-	//		fmt.Println(acState)
-	//	})
-	//}()
+				err := json.Unmarshal(message.Payload(), &shadowsVal)
 
+				if err != nil {
+					fmt.Println("err")
+					fmt.Println(err)
+				}
+				fmt.Println("IN shadowsVal")
+				result <- shadowsVal
+				fmt.Println(shadowsVal)
+			})
+		}(result)
+
+	*/
+	/*
+		go func() {
+			ClientAwsMqtt.SubscribeWithHandler(shadowsDocTopic, 0, func(client MQTT.Client, message MQTT.Message) {
+				//msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
+				//fmt.Println(msgPayload)
+
+				acData := map[string]interface{}{}
+
+				err := json.Unmarshal(message.Payload(), &acData)
+				if err != nil {
+					fmt.Println(err)
+				}
+				fmt.Println("Shadows Doc topic")
+				acState := acData["current"]
+				//shadowsVal = ShadowsValue (acState)
+				fmt.Println("acState")
+
+				fmt.Println(acState)
+			})
+		}()
+	*/
 	if len(res) > 0 {
 		pubTopic := "$aws/things/2300F15050017/shadow/name/air-users/update"
 		//pubTopic := "$aws/things/2300F15050017/shadow/name/demo-1/update"
@@ -576,15 +582,13 @@ func iotSub(topic string, result chan<- *ShadowsValue) {
 	shadowsVal := &ShadowsValue{}
 	ClientAwsMqtt.SubscribeWithHandler(topic, 0, func(client MQTT.Client, message MQTT.Message) {
 		//msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
-
 		err := json.Unmarshal(message.Payload(), &shadowsVal)
-
 		if err != nil {
 			fmt.Println("err")
 			fmt.Println(err)
 		}
-		//fmt.Println("shadowsVal")
-		//fmt.Println(shadowsVal)
+		fmt.Println("shadowsVal")
+		fmt.Println(shadowsVal)
 		result <- shadowsVal
 	})
 

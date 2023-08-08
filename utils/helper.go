@@ -47,11 +47,6 @@ type IndoorInfo struct {
 	Louver   string `json:"louver"`
 }
 
-func init() {
-	fmt.Println("Run in Utile----->")
-
-}
-
 type AcValue interface {
 	Ac1000() *IndoorInfo
 }
@@ -133,9 +128,6 @@ func temp(val int) string {
 	}
 	val2 := float64(val)
 	tempVal := val2 / 2
-
-	fmt.Println("tempVal")
-	fmt.Println(tempVal)
 	s := fmt.Sprintf("%3.1f", tempVal)
 	displayTxt = s
 
@@ -152,9 +144,6 @@ func roomTemp(val int) string {
 
 	val2 := float64(val)
 	tempVal := val2 / 2
-
-	fmt.Println("tempVal")
-	fmt.Println(tempVal)
 	s := fmt.Sprintf("%3.1f", tempVal)
 	displayTxt = s
 
