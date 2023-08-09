@@ -205,6 +205,8 @@ func louver(val int) string {
 		displayTxt = "level 3"
 	case 4:
 		displayTxt = "level 4"
+	case 5:
+		displayTxt = "level 5"
 	default:
 		displayTxt = "err"
 	}

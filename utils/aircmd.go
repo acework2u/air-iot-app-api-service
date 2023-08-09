@@ -111,6 +111,29 @@ func (u *Air) Action() error {
 			return err
 		}
 	case "swing":
+		switch strings.ToLower(u.Value) {
+		case "auto":
+		case "0":
+			u.Value = "0"
+		case "level1":
+		case "1":
+			u.Value = "1"
+		case "level2":
+		case "2":
+			u.Value = "2"
+		case "level3":
+		case "3":
+			u.Value = "3"
+		case "level4":
+		case "4":
+			u.Value = "4"
+		case "level5":
+		case "5":
+			u.Value = "5"
+		default:
+			u.Value = ""
+
+		}
 		u.Payload, err = u.swing()
 		if err != nil {
 			return err
