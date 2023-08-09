@@ -56,12 +56,56 @@ func (u *Air) Action() error {
 		}
 
 	case "mode":
+		switch strings.ToLower(u.Value) {
+		case "cool":
+		case "0":
+			u.Value = "0"
+		case "dry":
+		case "1":
+			u.Value = "1"
+		case "auto":
+		case "2":
+			u.Value = "2"
+		case "heat":
+		case "3":
+			u.Value = "3"
+		case "fan":
+		case "4":
+			u.Value = "4"
+		default:
+			u.Value = ""
+
+		}
+
 		u.Payload, err = u.mode()
 
 		if err != nil {
 			return err
 		}
 	case "fan":
+		switch strings.ToLower(u.Value) {
+		case "auto":
+		case "0":
+			u.Value = "0"
+		case "low":
+		case "1":
+			u.Value = "1"
+		case "med":
+		case "2":
+			u.Value = "2"
+		case "high":
+		case "3":
+			u.Value = "3"
+		case "hihi":
+		case "4":
+			u.Value = "4"
+		case "turbo":
+		case "5":
+			u.Value = "5"
+		default:
+			u.Value = ""
+
+		}
 		u.Payload, err = u.fan()
 		if err != nil {
 			return err
