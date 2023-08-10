@@ -2,9 +2,11 @@ package handler
 
 import (
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"github.com/acework2u/air-iot-app-api-service/services"
 	"github.com/acework2u/air-iot-app-api-service/utils"
+	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"github.com/gin-gonic/gin"
 	"math"
 	"net/http"
@@ -310,6 +312,43 @@ func (h *ThingsHandler) WsShadows(c *gin.Context) {
 
 func (h *ThingsHandler) WsIoT(c *gin.Context) {
 
+	cogintoId := "646c33ba0e5800006e000abd"
+	client, err := h.thingsService.NewAwsMqttConnect(cogintoId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err,
+		})
+		return
+	}
+
+	//shadowsDocTopic := "$aws/things/2300F15050017/shadow/name/air-users/update/documents"
+	shadowsDocTopic := "$aws/things/2300F15050023/shadow/name/air-users/update/accepted"
+
+	//res := make(chan *gin.Context)
+
+	//fmt.Println("OK")
+	//fmt.Println(ok)
+
+	go func(contex *gin.Context) {
+		client.SubscribeWithHandler(shadowsDocTopic, 0, func(client MQTT.Client, message MQTT.Message) {
+			msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
+			fmt.Println("msgPayload")
+			fmt.Println(msgPayload)
+			resP := map[string]interface{}{}
+			//json.Unmarshal(message.Payload(), &resP)
+			json.Unmarshal(message.Payload(), &resP)
+
+			fmt.Println(resP)
+
+			c.JSON(http.StatusOK, gin.H{
+				"status":  http.StatusOK,
+				"message": resP,
+			})
+		})
+
+	}(c)
+	//defer client.Disconnect()
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
 		"message": "ws socket",

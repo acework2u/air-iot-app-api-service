@@ -594,7 +594,6 @@ func (s *CogClient) PubUpdateShadows(thinkName string, payload string) (*IndoorI
 
 	return shadowOutput, nil
 }
-
 func (s *CogClient) NewAwsMqttConnect(cognitoIdentityId string) (*mqtt.AWSIoTConnection, error) {
 	var err error
 	clientMq, err := mqtt.NewConnection(mqtt.Config{
@@ -630,6 +629,7 @@ func iotSub(topic string, result chan<- *ShadowsValue) {
 	}()
 
 }
+
 func NewAwsMqttConnect(cognitoIdentityId string) (*mqtt.AWSIoTConnection, error) {
 	var err error
 	clientMq, err := mqtt.NewConnection(mqtt.Config{
