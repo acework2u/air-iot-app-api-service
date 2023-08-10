@@ -5,11 +5,10 @@ import (
 	"fmt"
 	"github.com/acework2u/air-iot-app-api-service/services"
 	"github.com/acework2u/air-iot-app-api-service/utils"
-	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 	"math"
 	"net/http"
-	"time"
 )
 
 type ThingsHandler struct {
@@ -20,6 +19,14 @@ type airCmdReq struct {
 	SerialNo string `json:"serialNo" validate:"required" binding:"required"`
 	Cmd      string `json:"cmd" validate:"required" binding:"required"`
 	Value    string `json:"value" validate:"required" binding:"required"`
+}
+
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
 }
 
 func NewThingsHandler(thingsService services.ThinksService) ThingsHandler {
@@ -311,74 +318,97 @@ func (h *ThingsHandler) WsShadows(c *gin.Context) {
 }
 
 func (h *ThingsHandler) WsIoT(c *gin.Context) {
-
-	cogintoId := "646c33ba0e5800006e000abd"
-	client, err := h.thingsService.NewAwsMqttConnect(cogintoId)
+	ws, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": err,
-		})
+		fmt.Println(err)
 		return
 	}
-
-	//shadowsDocTopic := "$aws/things/2300F15050017/shadow/name/air-users/update/documents"
-	shadowsDocTopic := "$aws/things/2300F15050023/shadow/name/air-users/update/accepted"
-	dataResponse := make(chan []byte)
-	go func(ctx *gin.Context, response chan<- []byte) {
-		resOutData := &[]byte{}
-		err := client.SubscribeWithHandler(shadowsDocTopic, 0, func(client MQTT.Client, message MQTT.Message) {
-			msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
-			fmt.Println("In msgPayload")
-			fmt.Println(msgPayload)
-			resData := message.Payload()
-			resOutData = &resData
-			ctx.Header("Content-Type", "application/json")
-			ctx.JSON(http.StatusOK, resData)
-			//	ctx.Writer.Write(resData)
-			//	c.Header("Content-Type", "application/json")
-			//	c.JSON(http.StatusOK, msg)
-			//time.Sleep(1 * time.Second)
-			//response <- message.Payload()
-
-		})
+	defer ws.Close()
+	for {
+		//Read Message from client
+		mt, message, err := ws.ReadMessage()
 		if err != nil {
-			return
+			fmt.Println(err)
+			break
 		}
+		//If client message is ping will return pong
+		if string(message) == "ping" {
+			message = []byte("pong")
+		}
+		//Response message to client
+		err = ws.WriteMessage(mt, message)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+	}
 
-		fmt.Println("<-----Working in WS------->")
-		fmt.Println(resOutData)
-		//resP := map[string]interface{}{}
-		////json.Unmarshal(message.Payload(), &resP)
-		//respos := <-dataResponse
-		//json.Unmarshal(respos, &resP)
-		//
-		//fmt.Println(resP)
-		//return
+	//cogintoId := "646c33ba0e5800006e000abd"
+	//client, err := h.thingsService.NewAwsMqttConnect(cogintoId)
+	//if err != nil {
+	//	c.JSON(http.StatusBadRequest, gin.H{
+	//		"status":  http.StatusBadRequest,
+	//		"message": err,
+	//	})
+	//	return
+	//}
 
-	}(c, dataResponse)
-
-	go func() {
-		fmt.Println("Work 2")
-		time.Sleep(2 * time.Second)
-	}()
-	////defer client.Disconnect()
+	//shadowsDocTopic := "$aws/things/2300F15050023/shadow/name/air-users/update/accepted"
+	//dataResponse := make(chan []byte)
+	//go func(ctx *gin.Context, response chan<- []byte) {
+	//	resOutData := &[]byte{}
+	//	err := client.SubscribeWithHandler(shadowsDocTopic, 0, func(client MQTT.Client, message MQTT.Message) {
+	//		msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
+	//		fmt.Println("In msgPayload")
+	//		fmt.Println(msgPayload)
+	//		resData := message.Payload()
+	//		resOutData = &resData
+	//		ctx.Header("Content-Type", "application/json")
+	//		ctx.JSON(http.StatusOK, resData)
+	//		//	ctx.Writer.Write(resData)
+	//		//	c.Header("Content-Type", "application/json")
+	//		//	c.JSON(http.StatusOK, msg)
+	//		//time.Sleep(1 * time.Second)
+	//		//response <- message.Payload()
+	//
+	//	})
+	//	if err != nil {
+	//		return
+	//	}
+	//
+	//	fmt.Println("<-----Working in WS------->")
+	//	fmt.Println(resOutData)
+	//	//resP := map[string]interface{}{}
+	//	////json.Unmarshal(message.Payload(), &resP)
+	//	//respos := <-dataResponse
+	//	//json.Unmarshal(respos, &resP)
+	//	//
+	//	//fmt.Println(resP)
+	//	//return
+	//
+	//}(c, dataResponse)
+	//
+	//go func() {
+	//	fmt.Println("Work 2")
+	//	time.Sleep(2 * time.Second)
+	//}()
+	//////defer client.Disconnect()
+	////c.JSON(http.StatusOK, gin.H{
+	////	"status":  http.StatusOK,
+	////	"message": "ws socket",
+	////})
+	////go func(ctx *gin.Context) {
+	////	fmt.Println("Go Routine 2 Working")
+	////	c.JSON(http.StatusOK, gin.H{
+	////		"status":  http.StatusOK,
+	////		"message": "ws socket",
+	////	})
+	////}(c)
+	//
 	//c.JSON(http.StatusOK, gin.H{
 	//	"status":  http.StatusOK,
-	//	"message": "ws socket",
+	//	"message": " Out ws socket",
 	//})
-	//go func(ctx *gin.Context) {
-	//	fmt.Println("Go Routine 2 Working")
-	//	c.JSON(http.StatusOK, gin.H{
-	//		"status":  http.StatusOK,
-	//		"message": "ws socket",
-	//	})
-	//}(c)
-
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": " Out ws socket",
-	})
 
 }
 
