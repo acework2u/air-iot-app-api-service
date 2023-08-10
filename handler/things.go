@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/acework2u/air-iot-app-api-service/services"
 	"github.com/acework2u/air-iot-app-api-service/utils"
+	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"math"
@@ -324,6 +325,28 @@ func (h *ThingsHandler) WsIoT(c *gin.Context) {
 		return
 	}
 	defer ws.Close()
+	cogintoId := "646c33ba0e5800006e000abd"
+	client, err := h.thingsService.NewAwsMqttConnect(cogintoId)
+	shadowsDocTopic := "$aws/things/2300F15050023/shadow/name/air-users/update/accepted"
+	dataResponse := make(chan []byte)
+	go func(ctx *websocket.Conn, response chan<- []byte) {
+		mt, _, _ := ws.ReadMessage()
+		err := client.SubscribeWithHandler(shadowsDocTopic, 0, func(client MQTT.Client, message MQTT.Message) {
+			msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
+			fmt.Println("In msgPayload")
+			fmt.Println(msgPayload)
+			//resData := message.Payload()
+			//resOutData = &resData
+			//Response message to client
+			ctx.WriteMessage(mt, message.Payload())
+
+		})
+		if err != nil {
+			return
+		}
+
+	}(ws, dataResponse)
+
 	for {
 		//Read Message from client
 		mt, message, err := ws.ReadMessage()
