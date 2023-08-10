@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"github.com/acework2u/air-iot-app-api-service/services"
 	"github.com/acework2u/air-iot-app-api-service/utils"
@@ -10,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"math"
 	"net/http"
+	"time"
 )
 
 type ThingsHandler struct {
@@ -324,35 +324,62 @@ func (h *ThingsHandler) WsIoT(c *gin.Context) {
 
 	//shadowsDocTopic := "$aws/things/2300F15050017/shadow/name/air-users/update/documents"
 	shadowsDocTopic := "$aws/things/2300F15050023/shadow/name/air-users/update/accepted"
-
-	//res := make(chan *gin.Context)
-
-	//fmt.Println("OK")
-	//fmt.Println(ok)
-
-	go func(contex *gin.Context) {
-		client.SubscribeWithHandler(shadowsDocTopic, 0, func(client MQTT.Client, message MQTT.Message) {
+	dataResponse := make(chan []byte)
+	go func(ctx *gin.Context, response chan<- []byte) {
+		resOutData := &[]byte{}
+		err := client.SubscribeWithHandler(shadowsDocTopic, 0, func(client MQTT.Client, message MQTT.Message) {
 			msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
-			fmt.Println("msgPayload")
+			fmt.Println("In msgPayload")
 			fmt.Println(msgPayload)
-			resP := map[string]interface{}{}
-			//json.Unmarshal(message.Payload(), &resP)
-			json.Unmarshal(message.Payload(), &resP)
+			resData := message.Payload()
+			resOutData = &resData
+			ctx.Header("Content-Type", "application/json")
+			ctx.JSON(http.StatusOK, resData)
+			//	ctx.Writer.Write(resData)
+			//	c.Header("Content-Type", "application/json")
+			//	c.JSON(http.StatusOK, msg)
+			//time.Sleep(1 * time.Second)
+			//response <- message.Payload()
 
-			fmt.Println(resP)
-
-			c.JSON(http.StatusOK, gin.H{
-				"status":  http.StatusOK,
-				"message": resP,
-			})
 		})
+		if err != nil {
+			return
+		}
 
-	}(c)
-	//defer client.Disconnect()
+		fmt.Println("<-----Working in WS------->")
+		fmt.Println(resOutData)
+		//resP := map[string]interface{}{}
+		////json.Unmarshal(message.Payload(), &resP)
+		//respos := <-dataResponse
+		//json.Unmarshal(respos, &resP)
+		//
+		//fmt.Println(resP)
+		//return
+
+	}(c, dataResponse)
+
+	go func() {
+		fmt.Println("Work 2")
+		time.Sleep(2 * time.Second)
+	}()
+	////defer client.Disconnect()
+	//c.JSON(http.StatusOK, gin.H{
+	//	"status":  http.StatusOK,
+	//	"message": "ws socket",
+	//})
+	//go func(ctx *gin.Context) {
+	//	fmt.Println("Go Routine 2 Working")
+	//	c.JSON(http.StatusOK, gin.H{
+	//		"status":  http.StatusOK,
+	//		"message": "ws socket",
+	//	})
+	//}(c)
+
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
-		"message": "ws socket",
+		"message": " Out ws socket",
 	})
+
 }
 
 func decimalToBinary(num int) {
