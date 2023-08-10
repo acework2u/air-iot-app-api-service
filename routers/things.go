@@ -16,7 +16,6 @@ func NewThingsRouter(thingsHandler handler.ThingsHandler) ThingController {
 
 func (rc *ThingController) ThingsRoute(rg *gin.RouterGroup) {
 	router := rg.Group("/iot", middleware.CognitoAuthMiddleware())
-
 	router.GET("/user/certs", rc.thingsHandler.UserCert)
 	router.POST("/upload", rc.thingsHandler.UploadFile)
 	router.GET("/thing/register", rc.thingsHandler.ThingsRegister)
@@ -26,6 +25,9 @@ func (rc *ThingController) ThingsRoute(rg *gin.RouterGroup) {
 	router.GET("/thing/shadows", rc.thingsHandler.Shadows)
 	router.POST("/thing/shadows", rc.thingsHandler.PostShadows)
 	router.GET("/ws/thing/shadows", rc.thingsHandler.WsShadows)
+
+	wsRouter := rg.Group("/ws")
+	wsRouter.GET("thing/shadows", rc.thingsHandler.WsIoT)
 
 	//router.GET("/things", rc.thingsHandler.ConnectThing)
 	//router.POST("/things", rc.thingsHandler.ConnectThing)

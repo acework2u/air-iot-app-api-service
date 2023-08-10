@@ -43,7 +43,7 @@ type (
 )
 
 type ThinksService interface {
-	GetCerds() (interface{}, error)
+	GetCerts() (interface{}, error)
 	GetUserCert(*UserReq) (interface{}, error)
 	UploadToS3(file *multipart.FileHeader) (interface{}, error)
 	ThingRegister(idToken string) (interface{}, error)

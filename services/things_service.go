@@ -134,7 +134,7 @@ func NewThingClient(cognitoRegion string, userPoolId string, cognitoClientId str
 
 }
 
-func (s *CogClient) GetCerds() (interface{}, error) {
+func (s *CogClient) GetCerts() (interface{}, error) {
 	username := "wowoy73603@camplvad.com"
 	password := "J@e2262527"
 

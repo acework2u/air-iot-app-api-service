@@ -26,7 +26,7 @@ func NewThingsHandler(thingsService services.ThinksService) ThingsHandler {
 
 func (h *ThingsHandler) ConnectThing(c *gin.Context) {
 
-	res, err := h.thingsService.GetCerds()
+	res, err := h.thingsService.GetCerts()
 
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{
@@ -257,9 +257,6 @@ func (h *ThingsHandler) PostShadows(c *gin.Context) {
 func (h *ThingsHandler) Shadows(c *gin.Context) {
 	//userID, _ := c.Get("UserId")
 	userID, _ := c.Get("UserSub")
-
-	_ = userID
-
 	res := ""
 	resShadows, _ := h.thingsService.ThinksShadows(userID.(string), res)
 
@@ -309,6 +306,14 @@ func (h *ThingsHandler) WsShadows(c *gin.Context) {
 		"Message": data,
 	})
 
+}
+
+func (h *ThingsHandler) WsIoT(c *gin.Context) {
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": "ws socket",
+	})
 }
 
 func decimalToBinary(num int) {
