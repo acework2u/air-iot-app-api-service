@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"github.com/acework2u/air-iot-app-api-service/services"
 	"github.com/acework2u/air-iot-app-api-service/utils"
@@ -10,6 +11,7 @@ import (
 	"github.com/gorilla/websocket"
 	"math"
 	"net/http"
+	"time"
 )
 
 type ThingsHandler struct {
@@ -328,24 +330,31 @@ func (h *ThingsHandler) WsIoT(c *gin.Context) {
 	cogintoId := "646c33ba0e5800006e000abd"
 	client, err := h.thingsService.NewAwsMqttConnect(cogintoId)
 	shadowsDocTopic := "$aws/things/2300F15050023/shadow/name/air-users/update/accepted"
-	dataResponse := make(chan []byte)
-	go func(ctx *websocket.Conn, response chan<- []byte) {
-		mt, _, _ := ws.ReadMessage()
-		err := client.SubscribeWithHandler(shadowsDocTopic, 0, func(client MQTT.Client, message MQTT.Message) {
-			msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
-			fmt.Println("In msgPayload")
-			fmt.Println(msgPayload)
-			//resData := message.Payload()
-			//resOutData = &resData
-			//Response message to client
-			ctx.WriteMessage(mt, message.Payload())
+	//shadowsDocTopic := "$aws/things/2300F15050023/shadow/name/air-users/update/documents"
+	//shadowsDocTopic := "$aws/things/2300F15050023/shadow/name/air-users/get/accepted"
+	//initTopic :="$aws/things/2300F15050023/shadow/name/air-users/get"
+	//dataResponse := make(chan []byte)
+	//
+	//go func(ctx *websocket.Conn, response chan<- []byte) {
+	//	mt, _, _ := ws.ReadMessage()
+	//	err := client.SubscribeWithHandler(shadowsDocTopic, 0, func(client MQTT.Client, message MQTT.Message) {
+	//		msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
+	//		fmt.Println("In msgPayload")
+	//		fmt.Println(msgPayload)
+	//		//resData := message.Payload()
+	//		//resOutData = &resData
+	//		//Response message to client
+	//		ctx.WriteMessage(mt, message.Payload())
+	//
+	//	})
+	//	if err != nil {
+	//		return
+	//	}
+	//
+	//}(ws, dataResponse)
+	//h.thingsService.PubGetShadows("2300F15050023", "")
 
-		})
-		if err != nil {
-			return
-		}
-
-	}(ws, dataResponse)
+	revMsg := make(chan *services.IndoorInfo)
 
 	for {
 		//Read Message from client
@@ -355,9 +364,36 @@ func (h *ThingsHandler) WsIoT(c *gin.Context) {
 			break
 		}
 		//If client message is ping will return pong
-		if string(message) == "ping" {
-			message = []byte("pong")
+		//if string(message) == "ping" {
+		//	message = []byte("pong")
+		//}
+		fmt.Println("Ws Working...")
+		err = client.SubscribeWithHandler(shadowsDocTopic, 0, func(client MQTT.Client, message MQTT.Message) {
+			msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
+			fmt.Println("In msgPayload")
+			fmt.Println(msgPayload)
+			//resData := message.Payload()
+			//resOutData = &resData
+			//Response message to client
+			ws.WriteMessage(mt, message.Payload())
+
+		})
+
+		go func(msg chan<- *services.IndoorInfo) {
+			data, err := h.thingsService.PubGetShadows("2300F15050023", "")
+
+			if err != nil {
+				return
+			}
+			revMsg <- data
+			time.Sleep(1 * time.Second)
+		}(revMsg)
+
+		if err != nil {
+			return
 		}
+
+		message, _ = json.Marshal(<-revMsg)
 		//Response message to client
 		err = ws.WriteMessage(mt, message)
 		if err != nil {
