@@ -329,8 +329,9 @@ func (h *ThingsHandler) WsIoT(c *gin.Context) {
 	defer ws.Close()
 	cogintoId := "646c33ba0e5800006e000abd"
 	client, err := h.thingsService.NewAwsMqttConnect(cogintoId)
-	shadowsDocTopic := "$aws/things/2300F15050023/shadow/name/air-users/update/accepted"
-	//shadowsDocTopic := "$aws/things/2300F15050023/shadow/name/air-users/update/documents"
+	shadowsAcceptTopic := "$aws/things/2300F15050023/shadow/name/air-users/update/accepted"
+	shadowRejectTopic := "$aws/things/2300F15050023/shadow/name/air-users/update/rejected"
+	shadowsUpdateDocTopic := "$aws/things/2300F15050023/shadow/name/air-users/update/documents"
 	//shadowsDocTopic := "$aws/things/2300F15050023/shadow/name/air-users/get/accepted"
 	//initTopic :="$aws/things/2300F15050023/shadow/name/air-users/get"
 	//dataResponse := make(chan []byte)
@@ -361,16 +362,40 @@ func (h *ThingsHandler) WsIoT(c *gin.Context) {
 		mt, message, err := ws.ReadMessage()
 		if err != nil {
 			fmt.Println(err)
-			break
+			return
+			//break
 		}
 		//If client message is ping will return pong
 		//if string(message) == "ping" {
 		//	message = []byte("pong")
 		//}
 		fmt.Println("Ws Working...")
-		err = client.SubscribeWithHandler(shadowsDocTopic, 0, func(client MQTT.Client, message MQTT.Message) {
+		err = client.SubscribeWithHandler(shadowsAcceptTopic, 0, func(client MQTT.Client, message MQTT.Message) {
 			msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
-			fmt.Println("In msgPayload")
+			fmt.Println("In update accepted")
+			fmt.Println(msgPayload)
+			shadowDoc := &utils.ShadowAcceptStrut{}
+			json.Unmarshal(message.Payload(), shadowDoc)
+
+			//resData := message.Payload()
+			//resOutData = &resData
+			//Response message to client
+			ws.WriteMessage(mt, message.Payload())
+
+		})
+		err = client.SubscribeWithHandler(shadowsUpdateDocTopic, 0, func(client MQTT.Client, message MQTT.Message) {
+			msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
+			fmt.Println("In update Doc")
+			fmt.Println(msgPayload)
+			//resData := message.Payload()
+			//resOutData = &resData
+			//Response message to client
+			ws.WriteMessage(mt, message.Payload())
+
+		})
+		err = client.SubscribeWithHandler(shadowRejectTopic, 0, func(client MQTT.Client, message MQTT.Message) {
+			msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
+			fmt.Println("In Update Reject")
 			fmt.Println(msgPayload)
 			//resData := message.Payload()
 			//resOutData = &resData
@@ -398,7 +423,8 @@ func (h *ThingsHandler) WsIoT(c *gin.Context) {
 		err = ws.WriteMessage(mt, message)
 		if err != nil {
 			fmt.Println(err)
-			break
+			//break
+			return
 		}
 	}
 
