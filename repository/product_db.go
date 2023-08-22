@@ -15,8 +15,8 @@ type ProductRepositoryDB struct {
 	client            *mongo.Client
 }
 
-func NewProductRepositoryDB(productCollection *mongo.Collection, ctx context.Context) ProductRepository {
-	return &ProductRepositoryDB{productCollection: productCollection, ctx: ctx}
+func NewProductRepositoryDB(ctx context.Context, productCollection *mongo.Collection) ProductRepository {
+	return &ProductRepositoryDB{ctx: ctx, productCollection: productCollection}
 }
 func (r *ProductRepositoryDB) CreateProduct(product *Product) (*DBProduct, error) {
 	now := time.Now()

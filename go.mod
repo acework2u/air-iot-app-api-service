@@ -33,6 +33,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/cognitoidentity v1.15.13
 	github.com/aws/aws-sdk-go-v2/service/iotdataplane v1.15.5
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.37.0
+	github.com/go-errors/errors v1.4.2
 	github.com/gorilla/websocket v1.5.0
 )
 

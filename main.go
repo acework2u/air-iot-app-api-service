@@ -35,6 +35,7 @@ var (
 	customerCollection *mongo.Collection
 	addressCollection  *mongo.Collection
 	deviceCollection   *mongo.Collection
+	productCollection  *mongo.Collection
 
 	UserService services.UserService
 	// UserRouterCtl routers.UserRouteController
@@ -60,6 +61,10 @@ var (
 	//Auth
 	AuthRouter   routers.AuthController
 	ThingsRouter routers.ThingController
+
+	//Product
+	ProductHandler handler.ProductHandler
+	ProductRouter  routers.ProductRouter
 )
 
 func init() {
@@ -120,6 +125,13 @@ func init() {
 	thingService := service.NewThingClient(cognitoRegion, userPoolId, cognitoClientId)
 	thingHandler := handler.NewThingsHandler(thingService)
 	ThingsRouter = routers.NewThingsRouter(thingHandler)
+
+	//Product
+	productCollection = configs.GetCollection(mongoclient, "product")
+	productRepo := repository.NewProductRepositoryDB(ctx, productCollection)
+	productService := service.NewProductService(productRepo)
+	ProductHandler = handler.NewProductHandler(productService)
+	ProductRouter = routers.NewProductRouter(ProductHandler)
 
 	server = gin.Default()
 	//server = gin.New()
@@ -184,6 +196,7 @@ func startGinServer(config conf.Config) {
 	AddressRouter.AddressRoute(router)
 	DeviceRouter.DeviceRoute(router)
 	AirThingRouter.AirThingRoute(router)
+	ProductRouter.ProductRoute(router)
 
 	// Pro
 	routerPro := server.Group("/api/v2")
