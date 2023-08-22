@@ -16,3 +16,6 @@ type ProductInfo struct {
 	Mpn          string `json:"mpn"`
 	ProductImage string `json:"productImage"`
 }
+
+type ProductService interface {
+}
