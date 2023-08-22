@@ -1,5 +1,9 @@
 package services
 
+import (
+	"time"
+)
+
 type ProductNew struct {
 	Serial      string      `json:"serial" binding:"required"`
 	ProductInfo ProductInfo `json:"productInfo" binding:"required"`
@@ -13,6 +17,22 @@ type ProductInfo struct {
 	ProductImage string `json:"image,omitempty"`
 }
 
+type ProductResponse struct {
+	Serial          string      `json:"serial" bson:"serial"`
+	Status          bool        `json:"status" bson:"status"`
+	Active          bool        `json:"active" bson:"active"`
+	ProductInfo     ProductInfo `json:"productInfo" bson:"productInfo"`
+	Production      time.Time   `json:"production,omitempty" bson:"production,omitempty"`
+	DefaultWarranty time.Time   `json:"defaultWarranty" bson:"defaultWarranty"`
+	EWarranty       EWarranty   `json:"EWarranty" bson:"EWarranty"`
+}
+
+type EWarranty struct {
+	EWarranty  time.Time `json:"EWarranty" bson:"EWarranty"`
+	ActiveDate time.Time `json:"activeDate" bson:"activeDate"`
+}
+
 type ProductService interface {
-	CreateProduct(product *ProductNew) (*ProductInfo, error)
+	CreateProduct(product *ProductNew) (*ProductResponse, error)
+	DeleteProduct(serial string) error
 }

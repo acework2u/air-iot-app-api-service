@@ -47,3 +47,16 @@ func (r *ProductRepositoryDB) CreateProduct(product *Product) (*DBProduct, error
 
 	return newCustomer, nil
 }
+func (r *ProductRepositoryDB) DeleteProduct(serial string) error {
+
+	query := bson.M{"serial": serial}
+
+	delProduct, err := r.productCollection.DeleteOne(r.ctx, query)
+	if err != nil {
+		return err
+	}
+	if delProduct.DeletedCount == 0 {
+		return errors.New("no product with that serial exists")
+	}
+	return nil
+}
