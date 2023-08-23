@@ -35,6 +35,31 @@ func (s *productService) GetProduct(serial string) (*ProductResponse, error) {
 	return product, err
 
 }
+func (s *productService) GetProducts() ([]*ProductResponse, error) {
+
+	products := []*ProductResponse{}
+
+	res, err := s.product.GetProducts()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, item := range res {
+		product := &ProductResponse{
+			Serial:          item.Serial,
+			Status:          item.Status,
+			Active:          item.Active,
+			ProductInfo:     (ProductInfo)(item.ProductInfo),
+			Production:      item.Production,
+			DefaultWarranty: item.DefaultWarranty,
+			EWarranty:       (EWarranty)(item.EWarranty),
+		}
+
+		products = append(products, product)
+	}
+
+	return products, nil
+}
 func (s *productService) CreateProduct(product *ProductNew) (*ProductResponse, error) {
 
 	now := time.Now()

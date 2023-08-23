@@ -28,6 +28,10 @@ func (r *ProductRepositoryDB) GetProduct(serial string) (*DBProduct, error) {
 	return productInfo, nil
 
 }
+func (r *ProductRepositoryDB) GetProducts() ([]*DBProduct, error) {
+	filter := bson.D{{}}
+	return r.filterProduct(filter)
+}
 func (r *ProductRepositoryDB) CreateProduct(product *Product) (*DBProduct, error) {
 	now := time.Now()
 	product.Production = now
@@ -69,4 +73,31 @@ func (r *ProductRepositoryDB) DeleteProduct(serial string) error {
 		return errors.New("no product with that serial exists")
 	}
 	return nil
+}
+
+func (r *ProductRepositoryDB) filterProduct(filter interface{}) ([]*DBProduct, error) {
+
+	products := []*DBProduct{}
+	//var products []*DBProduct
+	cur, err := r.productCollection.Find(r.ctx, filter)
+	if err != nil {
+		return products, err
+	}
+	for cur.Next(r.ctx) {
+		t := DBProduct{}
+		err := cur.Decode(&t)
+		if err != nil {
+			return products, err
+		}
+		products = append(products, &t)
+	}
+	if err := cur.Err(); err != nil {
+		return products, err
+	}
+	cur.Close(r.ctx)
+
+	if len(products) == 0 {
+		return products, mongo.ErrNoDocuments
+	}
+	return products, nil
 }

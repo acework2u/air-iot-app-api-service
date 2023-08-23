@@ -44,6 +44,22 @@ func (h *ProductHandler) GetProduct(c *gin.Context) {
 	})
 }
 
+func (h *ProductHandler) GetProducts(c *gin.Context) {
+
+	products, err := h.productService.GetProducts()
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": products,
+	})
+}
+
 func (h *ProductHandler) PostProduct(c *gin.Context) {
 
 	productReq := &service.ProductNew{}
