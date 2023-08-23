@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"github.com/acework2u/air-iot-app-api-service/repository"
+	"strings"
 	"time"
 )
 
@@ -65,7 +66,7 @@ func (s *productService) CreateProduct(product *ProductNew) (*ProductResponse, e
 	now := time.Now()
 	productInfo := (repository.ProductInfo)(product.ProductInfo)
 	productNew := &repository.Product{
-		Serial:          product.Serial,
+		Serial:          strings.ToUpper(product.Serial),
 		Status:          true,
 		Active:          false,
 		ProductInfo:     productInfo,
@@ -118,6 +119,10 @@ func (s *productService) UpdateProduct(serial string, productInfo *ProductInfo) 
 	}
 
 	return proRes, nil
+}
+func (s *productService) UpdateEWarranty(serial string, warranty *EWarranty) (*ProductResponse, error) {
+
+	return nil, nil
 }
 func (s *productService) DeleteProduct(serial string) error {
 
