@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"github.com/acework2u/air-iot-app-api-service/repository"
 	"time"
 )
@@ -11,6 +12,28 @@ type productService struct {
 
 func NewProductService(product repository.ProductRepository) ProductService {
 	return &productService{product}
+}
+
+func (s *productService) GetProduct(serial string) (*ProductResponse, error) {
+	if len(serial) < 0 {
+		return nil, errors.New("serial is wrong")
+	}
+	res, err := s.product.GetProduct(serial)
+	if err != nil {
+		return nil, err
+	}
+	product := &ProductResponse{
+		Serial:          res.Serial,
+		Status:          res.Status,
+		Active:          res.Active,
+		Production:      res.Production,
+		DefaultWarranty: res.DefaultWarranty,
+		ProductInfo:     (ProductInfo)(res.ProductInfo),
+		EWarranty:       (EWarranty)(res.EWarranty),
+	}
+
+	return product, err
+
 }
 func (s *productService) CreateProduct(product *ProductNew) (*ProductResponse, error) {
 

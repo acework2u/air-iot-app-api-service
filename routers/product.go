@@ -15,6 +15,7 @@ func NewProductRouter(productHandler handler.ProductHandler) ProductRouter {
 
 func (rc *ProductRouter) ProductRoute(rg *gin.RouterGroup) {
 	router := rg.Group("/product")
+	router.GET("/:id", rc.productHandler.GetProduct)
 	router.POST("", rc.productHandler.PostProduct)
 	router.DELETE("/:id", rc.productHandler.DelProduct)
 }

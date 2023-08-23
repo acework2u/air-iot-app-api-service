@@ -18,6 +18,16 @@ type ProductRepositoryDB struct {
 func NewProductRepositoryDB(ctx context.Context, productCollection *mongo.Collection) ProductRepository {
 	return &ProductRepositoryDB{ctx: ctx, productCollection: productCollection}
 }
+func (r *ProductRepositoryDB) GetProduct(serial string) (*DBProduct, error) {
+
+	query := bson.M{"serial": serial}
+	productInfo := &DBProduct{}
+	if err := r.productCollection.FindOne(r.ctx, query).Decode(productInfo); err != nil {
+		return nil, err
+	}
+	return productInfo, nil
+
+}
 func (r *ProductRepositoryDB) CreateProduct(product *Product) (*DBProduct, error) {
 	now := time.Now()
 	product.Production = now

@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-errors/errors"
 	"github.com/go-playground/validator/v10"
@@ -23,17 +22,12 @@ func NewCustomerHandler(ctx *gin.Context) ErrHandler {
 func (c *ErrHandler) CustomError(err error) {
 	var ve validator.ValidationErrors
 	if errors.As(err, &ve) {
-
-		fmt.Println(err)
-
 		out := make([]ApiError, len(ve))
-
 		for i, fe := range ve {
 			out[i] = ApiError{fe.Field(), getErrorMsg(fe)}
 		}
-
 		c.ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": out})
-		//c.ctx.JSON(http.StatusBadRequest, gin.H{"errors": out})
+
 	}
 }
 

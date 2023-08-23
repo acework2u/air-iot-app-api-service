@@ -33,6 +33,7 @@ type EWarranty struct {
 }
 
 type ProductService interface {
+	GetProduct(serial string) (*ProductResponse, error)
 	CreateProduct(product *ProductNew) (*ProductResponse, error)
 	DeleteProduct(serial string) error
 }
