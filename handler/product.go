@@ -17,9 +17,33 @@ func NewProductHandler(productService service.ProductService) ProductHandler {
 
 func (h *ProductHandler) GetProduct(c *gin.Context) {
 
+	serialNo := c.Param("id")
+
+	if len(serialNo) < 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": "serial lte 10  is required ",
+		})
+		return
+	}
+
+	productInfo, err := h.productService.GetProduct(serialNo)
+
+	cusErr := utils.NewCustomerHandler(c)
+
+	if err != nil {
+		//c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+		//	"status":  http.StatusBadRequest,
+		//	"message": "",
+		//})
+
+		cusErr.CustomError(err)
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
-		"message": "Get",
+		"message": productInfo,
 	})
 }
 

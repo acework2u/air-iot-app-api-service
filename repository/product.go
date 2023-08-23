@@ -41,6 +41,7 @@ type (
 )
 
 type ProductRepository interface {
+	GetProduct(serial string) (*DBProduct, error)
 	CreateProduct(product *Product) (*DBProduct, error)
 	DeleteProduct(serial string) error
 }
