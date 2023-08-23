@@ -15,6 +15,17 @@ type (
 		DefaultWarranty time.Time   `json:"defaultWarranty" bson:"defaultWarranty"`
 		EWarranty       EWarranty   `json:"EWarranty" bson:"EWarranty"`
 	}
+
+	DBProductInfoUpdate struct {
+		Serial          string      `json:"serial" bson:"serial,omitempty"`
+		Status          bool        `json:"status" bson:"status,omitempty"`
+		Active          bool        `json:"active" bson:"active,omitempty"`
+		ProductInfo     ProductInfo `json:"productInfo" bson:"productInfo,omitempty"`
+		Production      time.Time   `json:"production,omitempty" bson:"production,omitempty"`
+		DefaultWarranty time.Time   `json:"defaultWarranty" bson:"defaultWarranty,omitempty"`
+		EWarranty       EWarranty   `json:"EWarranty" bson:"EWarranty,omitempty"`
+	}
+
 	DBProduct struct {
 		Id              primitive.ObjectID `json:"id" bson:"_id,omitempty"`
 		Serial          string             `json:"serial" bson:"serial"`
@@ -44,5 +55,7 @@ type ProductRepository interface {
 	GetProduct(serial string) (*DBProduct, error)
 	GetProducts() ([]*DBProduct, error)
 	CreateProduct(product *Product) (*DBProduct, error)
+	UpdateProduct(serial string, product *Product) (*DBProduct, error)
+	UpdateProductInfo(serial string, productInfo *DBProductInfoUpdate) (*DBProduct, error)
 	DeleteProduct(serial string) error
 }

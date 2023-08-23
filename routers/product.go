@@ -18,5 +18,6 @@ func (rc *ProductRouter) ProductRoute(rg *gin.RouterGroup) {
 	router.GET("", rc.productHandler.GetProducts)
 	router.GET("/:id", rc.productHandler.GetProduct)
 	router.POST("", rc.productHandler.PostProduct)
+	router.PUT("/:id/info", rc.productHandler.UpdateProduct)
 	router.DELETE("/:id", rc.productHandler.DelProduct)
 }

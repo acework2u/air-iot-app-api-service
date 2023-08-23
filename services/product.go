@@ -18,13 +18,13 @@ type ProductInfo struct {
 }
 
 type ProductResponse struct {
-	Serial          string      `json:"serial" bson:"serial"`
-	Status          bool        `json:"status" bson:"status"`
-	Active          bool        `json:"active" bson:"active"`
-	ProductInfo     ProductInfo `json:"productInfo" bson:"productInfo"`
-	Production      time.Time   `json:"production,omitempty" bson:"production,omitempty"`
-	DefaultWarranty time.Time   `json:"defaultWarranty" bson:"defaultWarranty"`
-	EWarranty       EWarranty   `json:"EWarranty" bson:"EWarranty"`
+	Serial          string      `json:"serial,omitempty"`
+	Status          bool        `json:"status,omitempty"`
+	Active          bool        `json:"active,omitempty"`
+	ProductInfo     ProductInfo `json:"productInfo,omitempty"`
+	Production      time.Time   `json:"production,omitempty"`
+	DefaultWarranty time.Time   `json:"defaultWarranty,omitempty"`
+	EWarranty       EWarranty   `json:"EWarranty,omitempty"`
 }
 
 type EWarranty struct {
@@ -36,5 +36,6 @@ type ProductService interface {
 	GetProduct(serial string) (*ProductResponse, error)
 	GetProducts() ([]*ProductResponse, error)
 	CreateProduct(product *ProductNew) (*ProductResponse, error)
+	UpdateProduct(serial string, productInfo *ProductInfo) (*ProductResponse, error)
 	DeleteProduct(serial string) error
 }

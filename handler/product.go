@@ -87,6 +87,33 @@ func (h *ProductHandler) PostProduct(c *gin.Context) {
 	})
 }
 
+func (h *ProductHandler) UpdateProduct(c *gin.Context) {
+
+	product := &service.ProductInfo{}
+	serialNo := c.Param("id")
+	err := c.ShouldBindJSON(product)
+	cusErr := utils.NewCustomerHandler(c)
+	if err != nil {
+		cusErr.CustomError(err)
+		return
+
+	}
+	// Update
+	productResponse, err := h.productService.UpdateProduct(serialNo, product)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": productResponse,
+	})
+}
+
 func (h *ProductHandler) DelProduct(c *gin.Context) {
 
 	serial := c.Param("id")

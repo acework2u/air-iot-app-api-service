@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"github.com/acework2u/air-iot-app-api-service/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -61,6 +62,68 @@ func (r *ProductRepositoryDB) CreateProduct(product *Product) (*DBProduct, error
 
 	return newCustomer, nil
 }
+func (r *ProductRepositoryDB) UpdateProduct(serial string, product *Product) (*DBProduct, error) {
+
+	doc, err := utils.ToDoc(product)
+	if err != nil {
+		return nil, err
+	}
+
+	query := bson.D{{Key: "serial", Value: serial}}
+	update := bson.D{{Key: "$set", Value: doc}}
+	res := r.productCollection.FindOneAndUpdate(r.ctx, query, update, options.FindOneAndUpdate().SetReturnDocument(1))
+
+	productInfo := &DBProduct{}
+	if err = res.Decode(productInfo); err != nil {
+		return nil, err
+	}
+
+	return productInfo, nil
+}
+func (r *ProductRepositoryDB) UpdateProductInfo(serial string, productInfo *DBProductInfoUpdate) (*DBProduct, error) {
+
+	productUp := (*DBProductInfoUpdate)(productInfo)
+	doc, err := utils.ToDoc(productUp)
+	if err != nil {
+		return nil, err
+	}
+
+	//prduct := productInfo
+
+	//doc := map[string]interface{}{
+	//	"ProductInfo.title": prduct.ProductInfo.Title,
+	//	"ProductInfo.model": prduct.ProductInfo.Model,
+	//}
+
+	query := bson.D{{Key: "serial", Value: serial}}
+	update := bson.D{{Key: "$set", Value: doc}}
+
+	//fmt.Println("In Respo")
+	//fmt.Println(doc)
+	//res, err := r.productCollection.UpdateOne(r.ctx, query, update)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//
+	//fmt.Println("res")
+	//fmt.Println("res.MatchedCount")
+	//fmt.Println(res.MatchedCount)
+	//fmt.Println("res.UpsertedCount")
+	//fmt.Println(res.UpsertedCount)
+	//fmt.Println("res.ModifiedCount")
+	//fmt.Println(res.ModifiedCount)
+	//fmt.Println("res.UpsertedID")
+	//fmt.Println(res.UpsertedID)
+
+	res := r.productCollection.FindOneAndUpdate(r.ctx, query, update, options.FindOneAndUpdate().SetReturnDocument(1))
+
+	product := &DBProduct{}
+	if err := res.Decode(product); err != nil {
+		return nil, errors.New("no product with serial exists")
+	}
+
+	return product, nil
+}
 func (r *ProductRepositoryDB) DeleteProduct(serial string) error {
 
 	query := bson.M{"serial": serial}
@@ -74,7 +137,6 @@ func (r *ProductRepositoryDB) DeleteProduct(serial string) error {
 	}
 	return nil
 }
-
 func (r *ProductRepositoryDB) filterProduct(filter interface{}) ([]*DBProduct, error) {
 
 	products := []*DBProduct{}

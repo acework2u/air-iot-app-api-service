@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/acework2u/air-iot-app-api-service/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -106,10 +105,6 @@ func (r *deviceRepositoryDB) UpdateDevice(userid string, device *DeviceUpdateReq
 	}
 	query := bson.D{{Key: "_id", Value: objId}}
 	update := bson.D{{Key: "$set", Value: doc}}
-
-	fmt.Println("Working in Repo")
-	fmt.Println(userid)
-	fmt.Println(query)
 
 	res := r.devicesCollection.FindOneAndUpdate(r.ctx, query, update, options.FindOneAndUpdate().SetReturnDocument(1))
 

@@ -90,6 +90,35 @@ func (s *productService) CreateProduct(product *ProductNew) (*ProductResponse, e
 	}
 	return response, nil
 }
+func (s *productService) UpdateProduct(serial string, productInfo *ProductInfo) (*ProductResponse, error) {
+
+	proInfo := (*repository.ProductInfo)(productInfo)
+	updateProduct := &repository.DBProductInfoUpdate{
+		ProductInfo: repository.ProductInfo{
+			Title:        proInfo.Title,
+			Model:        productInfo.Model,
+			Sku:          proInfo.Sku,
+			Mpn:          proInfo.Mpn,
+			ProductImage: proInfo.ProductImage,
+		},
+	}
+
+	dbProduct, err := s.product.UpdateProductInfo(serial, updateProduct)
+	if err != nil {
+		return nil, err
+	}
+	proRes := &ProductResponse{
+		Serial:          dbProduct.Serial,
+		Active:          dbProduct.Active,
+		Status:          dbProduct.Status,
+		ProductInfo:     (ProductInfo)(dbProduct.ProductInfo),
+		EWarranty:       (EWarranty)(dbProduct.EWarranty),
+		Production:      dbProduct.Production,
+		DefaultWarranty: dbProduct.DefaultWarranty,
+	}
+
+	return proRes, nil
+}
 func (s *productService) DeleteProduct(serial string) error {
 
 	var err error
