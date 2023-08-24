@@ -6,7 +6,6 @@ import (
 	"github.com/acework2u/air-iot-app-api-service/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"time"
 )
 
 type ProductHandler struct {
@@ -121,17 +120,14 @@ func (h *ProductHandler) UpdateEWarranty(c *gin.Context) {
 	serialNo := c.Param("id")
 	cusErr := utils.NewCustomerHandler(c)
 	productWarranty := &service.ProductWarranty{}
-
 	err := c.ShouldBindJSON(productWarranty)
 
 	if err != nil {
 		cusErr.CustomError(err)
 		return
 	}
-	_ = serialNo
-	warrantyDate, err := time.Parse("2006-01-02", productWarranty.EWarranty)
-	activeDate, err := time.Parse("2006-01-02 04:35", productWarranty.ActiveDate)
 
+	regEwarranty, err := h.productService.UpdateEWarranty(serialNo)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"status":  http.StatusBadRequest,
@@ -139,17 +135,14 @@ func (h *ProductHandler) UpdateEWarranty(c *gin.Context) {
 		})
 		return
 	}
-	fmt.Println(warrantyDate)
-	fmt.Println(activeDate)
-	//
-	//warranty := &service.ProductWarranty{}
-	//err := c.ShouldBindJSON(warranty)
-	//
-	//cusErr := utils.NewCustomerHandler(c)
-	//if err != nil {
-	//	cusErr.CustomError(err)
+
+	fmt.Println(regEwarranty)
+	//if string(serialNo) != string(productWarranty.SerialNo) {
+	//	c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+	//		"status":  http.StatusBadRequest,
+	//		"message": "don't have serial",
+	//	})
 	//	return
-	//
 	//}
 
 	c.JSON(http.StatusOK, gin.H{

@@ -37,8 +37,9 @@ type ProductResponse struct {
 }
 
 type ProductWarranty struct {
-	EWarranty  string `json:"EWarranty" binding:"required"`
-	ActiveDate string `json:"activeDate" binding:"required"`
+	SerialNo   string `json:"serialNo" binding:"required"`
+	EWarranty  string `json:"EWarranty"`
+	ActiveDate string `json:"activeDate"`
 }
 
 type EWarranty struct {
@@ -51,6 +52,6 @@ type ProductService interface {
 	GetProducts() ([]*ProductResponse, error)
 	CreateProduct(product *ProductNew) (*ProductResponse, error)
 	UpdateProduct(serial string, productInfo *ProductInfo) (*ProductResponse, error)
-	UpdateEWarranty(serial string, warranty *EWarranty) (*ProductResponse, error)
+	UpdateEWarranty(serial string) (*ProductResponse, error)
 	DeleteProduct(serial string) error
 }

@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/acework2u/air-iot-app-api-service/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -88,32 +89,8 @@ func (r *ProductRepositoryDB) UpdateProductInfo(serial string, productInfo *DBPr
 		return nil, err
 	}
 
-	//prduct := productInfo
-
-	//doc := map[string]interface{}{
-	//	"ProductInfo.title": prduct.ProductInfo.Title,
-	//	"ProductInfo.model": prduct.ProductInfo.Model,
-	//}
-
 	query := bson.D{{Key: "serial", Value: serial}}
 	update := bson.D{{Key: "$set", Value: doc}}
-
-	//fmt.Println("In Respo")
-	//fmt.Println(doc)
-	//res, err := r.productCollection.UpdateOne(r.ctx, query, update)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//
-	//fmt.Println("res")
-	//fmt.Println("res.MatchedCount")
-	//fmt.Println(res.MatchedCount)
-	//fmt.Println("res.UpsertedCount")
-	//fmt.Println(res.UpsertedCount)
-	//fmt.Println("res.ModifiedCount")
-	//fmt.Println(res.ModifiedCount)
-	//fmt.Println("res.UpsertedID")
-	//fmt.Println(res.UpsertedID)
 
 	res := r.productCollection.FindOneAndUpdate(r.ctx, query, update, options.FindOneAndUpdate().SetReturnDocument(1))
 
@@ -135,6 +112,36 @@ func (r *ProductRepositoryDB) DeleteProduct(serial string) error {
 	if delProduct.DeletedCount == 0 {
 		return errors.New("no product with that serial exists")
 	}
+	return nil
+}
+func (r *ProductRepositoryDB) UpdateEWarranty(serial string) error {
+
+	now := time.Now()
+	activeDate := now.Local()
+	ewarranty := activeDate.AddDate(1, 0, 0)
+
+	productWarranty := EWarranty{EWarranty: ewarranty, ActiveDate: activeDate}
+
+	productInfo := &DBProductInfoUpdate{
+		Serial:    serial,
+		EWarranty: productWarranty,
+	}
+
+	doc, err := utils.ToDoc(productInfo)
+	if err != nil {
+		return err
+	}
+	query := bson.D{{Key: "serial", Value: serial}}
+	update := bson.D{{Key: "$set", Value: doc}}
+
+	res, err := r.productCollection.UpdateOne(r.ctx, query, update)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("work in repository")
+	fmt.Println(res)
+
 	return nil
 }
 func (r *ProductRepositoryDB) filterProduct(filter interface{}) ([]*DBProduct, error) {
