@@ -2,7 +2,6 @@ package services
 
 import (
 	"errors"
-	"fmt"
 	"github.com/acework2u/air-iot-app-api-service/repository"
 	"strings"
 	"time"
@@ -123,20 +122,18 @@ func (s *productService) UpdateProduct(serial string, productInfo *ProductInfo) 
 }
 func (s *productService) UpdateEWarranty(serial string) (*ProductResponse, error) {
 
-	now := time.Now()
-	activeDate := now.Local()
-	warrantyDate := activeDate.AddDate(1, 0, 0)
-
-	productWarranty := EWarranty{EWarranty: warrantyDate, ActiveDate: activeDate}
-	ok := s.product.UpdateEWarranty(serial)
+	result, ok := s.product.UpdateEWarranty(serial)
 
 	if ok != nil {
 		return nil, ok
 	}
 
-	fmt.Println(productWarranty)
+	productInfo := &ProductResponse{
+		Serial:    result.Serial,
+		EWarranty: (EWarranty)(result.EWarranty),
+	}
 
-	return nil, nil
+	return productInfo, nil
 }
 func (s *productService) DeleteProduct(serial string) error {
 

@@ -3,11 +3,11 @@ package repository
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/acework2u/air-iot-app-api-service/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"strings"
 	"time"
 )
 
@@ -114,7 +114,15 @@ func (r *ProductRepositoryDB) DeleteProduct(serial string) error {
 	}
 	return nil
 }
-func (r *ProductRepositoryDB) UpdateEWarranty(serial string) error {
+func (r *ProductRepositoryDB) UpdateEWarranty(serial string) (*DBProductInfoUpdate, error) {
+
+	chkActive, err := r.checkActive(serial)
+	if err != nil {
+		return nil, err
+	}
+	if chkActive {
+		return nil, errors.New("This product has previously been registered for warranty.")
+	}
 
 	now := time.Now()
 	activeDate := now.Local()
@@ -124,25 +132,23 @@ func (r *ProductRepositoryDB) UpdateEWarranty(serial string) error {
 
 	productInfo := &DBProductInfoUpdate{
 		Serial:    serial,
+		Active:    true,
 		EWarranty: productWarranty,
 	}
 
 	doc, err := utils.ToDoc(productInfo)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	query := bson.D{{Key: "serial", Value: serial}}
 	update := bson.D{{Key: "$set", Value: doc}}
 
-	res, err := r.productCollection.UpdateOne(r.ctx, query, update)
+	_, err = r.productCollection.UpdateOne(r.ctx, query, update)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	fmt.Println("work in repository")
-	fmt.Println(res)
-
-	return nil
+	return productInfo, nil
 }
 func (r *ProductRepositoryDB) filterProduct(filter interface{}) ([]*DBProduct, error) {
 
@@ -169,4 +175,13 @@ func (r *ProductRepositoryDB) filterProduct(filter interface{}) ([]*DBProduct, e
 		return products, mongo.ErrNoDocuments
 	}
 	return products, nil
+}
+func (r *ProductRepositoryDB) checkActive(serial string) (bool, error) {
+	result := &DBProduct{}
+	query := bson.D{{Key: "serial", Value: strings.ToUpper(serial)}}
+	err := r.productCollection.FindOne(r.ctx, query).Decode(result)
+	if err != nil {
+		return false, err
+	}
+	return result.Active, nil
 }

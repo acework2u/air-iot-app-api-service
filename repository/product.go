@@ -58,5 +58,5 @@ type ProductRepository interface {
 	UpdateProduct(serial string, product *Product) (*DBProduct, error)
 	UpdateProductInfo(serial string, productInfo *DBProductInfoUpdate) (*DBProduct, error)
 	DeleteProduct(serial string) error
-	UpdateEWarranty(serial string) error
+	UpdateEWarranty(serial string) (*DBProductInfoUpdate, error)
 }

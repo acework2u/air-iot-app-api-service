@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	service "github.com/acework2u/air-iot-app-api-service/services"
 	"github.com/acework2u/air-iot-app-api-service/utils"
 	"github.com/gin-gonic/gin"
@@ -117,7 +116,6 @@ func (h *ProductHandler) UpdateProduct(c *gin.Context) {
 
 func (h *ProductHandler) UpdateEWarranty(c *gin.Context) {
 
-	serialNo := c.Param("id")
 	cusErr := utils.NewCustomerHandler(c)
 	productWarranty := &service.ProductWarranty{}
 	err := c.ShouldBindJSON(productWarranty)
@@ -126,28 +124,21 @@ func (h *ProductHandler) UpdateEWarranty(c *gin.Context) {
 		cusErr.CustomError(err)
 		return
 	}
+	serialNo := productWarranty.SerialNo
 
-	regEwarranty, err := h.productService.UpdateEWarranty(serialNo)
+	regwarranty, err := h.productService.UpdateEWarranty(serialNo)
+
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"status":  http.StatusBadRequest,
-			"message": err.Error(),
+			"message": "no product in result",
 		})
 		return
 	}
 
-	fmt.Println(regEwarranty)
-	//if string(serialNo) != string(productWarranty.SerialNo) {
-	//	c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-	//		"status":  http.StatusBadRequest,
-	//		"message": "don't have serial",
-	//	})
-	//	return
-	//}
-
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
-		"message": productWarranty,
+		"message": regwarranty.EWarranty,
 	})
 }
 
