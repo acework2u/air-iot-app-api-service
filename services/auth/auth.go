@@ -7,6 +7,7 @@ type AuthenServices interface {
 	SignUp(string, string, string) (string, error)
 	UserConfirm(string, string) (interface{}, error)
 	ResendConfirmCode(string) (*cognitoidentityprovider.ResendConfirmationCodeOutput, error)
+	RefreshToken(refreshToken string) (interface{}, error)
 }
 
 type (
@@ -31,16 +32,16 @@ type (
 	}
 	SignInResponse struct {
 		// The access token.
-		AccessToken *string `json:"access_token"`
+		AccessToken *string `json:"access_token,omitempty"`
 
 		// The expiration period of the authentication result in seconds.
-		ExpiresIn int32 `json:"expires_in"`
+		ExpiresIn int32 `json:"expires_in,omitempty"`
 
 		// The ID token.
-		IdToken *string `json:"id_token"`
+		IdToken *string `json:"id_token,omitempty"`
 
 		// The refresh token.
-		RefreshToken *string `json:"refresh_token"`
+		RefreshToken *string `json:"refresh_token,omitempty"`
 
 		// The token type.
 		TokenType *string `json:"token_type"`

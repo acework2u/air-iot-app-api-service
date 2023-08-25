@@ -15,7 +15,7 @@ type ApiError struct {
 	Msg   string `json:"msg"`
 }
 
-func NewCustomerHandler(ctx *gin.Context) ErrHandler {
+func NewCustomHandler(ctx *gin.Context) ErrHandler {
 	return ErrHandler{ctx: ctx}
 }
 

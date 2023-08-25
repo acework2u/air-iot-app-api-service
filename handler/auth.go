@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"github.com/acework2u/air-iot-app-api-service/utils"
 	"net/http"
 
 	services "github.com/acework2u/air-iot-app-api-service/services/auth"
@@ -155,4 +156,32 @@ func (h *AuthHandler) PostResendConfirmCode(c *gin.Context) {
 		"status":  http.StatusOK,
 		"message": resultMsg,
 	})
+}
+
+func (h *AuthHandler) PostRefreshToken(c *gin.Context) {
+
+	refreshToken := &services.SignInResponse{}
+
+	custErr := utils.NewCustomHandler(c)
+	err := c.ShouldBindJSON(refreshToken)
+	if err != nil {
+		custErr.CustomError(err)
+		return
+	}
+	refToken := fmt.Sprintf("%v", refreshToken.RefreshToken)
+
+	resToken, ok := h.authService.RefreshToken(refToken)
+	if ok != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": ok.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": resToken,
+	})
+
+	return
 }
