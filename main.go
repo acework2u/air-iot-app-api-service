@@ -105,9 +105,10 @@ func init() {
 	DeviceRouter = routers.NewDeviceRouter(deviceHandler)
 
 	//AirThing
+	airConfig := &service.AirThingConfig{Region: cognitoRegion, UserPoolId: userPoolId, CognitoClientId: cognitoClientId}
 	airThingsCollection = configs.GetCollection(mongoclient, "air_things")
 	airRepo := repository.NewAirRepository(ctx, airThingsCollection)
-	airThingService := service.NewAirThingService(cognitoRegion, airRepo)
+	airThingService := service.NewAirThingService(airConfig, airRepo)
 	airThingHandler = handler.NewAirThingHandler(airThingService)
 	AirThingRouter = routers.NewAirThingRouter(airThingHandler)
 

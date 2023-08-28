@@ -15,18 +15,21 @@ import (
 )
 
 type airthingService struct {
-	Cfg       *aws.Config
-	StsSvc    *sts.Client
-	IotClient *iot.Client
-	airRepo   repository.AirRepository
+	Cfg             *aws.Config
+	StsSvc          *sts.Client
+	IotClient       *iot.Client
+	airRepo         repository.AirRepository
+	userPoolId      string
+	cognitoClientId string
+	region          string
 }
 
-func NewAirThingService(cognitoRegion string, airRepo repository.AirRepository) AirThinkService {
+func NewAirThingService(airconfig *AirThingConfig, airRepo repository.AirRepository) AirThinkService {
 
-	cfg, _ := config.LoadDefaultConfig(context.Background(), config.WithRegion(cognitoRegion), config.WithSharedConfigProfile("default"))
+	cfg, _ := config.LoadDefaultConfig(context.Background(), config.WithRegion(airconfig.Region), config.WithSharedConfigProfile("default"))
 	stsClient := sts.NewFromConfig(cfg)
 	iotClient := iot.NewFromConfig(cfg)
-	return &airthingService{Cfg: &cfg, StsSvc: stsClient, IotClient: iotClient, airRepo: airRepo}
+	return &airthingService{Cfg: &cfg, StsSvc: stsClient, IotClient: iotClient, airRepo: airRepo, userPoolId: airconfig.UserPoolId, cognitoClientId: airconfig.CognitoClientId, region: airconfig.Region}
 }
 func (s *airthingService) GetCerts(idToken string) (interface{}, error) {
 	//myRoleArn = *aws.String("arn:aws:iam::513310385702:role/service-role/customer_air_iot_2023")
@@ -115,11 +118,28 @@ func (s *airthingService) GetAirs(userId string) ([]*ResponseAir, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	thingsServ := NewThingClient(s.region, s.userPoolId, s.cognitoClientId)
+	_ = thingsServ
+
 	for _, items := range res {
+
+		indInfo := &IndoorInfo{}
+		result := make(chan *IndoorInfo)
+
+		//indInfo, _ = thingsServ.PubGetShadows(items.Serial, "")
+		go func(thingsName string, result chan<- *IndoorInfo) {
+			res, _ := thingsServ.PubGetShadows(thingsName, "")
+			result <- res
+		}(items.Serial, result)
+
+		indInfo = <-result
+
 		item := &ResponseAir{
 			Id:     items.Id,
 			Serial: items.Serial,
 			Title:  items.Title,
+			Indoor: indInfo,
 		}
 		airList = append(airList, item)
 	}

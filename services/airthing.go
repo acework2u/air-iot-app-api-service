@@ -24,6 +24,13 @@ type ResponseAir struct {
 	Id     primitive.ObjectID `json:"id"`
 	Serial string             `json:"serial"`
 	Title  string             `json:"title"`
+	Bg     string             `json:"bg"`
+	Indoor *IndoorInfo        `bson:"indoor"`
+}
+type AirThingConfig struct {
+	Region          string `json:"region"`
+	UserPoolId      string `json:"userPoolId"`
+	CognitoClientId string `json:"cognitoClientId"`
 }
 
 type AirThinkService interface {
