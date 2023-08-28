@@ -1,4 +1,4 @@
-package services
+package repository
 
 import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -6,9 +6,9 @@ import (
 )
 
 type AirInfo struct {
-	Serial       string    `json:"serial" bson:"serial" binding:"required"`
+	Serial       string    `json:"serial" bson:"serial"`
 	UserId       string    `json:"userId" bson:"userId"`
-	Title        string    `json:"title" bson:"title" binding:"required"`
+	Title        string    `json:"title" bson:"title"`
 	RegisterDate time.Time `json:"registerDate" bson:"registerDate"`
 	UpdatedDate  time.Time `bson:"updatedDate" bson:"updatedDate"`
 }
@@ -21,8 +21,8 @@ type DBAirInfo struct {
 	UpdatedDate  time.Time          `bson:"updatedDate" bson:"updatedDate,omitempty"`
 }
 
-type AirThinkService interface {
-	GetCerts(string2 string) (interface{}, error)
-	ThingConnect(idToken string) (interface{}, error)
-	AddAir(info *AirInfo) (*DBAirInfo, error)
+type AirRepository interface {
+	RegisterAir(info *AirInfo) (*DBAirInfo, error)
+	UpdateAir(info *AirInfo) (*DBAirInfo, error)
+	Airs() ([]*DBAirInfo, error)
 }

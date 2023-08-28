@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"github.com/acework2u/air-iot-app-api-service/repository"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	_ "github.com/aws/aws-sdk-go-v2/config"
@@ -10,20 +11,22 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/iot"
 	_ "github.com/aws/aws-sdk-go-v2/service/iot"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
+	"time"
 )
 
 type airthingService struct {
 	Cfg       *aws.Config
 	StsSvc    *sts.Client
 	IotClient *iot.Client
+	airRepo   repository.AirRepository
 }
 
-func NewAirThingService(cognitoRegion string) AirThinkService {
+func NewAirThingService(cognitoRegion string, airRepo repository.AirRepository) AirThinkService {
 
 	cfg, _ := config.LoadDefaultConfig(context.Background(), config.WithRegion(cognitoRegion), config.WithSharedConfigProfile("default"))
 	stsClient := sts.NewFromConfig(cfg)
 	iotClient := iot.NewFromConfig(cfg)
-	return &airthingService{Cfg: &cfg, StsSvc: stsClient, IotClient: iotClient}
+	return &airthingService{Cfg: &cfg, StsSvc: stsClient, IotClient: iotClient, airRepo: airRepo}
 }
 func (s *airthingService) GetCerts(idToken string) (interface{}, error) {
 	//myRoleArn = *aws.String("arn:aws:iam::513310385702:role/service-role/customer_air_iot_2023")
@@ -83,4 +86,25 @@ func (s *airthingService) ThingConnect(idToken string) (interface{}, error) {
 	fmt.Println("assumeRoleOutput")
 
 	return assumeRoleOutput, nil
+}
+func (s *airthingService) AddAir(info *AirInfo) (*DBAirInfo, error) {
+
+	now := time.Now()
+
+	airInfo := &repository.AirInfo{
+		Serial:       info.Serial,
+		UserId:       info.UserId,
+		Title:        info.Title,
+		RegisterDate: now.Local(),
+		UpdatedDate:  now.Local(),
+	}
+
+	res, err := s.airRepo.RegisterAir(airInfo)
+	if err != nil {
+		return nil, err
+	}
+
+	newAirRegInfo := (*DBAirInfo)(res)
+
+	return newAirRegInfo, nil
 }

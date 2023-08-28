@@ -31,11 +31,12 @@ var (
 	ctx         context.Context
 	mongoclient *mongo.Client
 
-	userCollection     *mongo.Collection
-	customerCollection *mongo.Collection
-	addressCollection  *mongo.Collection
-	deviceCollection   *mongo.Collection
-	productCollection  *mongo.Collection
+	userCollection      *mongo.Collection
+	customerCollection  *mongo.Collection
+	addressCollection   *mongo.Collection
+	deviceCollection    *mongo.Collection
+	productCollection   *mongo.Collection
+	airThingsCollection *mongo.Collection
 
 	UserService services.UserService
 	// UserRouterCtl routers.UserRouteController
@@ -104,7 +105,9 @@ func init() {
 	DeviceRouter = routers.NewDeviceRouter(deviceHandler)
 
 	//AirThing
-	airThingService := service.NewAirThingService(cognitoRegion)
+	airThingsCollection = configs.GetCollection(mongoclient, "air_things")
+	airRepo := repository.NewAirRepository(ctx, airThingsCollection)
+	airThingService := service.NewAirThingService(cognitoRegion, airRepo)
 	airThingHandler = handler.NewAirThingHandler(airThingService)
 	AirThingRouter = routers.NewAirThingRouter(airThingHandler)
 
