@@ -48,9 +48,27 @@ func (h *AirThingHandler) Connect(c *gin.Context) {
 }
 func (h *AirThingHandler) GetAirs(c *gin.Context) {
 
+	userId, _ := c.Get("UserId")
+	if len(userId.(string)) < 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": "no data",
+		})
+		return
+	}
+
+	resData, err := h.airThingService.GetAirs(userId.(string))
+
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err.Error(),
+		})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
-		"message": "air all",
+		"message": resData,
 	})
 }
 func (h *AirThingHandler) AddAir(c *gin.Context) {

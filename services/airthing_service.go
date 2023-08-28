@@ -108,3 +108,20 @@ func (s *airthingService) AddAir(info *AirInfo) (*DBAirInfo, error) {
 
 	return newAirRegInfo, nil
 }
+func (s *airthingService) GetAirs(userId string) ([]*ResponseAir, error) {
+
+	airList := []*ResponseAir{}
+	res, err := s.airRepo.Airs(userId)
+	if err != nil {
+		return nil, err
+	}
+	for _, items := range res {
+		item := &ResponseAir{
+			Id:     items.Id,
+			Serial: items.Serial,
+			Title:  items.Title,
+		}
+		airList = append(airList, item)
+	}
+	return airList, nil
+}

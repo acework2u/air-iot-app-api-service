@@ -50,9 +50,31 @@ func (r *AirRepositoryDB) RegisterAir(info *AirInfo) (*DBAirInfo, error) {
 func (r *AirRepositoryDB) UpdateAir(info *AirInfo) (*DBAirInfo, error) {
 	return nil, nil
 }
-func (r *AirRepositoryDB) Airs() ([]*DBAirInfo, error) {
+func (r *AirRepositoryDB) Airs(userId string) ([]*DBAirInfo, error) {
 
-	return nil, nil
+	filter := bson.M{"userId": userId}
+	cursor, err := r.airCollection.Find(r.ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(r.ctx)
+
+	airs := []*DBAirInfo{}
+	for cursor.Next(r.ctx) {
+		air := &DBAirInfo{}
+		err := cursor.Decode(air)
+		if err != nil {
+			return nil, err
+		}
+		airs = append(airs, air)
+	}
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+	if len(airs) == 0 {
+		return []*DBAirInfo{}, nil
+	}
+	return airs, nil
 }
 func (r *AirRepositoryDB) checkDuplicate(serial string, userId string) (int64, error) {
 

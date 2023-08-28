@@ -24,5 +24,5 @@ type DBAirInfo struct {
 type AirRepository interface {
 	RegisterAir(info *AirInfo) (*DBAirInfo, error)
 	UpdateAir(info *AirInfo) (*DBAirInfo, error)
-	Airs() ([]*DBAirInfo, error)
+	Airs(userId string) ([]*DBAirInfo, error)
 }
