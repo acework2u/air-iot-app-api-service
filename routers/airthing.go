@@ -16,8 +16,8 @@ func NewAirThingRouter(airThingHandler handler.AirThingHandler) AirThingRouter {
 
 func (r *AirThingRouter) AirThingRoute(rg *gin.RouterGroup) {
 
-	router := rg.Group("airthings", middleware.CognitoAuthMiddleware())
-	router.GET("", r.airThingHandler.GetCerts)
+	router := rg.Group("airs", middleware.CognitoAuthMiddleware())
+	router.GET("/certs", r.airThingHandler.GetCerts)
 	router.GET("/connect", r.airThingHandler.Connect)
 
 }
