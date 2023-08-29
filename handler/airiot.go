@@ -46,3 +46,57 @@ func (h *AirIotHandler) GetIndoor(c *gin.Context) {
 		"message": indoor,
 	})
 }
+func (h *AirIotHandler) CheckDefault(c *gin.Context) {
+
+	indoor, err := h.airIoTService.CheckAwsDefault()
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	fmt.Println(indoor)
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": indoor,
+	})
+}
+func (h *AirIotHandler) CheckProduction(c *gin.Context) {
+	indoor, err := h.airIoTService.CheckAwsDefault()
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	fmt.Println(indoor)
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": indoor,
+	})
+
+}
+func (h *AirIotHandler) CheckAWS(c *gin.Context) {
+	indoor, err := h.airIoTService.CheckAws()
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	fmt.Println(indoor)
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": indoor,
+	})
+
+}

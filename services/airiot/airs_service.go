@@ -24,14 +24,18 @@ type airIoTService struct {
 }
 
 func NewAirIoTService(cfg *AirIoTConfig) AirIoTService {
-
-	awsCfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(cfg.Region))
-	//awsCfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(cfg.Region), config.WithSharedConfigProfile("default"))
+	region := "ap-southeast-1"
+	awsCfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(region))
+	//awsCfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(cfg.Region), config.WithSharedConfigProfile("production"))
 
 	if err != nil {
+		fmt.Println("config is problem")
 		fmt.Println(err.Error())
 		panic(err)
 	}
+
+	fmt.Println("Config Work-->")
+
 	iotClient := iot.NewFromConfig(awsCfg)
 	iotData := iotdataplane.NewFromConfig(awsCfg)
 
@@ -54,13 +58,54 @@ func (s *airIoTService) GetIndoorVal(serial string, shadowsName string) (interfa
 	if err != nil {
 		return nil, err
 	}
-	//shadowVal := map[string]string{}
-	//
-	//if len(getThingShadowOutput.Payload) > 0 {
-	//
-	//	err = json.Unmarshal(getThingShadowOutput.Payload, shadowVal)
-	//
-	//}
 
 	return getThingShadowOutput, nil
+}
+func (s *airIoTService) CheckAwsDefault() (interface{}, error) {
+	region := "ap-southeast-1"
+	awsCfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(region), config.WithSharedConfigProfile("default"))
+
+	if err != nil {
+		fmt.Println("config is problem")
+		return nil, err
+
+	}
+	data := fmt.Sprintf("AWS load Work : %v", awsCfg)
+	fmt.Println(awsCfg)
+
+	return data, err
+
+}
+func (s *airIoTService) CheckAwsProduct() (interface{}, error) {
+
+	region := "ap-southeast-1"
+	awsCfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(region), config.WithSharedConfigProfile("production"))
+
+	if err != nil {
+		fmt.Println("config is problem")
+		return nil, err
+
+	}
+
+	data := fmt.Sprintf("AWS load Work : %v", awsCfg)
+	fmt.Println(awsCfg)
+
+	return data, err
+
+}
+
+func (s *airIoTService) CheckAws() (interface{}, error) {
+	region := "ap-southeast-1"
+	awsCfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(region))
+
+	if err != nil {
+		fmt.Println("config is problem")
+		return nil, err
+
+	}
+
+	data := fmt.Sprintf("AWS load Work : %v", awsCfg)
+	fmt.Println(awsCfg)
+
+	return data, err
 }
