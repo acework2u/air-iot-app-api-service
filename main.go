@@ -11,6 +11,7 @@ import (
 	"github.com/acework2u/air-iot-app-api-service/repository"
 	"github.com/acework2u/air-iot-app-api-service/routers"
 	service "github.com/acework2u/air-iot-app-api-service/services"
+	airIotService "github.com/acework2u/air-iot-app-api-service/services/airiot"
 	"github.com/acework2u/air-iot-app-api-service/services/auth"
 	clientCog "github.com/acework2u/air-iot-app-api-service/services/clientcoginto"
 	services "github.com/acework2u/air-iot-app-api-service/services/user"
@@ -49,6 +50,10 @@ var (
 	// Device
 	DeviceHandler handler.DevicesHandler
 	DeviceRouter  routers.DeviceRouter
+
+	//air-iot
+	airIoTHandler handler.AirIotHandler
+	AirIoTRouter  routers.AirIoTRouter
 
 	//AirThings
 	airThingHandler handler.AirThingHandler
@@ -103,6 +108,17 @@ func init() {
 	deviceService := service.NewDeviceService(deviceRepo)
 	deviceHandler := handler.NewDeviceHandler(deviceService)
 	DeviceRouter = routers.NewDeviceRouter(deviceHandler)
+
+	//AirIoT
+	airCfg := &airIotService.AirIoTConfig{
+		Region:          cognitoRegion,
+		UserPoolId:      userPoolId,
+		CognitoClientId: cognitoClientId,
+	}
+
+	airIoTServ := airIotService.NewAirIoTService(airCfg)
+	airIoTHandler = handler.NewAirIoTHandler(airIoTServ)
+	AirIoTRouter = routers.NewAirIoTRouter(airIoTHandler)
 
 	//AirThing
 	airConfig := &service.AirThingConfig{Region: cognitoRegion, UserPoolId: userPoolId, CognitoClientId: cognitoClientId}
@@ -201,6 +217,7 @@ func startGinServer(config conf.Config) {
 	DeviceRouter.DeviceRoute(router)
 	AirThingRouter.AirThingRoute(router)
 	ProductRouter.ProductRoute(router)
+	AirIoTRouter.AirIoTRoute(router)
 
 	// Pro
 	routerPro := server.Group("/api/v2")

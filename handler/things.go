@@ -307,9 +307,40 @@ func (h *ThingsHandler) WsShadows(c *gin.Context) {
 	data, err := h.thingsService.PubGetShadows(thinkName, shadowName)
 
 	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"Message": data,
+	})
+
+}
+
+func (h *ThingsHandler) PostCmdShadows(c *gin.Context) {
+
+	//thingName := "2300F15050017"
+	shadowName := "air-users"
+	acCmdReq := &airCmdReq{}
+
+	err := c.ShouldBindJSON(acCmdReq)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  http.StatusBadRequest,
 			"message": err,
+		})
+		return
+	}
+	thinkName := fmt.Sprintf("%v", acCmdReq.SerialNo)
+	data, err := h.thingsService.PubGetShadows(thinkName, shadowName)
+
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err.Error(),
 		})
 		return
 	}

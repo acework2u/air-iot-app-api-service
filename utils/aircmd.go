@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/spf13/viper"
 	"strconv"
 	"strings"
 )
@@ -343,7 +342,8 @@ func (u *Air) GetPayload() string {
 }
 func GetClaimsFromToken(tokenString string) (jwt.MapClaims, error) {
 
-	secKey := viper.GetString("SECRET_KEY")
+	//secKey := viper.GetString("SECRET_KEY")
+	secKey := secretKey
 
 	var secret = []byte(secKey)
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {

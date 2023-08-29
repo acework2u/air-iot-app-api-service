@@ -553,7 +553,10 @@ func (s *CogClient) PubGetShadows(thinkName string, shadowName string) (*IndoorI
 		return nil, err
 	}
 	shadowVal := &ShadowsValue{}
+	fmt.Println("getThingShadowOutput.Payload")
+	fmt.Println(getThingShadowOutput)
 	err = json.Unmarshal(getThingShadowOutput.Payload, shadowVal)
+
 	if err != nil {
 		return nil, err
 	}
