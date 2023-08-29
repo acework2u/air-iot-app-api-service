@@ -58,7 +58,7 @@ type awsIotCert struct {
 	CertificateId             string `json:"certificateId"`
 	CertificatePem            string `json:"certificatePem"`
 	PrivateKey                string `json:"privateKey"`
-	CertificateOwnershipToken string `josn:"certificateOwnershipToken"`
+	CertificateOwnershipToken string `json:"certificateOwnershipToken"`
 }
 
 type deviceRegister struct {

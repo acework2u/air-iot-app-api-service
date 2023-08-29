@@ -14,31 +14,31 @@ type UserReq struct {
 type (
 	ShadowsValue struct {
 		State struct {
-			Desired  Desired  `json:"desired"`
-			Reported Reported `json:"reported"`
+			Desired  Desired  `json:"desired,omitempty"`
+			Reported Reported `json:"reported,omitempty"`
 		} `json:"state"`
 	}
 
 	ShadowsCommand struct {
 		State struct {
-			Desired Desired `json:"desired"`
+			Desired Desired `json:"desired,omitempty"`
 		} `json:"state"`
 	}
 	Desired struct {
-		Cmd string `json:"cmd"`
+		Cmd string `json:"cmd,omitempty"`
 	}
 	Reported struct {
-		Message string `json:"message"`
+		Message string `json:"message,omitempty"`
 	}
 	IndoorInfo struct {
-		Power    string `json:"power"`
-		Mode     string `json:"mode"`
-		Temp     string `json:"temp"`
-		RoomTemp string `json:"roomTemp"`
-		RhSet    string `json:"rhSet"`
-		RhRoom   string `json:"RhRoom"`
-		FanSpeed string `json:"fanSpeed"`
-		Louver   string `json:"louver"`
+		Power    string `json:"power,omitempty"`
+		Mode     string `json:"mode,omitempty"`
+		Temp     string `json:"temp,omitempty"`
+		RoomTemp string `json:"roomTemp,omitempty"`
+		RhSet    string `json:"rhSet,omitempty"`
+		RhRoom   string `json:"RhRoom,omitempty"`
+		FanSpeed string `json:"fanSpeed,omitempty"`
+		Louver   string `json:"louver,omitempty"`
 	}
 )
 

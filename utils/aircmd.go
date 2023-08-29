@@ -22,10 +22,10 @@ type AirCmd interface {
 	GetPayload() string
 }
 type Air struct {
-	SerialNo string
-	Cmd      string
-	Value    string
-	Payload  []byte
+	SerialNo string `json:"serialNo"`
+	Cmd      string `json:"cmd"`
+	Value    string `json:"value"`
+	Payload  []byte `json:"payload"`
 }
 
 func NewAirCmd(serialNo string, cmd string, value string) AirCmd {
