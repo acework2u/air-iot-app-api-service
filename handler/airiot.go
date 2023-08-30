@@ -39,6 +39,35 @@ func (h *AirIotHandler) GetIndoor(c *gin.Context) {
 		return
 	}
 
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": indoor,
+	})
+}
+func (h *AirIotHandler) GetShadowsDoc(c *gin.Context) {
+
+	req := &airs.AirRq{}
+	err := c.ShouldBindJSON(req)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	shadowsName := "air-users"
+	serial := fmt.Sprintf("%s", req.Serial)
+
+	indoor, err := h.airIoTService.GetShadowsDocument(serial, shadowsName)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err.Error(),
+		})
+		return
+	}
+
 	fmt.Println(indoor)
 
 	c.JSON(http.StatusOK, gin.H{

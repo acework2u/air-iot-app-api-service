@@ -70,6 +70,7 @@ type (
 
 type AirIoTService interface {
 	GetIndoorVal(serial string, shadowsName string) (interface{}, error)
+	GetShadowsDocument(serial string, shadowsName string) (interface{}, error)
 	CheckAwsDefault() (interface{}, error)
 	CheckAwsProduct() (interface{}, error)
 	CheckAws() (interface{}, error)

@@ -2,8 +2,10 @@ package airiot
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/acework2u/air-iot-app-api-service/repository"
+	"github.com/acework2u/air-iot-app-api-service/utils"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/iot"
@@ -53,13 +55,51 @@ func (s *airIoTService) GetIndoorVal(serial string, shadowsName string) (interfa
 		ThingName:  aws.String(serial),
 		ShadowName: aws.String(shadowsName),
 	}
-	getThingShadowOutput := &iotdataplane.GetThingShadowOutput{}
 	getThingShadowOutput, err := s.IotData.GetThingShadow(s.Ctx, subTopic)
 	if err != nil {
 		return nil, err
 	}
+	dataAc := &utils.ShadowAcceptStrut{}
+	err = json.Unmarshal(getThingShadowOutput.Payload, &dataAc)
+	if err != nil {
+		return nil, err
+	}
+	if len(dataAc.State.Reported.Message) < 0 {
+		return nil, err
+	}
 
-	return getThingShadowOutput, nil
+	acVal := &dataAc.State.Reported.Message
+
+	decodeShadow, _ := utils.GetClaimsFromToken(*acVal)
+
+	return decodeShadow, nil
+}
+func (s *airIoTService) GetShadowsDocument(serial string, shadowsName string) (interface{}, error) {
+
+	subTopic := &iotdataplane.GetThingShadowInput{
+		ThingName:  aws.String(serial),
+		ShadowName: aws.String(shadowsName),
+	}
+	getThingShadowOutput, err := s.IotData.GetThingShadow(s.Ctx, subTopic)
+	if err != nil {
+		return nil, err
+	}
+	dataAc := &utils.ShadowAcceptStrut{}
+	err = json.Unmarshal(getThingShadowOutput.Payload, &dataAc)
+	if err != nil {
+		return nil, err
+	}
+	if len(dataAc.State.Reported.Message) < 0 {
+		return nil, err
+	}
+
+	acVal := &dataAc.State.Reported.Message
+
+	decodeShadow, _ := utils.GetClaimsFromToken(*acVal)
+
+	_ = decodeShadow
+
+	return acVal, nil
 }
 func (s *airIoTService) CheckAwsDefault() (interface{}, error) {
 	region := "ap-southeast-1"
