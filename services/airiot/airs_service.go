@@ -60,7 +60,7 @@ func (s *airIoTService) GetIndoorVal(serial string, shadowsName string) (interfa
 		return nil, err
 	}
 	dataAc := &utils.ShadowAcceptStrut{}
-	err = json.Unmarshal(getThingShadowOutput.Payload, &dataAc)
+	err = json.Unmarshal([]byte(getThingShadowOutput.Payload), &dataAc)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (s *airIoTService) GetShadowsDocument(serial string, shadowsName string) (i
 		return nil, err
 	}
 	dataAc := &utils.ShadowAcceptStrut{}
-	err = json.Unmarshal(getThingShadowOutput.Payload, &dataAc)
+	err = json.Unmarshal([]byte(getThingShadowOutput.Payload), &dataAc)
 	if err != nil {
 		return nil, err
 	}

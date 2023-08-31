@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"fmt"
 	airs "github.com/acework2u/air-iot-app-api-service/services/airiot"
 	"github.com/gin-gonic/gin"
@@ -127,5 +128,33 @@ func (h *AirIotHandler) CheckAWS(c *gin.Context) {
 		"status":  http.StatusOK,
 		"message": indoor,
 	})
+
+}
+func (h *AirIotHandler) WsIoT(c *gin.Context) {
+	//conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	//if err != nil {
+	//	return
+	//}
+	//defer conn.Close()
+
+	ws, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer ws.Close()
+	for {
+		mt, message, err := ws.ReadMessage()
+		if err != nil {
+			fmt.Println(err)
+			return
+			//break
+		}
+		fmt.Println("Ws Working...")
+		fmt.Println(message)
+		msg := fmt.Sprintf("WIOT OK")
+		ok, _ := json.Marshal(msg)
+		ws.WriteMessage(mt, ok)
+	}
 
 }
