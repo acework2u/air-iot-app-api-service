@@ -36,6 +36,7 @@ func (s *productService) GetProduct(serial string) (*ProductResponse, error) {
 	return product, err
 
 }
+<<<<<<< HEAD
 func (s *productService) GetProducts() ([]*ProductResponse, error) {
 
 	products := []*ProductResponse{}
@@ -61,6 +62,8 @@ func (s *productService) GetProducts() ([]*ProductResponse, error) {
 
 	return products, nil
 }
+=======
+>>>>>>> ad1f98be097d983c078b0925f74ee2be200245ae
 func (s *productService) CreateProduct(product *ProductNew) (*ProductResponse, error) {
 
 	now := time.Now()

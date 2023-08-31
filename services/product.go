@@ -49,7 +49,10 @@ type EWarranty struct {
 
 type ProductService interface {
 	GetProduct(serial string) (*ProductResponse, error)
+<<<<<<< HEAD
 	GetProducts() ([]*ProductResponse, error)
+=======
+>>>>>>> ad1f98be097d983c078b0925f74ee2be200245ae
 	CreateProduct(product *ProductNew) (*ProductResponse, error)
 	UpdateProduct(serial string, productInfo *ProductInfo) (*ProductResponse, error)
 	UpdateEWarranty(serial string) (*ProductResponse, error)

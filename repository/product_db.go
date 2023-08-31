@@ -30,10 +30,13 @@ func (r *ProductRepositoryDB) GetProduct(serial string) (*DBProduct, error) {
 	return productInfo, nil
 
 }
+<<<<<<< HEAD
 func (r *ProductRepositoryDB) GetProducts() ([]*DBProduct, error) {
 	filter := bson.D{{}}
 	return r.filterProduct(filter)
 }
+=======
+>>>>>>> ad1f98be097d983c078b0925f74ee2be200245ae
 func (r *ProductRepositoryDB) CreateProduct(product *Product) (*DBProduct, error) {
 	now := time.Now()
 	product.Production = now
