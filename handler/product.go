@@ -29,31 +29,24 @@ func (h *ProductHandler) GetProduct(c *gin.Context) {
 
 	productInfo, err := h.productService.GetProduct(serialNo)
 
-<<<<<<< HEAD
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"status":  http.StatusBadRequest,
 			"message": "no documents in result",
 		})
 
-=======
-	cusErr := utils.NewCustomerHandler(c)
+	}
 
+	cusErr := utils.NewCustomHandler(c)
 	if err != nil {
-		//c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-		//	"status":  http.StatusBadRequest,
-		//	"message": "",
-		//})
 
 		cusErr.CustomError(err)
->>>>>>> ad1f98be097d983c078b0925f74ee2be200245ae
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
 		"message": productInfo,
-<<<<<<< HEAD
 	})
 }
 
@@ -70,8 +63,6 @@ func (h *ProductHandler) GetProducts(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
 		"message": products,
-=======
->>>>>>> ad1f98be097d983c078b0925f74ee2be200245ae
 	})
 }
 

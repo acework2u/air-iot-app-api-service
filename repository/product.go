@@ -53,10 +53,7 @@ type (
 
 type ProductRepository interface {
 	GetProduct(serial string) (*DBProduct, error)
-<<<<<<< HEAD
 	GetProducts() ([]*DBProduct, error)
-=======
->>>>>>> ad1f98be097d983c078b0925f74ee2be200245ae
 	CreateProduct(product *Product) (*DBProduct, error)
 	UpdateProduct(serial string, product *Product) (*DBProduct, error)
 	UpdateProductInfo(serial string, productInfo *DBProductInfoUpdate) (*DBProduct, error)

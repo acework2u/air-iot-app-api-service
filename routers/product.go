@@ -14,12 +14,9 @@ func NewProductRouter(productHandler handler.ProductHandler) ProductRouter {
 }
 
 func (rc *ProductRouter) ProductRoute(rg *gin.RouterGroup) {
-<<<<<<< HEAD
+
 	router := rg.Group("/products")
 	router.GET("", rc.productHandler.GetProducts)
-=======
-	router := rg.Group("/product")
->>>>>>> ad1f98be097d983c078b0925f74ee2be200245ae
 	router.GET("/:id", rc.productHandler.GetProduct)
 	router.POST("", rc.productHandler.PostProduct)
 	router.PUT("/:id/info", rc.productHandler.UpdateProduct)
