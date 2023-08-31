@@ -14,7 +14,6 @@ import (
 	airIotService "github.com/acework2u/air-iot-app-api-service/services/airiot"
 	"github.com/acework2u/air-iot-app-api-service/services/auth"
 	clientCog "github.com/acework2u/air-iot-app-api-service/services/clientcoginto"
-	services "github.com/acework2u/air-iot-app-api-service/services/user"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
@@ -39,7 +38,6 @@ var (
 	productCollection   *mongo.Collection
 	airThingsCollection *mongo.Collection
 
-	UserService services.UserService
 	// UserRouterCtl routers.UserRouteController
 	UserRouterCtl  handler.UserHandler
 	CustomerRouter routers.CustomerController
@@ -106,8 +104,8 @@ func init() {
 	deviceCollection = configs.GetCollection(mongoclient, "devices")
 	deviceRepo := repository.NewDeviceRepositoryDB(ctx, deviceCollection)
 	deviceService := service.NewDeviceService(deviceRepo)
-	deviceHandler := handler.NewDeviceHandler(deviceService)
-	DeviceRouter = routers.NewDeviceRouter(deviceHandler)
+	DeviceHandler = handler.NewDeviceHandler(deviceService)
+	DeviceRouter = routers.NewDeviceRouter(DeviceHandler)
 
 	//AirIoT
 	airCfg := &airIotService.AirIoTConfig{
@@ -172,6 +170,7 @@ func main() {
 
 	// DB Connect
 	defer mongoclient.Disconnect(ctx)
+
 	startGinServer(config)
 }
 
@@ -184,13 +183,9 @@ func startGinServer(config conf.Config) {
 	server.Use(cors.New(corsConfig))
 	server.Use(gin.Recovery())
 
-	//   c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-
 	//server.Use(
 	//	middleware.ErrorHandler(),
 	//)
-
-	// server.Use(middleware.CognitoIoTAuthMiddleware())
 
 	server.NoRoute(func(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, gin.H{
@@ -199,15 +194,15 @@ func startGinServer(config conf.Config) {
 		})
 	})
 
-	// Add Swagger
+	//Production
 	router := server.Group("/api/v1")
-
+	// Add Swagger
 	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.GET("/healthchecker", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": "OK"})
 	})
 
-	//Uat
+	//Production
 	UserRouterCtl.UserRoute(router)
 	CustomerRouter.CustomerRoute(router)
 	ClientRouter.ClientRoute(router)
@@ -220,10 +215,10 @@ func startGinServer(config conf.Config) {
 	AirIoTRouter.AirIoTRoute(router)
 
 	// Pro
-	routerPro := server.Group("/api/v2")
-	UserRouterCtl.UserRoute(routerPro)
-	CustomerRouter.CustomerRoute(routerPro)
-	ClientRouter.ClientRoute(routerPro)
+	//routerPro := server.Group("/api/v2")
+	//UserRouterCtl.UserRoute(routerPro)
+	//CustomerRouter.CustomerRoute(routerPro)
+	//ClientRouter.ClientRoute(routerPro)
 
 	//Pro
 	// UserRouterCtl.UserRoute(routePro, UserService)

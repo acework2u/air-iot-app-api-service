@@ -74,4 +74,5 @@ type AirIoTService interface {
 	CheckAwsDefault() (interface{}, error)
 	CheckAwsProduct() (interface{}, error)
 	CheckAws() (interface{}, error)
+	ShadowsAir(clientId string, serial string) (interface{}, error)
 }

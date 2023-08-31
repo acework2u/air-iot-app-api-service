@@ -402,9 +402,10 @@ func (h *ThingsHandler) WsIoT(c *gin.Context) {
 		//}
 		fmt.Println("Ws Working...")
 		err = client.SubscribeWithHandler(shadowsAcceptTopic, 0, func(client MQTT.Client, message MQTT.Message) {
-			msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
-			fmt.Println("In update accepted")
-			fmt.Println(msgPayload)
+			//msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
+
+			//fmt.Println("In update accepted")
+			//fmt.Println(msgPayload)
 			shadowDoc := &utils.ShadowAcceptStrut{}
 			json.Unmarshal(message.Payload(), shadowDoc)
 
@@ -416,8 +417,9 @@ func (h *ThingsHandler) WsIoT(c *gin.Context) {
 		})
 		err = client.SubscribeWithHandler(shadowsUpdateDocTopic, 0, func(client MQTT.Client, message MQTT.Message) {
 			msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
-			fmt.Println("In update Doc")
-			fmt.Println(msgPayload)
+			_ = msgPayload
+			//fmt.Println("In update Doc")
+			//fmt.Println(msgPayload)
 			//resData := message.Payload()
 			//resOutData = &resData
 			//Response message to client

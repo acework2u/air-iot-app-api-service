@@ -467,7 +467,7 @@ func (s *CogClient) ThinksShadows(idToken string, res string) (*ShadowsValue, er
 
 	//shadowsDocTopic := "$aws/things/2300F15050017/shadow/name/air-users/update/documents"
 	//shadowsDocTopic := "$aws/things/2300F15050017/shadow/name/demo-1/update/documents"
-	shadowsAcceptTopic := "$aws/things/2300F15050023/shadow/name/air-users/update/accepted"
+	shadowsAcceptTopic := "$aws/things/2300F15050006/shadow/name/air-users/update/accepted"
 	//shadowsAcceptTopic := "$aws/things/2300F15050017/shadow/name/demo-1/update/accepted"
 
 	//Shadows Document
@@ -553,8 +553,6 @@ func (s *CogClient) PubGetShadows(thinkName string, shadowName string) (*IndoorI
 		return nil, err
 	}
 	shadowVal := &ShadowsValue{}
-	fmt.Println("getThingShadowOutput.Payload")
-	fmt.Println(getThingShadowOutput)
 	err = json.Unmarshal(getThingShadowOutput.Payload, shadowVal)
 
 	if err != nil {

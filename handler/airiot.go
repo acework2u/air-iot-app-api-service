@@ -158,3 +158,32 @@ func (h *AirIotHandler) WsIoT(c *gin.Context) {
 	}
 
 }
+func (h *AirIotHandler) MqSubShadows(c *gin.Context) {
+	airSerial := &airs.AirRq{}
+	userID, _ := c.Get("UserSub")
+
+	err := c.ShouldBindJSON(airSerial)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err.Error(),
+		})
+		return
+	}
+	serial := fmt.Sprintf("%s", airSerial.Serial)
+	clientId := fmt.Sprintf("%v", userID)
+
+	res, err := h.airIoTService.ShadowsAir(clientId, serial)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": res,
+	})
+}
