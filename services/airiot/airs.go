@@ -1,9 +1,32 @@
 package airiot
 
 import (
+	"encoding/json"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
 )
+
+const (
+	PUBLISH     = "publish"
+	SUBSCRIBE   = "subscribe"
+	UNSUBSCRIBE = "unsubscribe"
+)
+
+type PubSub struct {
+	Clients       []Client
+	Subscriptions []Subscription
+}
+
+type WsMessage struct {
+	Action  string          `json:"action"`
+	Topic   string          `json:"topic"`
+	Message json.RawMessage `json:"message"`
+}
+
+type Subscription struct {
+	Topic  string
+	Client *Client
+}
 
 type (
 	AirInfo struct {
@@ -75,4 +98,10 @@ type AirIoTService interface {
 	CheckAwsProduct() (interface{}, error)
 	CheckAws() (interface{}, error)
 	ShadowsAir(clientId string, serial string) (interface{}, error)
+	Ws2AddClient(client Client) *PubSub
+	Ws2RemoveClient(client Client) *PubSub
+	Ws2GetSubscriptions(topic string, client *Client) []Subscription
+	Ws2Subscribe(client *Client, topic string) *PubSub
+	Ws2Publish(topic string, message []byte, excludeClient *Client)
+	Ws2HandleReceiveMessage(client Client, messageType int, payload []byte) *PubSub
 }

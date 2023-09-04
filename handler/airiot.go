@@ -187,3 +187,55 @@ func (h *AirIotHandler) MqSubShadows(c *gin.Context) {
 		"message": res,
 	})
 }
+func (h *AirIotHandler) Ws2Indoor(c *gin.Context) {
+
+	userID, _ := c.Get("UserSub") //
+
+	ws, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer ws.Close()
+
+	client := airs.Client{
+		ID:   userID.(string),
+		Conn: ws,
+	}
+	ps := h.airIoTService.Ws2AddClient(client)
+	fmt.Println("New client is connected, total: ", ps.Clients)
+	for {
+		msgType, msg, err := ws.ReadMessage()
+		if err != nil {
+			fmt.Println("Something went wrong", err)
+			res := h.airIoTService.Ws2RemoveClient(client)
+			fmt.Println("total clients and subscriptions", len(res.Clients), len(res.Subscriptions))
+			return
+		}
+		h.airIoTService.Ws2HandleReceiveMessage(client, msgType, msg)
+	}
+
+	//for {
+	//	//Read Message from client
+	//	mt, message, err := ws.ReadMessage()
+	//	if err != nil {
+	//		fmt.Println(err)
+	//		break
+	//	}
+	//	//If client message is ping will return pong
+	//	if string(message) == "ping" {
+	//		message = []byte("pong")
+	//	}
+	//	//Response message to client
+	//	err = ws.WriteMessage(mt, message)
+	//	if err != nil {
+	//		fmt.Println(err)
+	//		break
+	//	}
+	//}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": "Ws2 Indoor" + userID.(string),
+	})
+}

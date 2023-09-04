@@ -25,7 +25,8 @@ func (r *AirIoTRouter) AirIoTRoute(rg *gin.RouterGroup) {
 
 	router.GET("/ws", r.airIoTHandler.WsIoT)
 
-	route2 := rg.Group("ws-air", middleware.CognitoAuthMiddleware())
-	route2.GET("", r.airIoTHandler.MqSubShadows)
+	route2 := rg.Group("ws2", middleware.CognitoAuthMiddleware())
+	route2.GET("", r.airIoTHandler.Ws2Indoor)
+	route2.GET("/xxx", r.airIoTHandler.MqSubShadows)
 
 }

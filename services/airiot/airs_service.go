@@ -13,10 +13,15 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/iotdataplane"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 	MQTT "github.com/eclipse/paho.mqtt.golang"
+	"github.com/gorilla/websocket"
 	mqtt "github.com/tech-sumit/aws-iot-device-sdk-go"
 )
 
 var ClientAwsMqtt *mqtt.AWSIoTConnection
+var upgerder = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
 
 type airIoTService struct {
 	Cfg             *aws.Config
@@ -28,6 +33,7 @@ type airIoTService struct {
 	cognitoClientId string
 	region          string
 	Ctx             context.Context
+	PubSub          *PubSub
 }
 
 func NewAirIoTService(cfg *AirIoTConfig) AirIoTService {
@@ -51,6 +57,7 @@ func NewAirIoTService(cfg *AirIoTConfig) AirIoTService {
 		IotClient: iotClient,
 		IotData:   iotData,
 		Ctx:       context.TODO(),
+		PubSub:    &PubSub{},
 	}
 }
 
@@ -180,6 +187,109 @@ func (s *airIoTService) ShadowsAir(clientId string, serial string) (interface{},
 	shadowsVal = <-result
 
 	return shadowsVal, nil
+}
+func (s *airIoTService) Ws2AddClient(client Client) *PubSub {
+
+	s.PubSub.Clients = append(s.PubSub.Clients, client)
+	payload := []byte("HI " + client.ID)
+	client.Conn.WriteMessage(1, payload)
+	return s.PubSub
+}
+func (s *airIoTService) Ws2RemoveClient(client Client) *PubSub {
+
+	for index, sub := range s.PubSub.Subscriptions {
+		if client.ID == sub.Client.ID {
+			s.PubSub.Subscriptions = append(s.PubSub.Subscriptions[:index], s.PubSub.Subscriptions[index+1:]...)
+		}
+	}
+	// remove client from the list
+	for index, c := range s.PubSub.Clients {
+		if c.ID == client.ID {
+			s.PubSub.Clients = append(s.PubSub.Clients[:index], s.PubSub.Clients[index+1:]...)
+		}
+	}
+
+	return s.PubSub
+}
+func (s *airIoTService) Ws2GetSubscriptions(topic string, client *Client) []Subscription {
+	subscriptionList := []Subscription{}
+	for _, subscription := range s.PubSub.Subscriptions {
+		if client != nil {
+			if subscription.Client.ID == client.ID && subscription.Topic == topic {
+				subscriptionList = append(subscriptionList, subscription)
+			} else {
+				if subscription.Topic == topic {
+					subscriptionList = append(subscriptionList, subscription)
+				}
+			}
+		}
+	}
+	return subscriptionList
+}
+func (s *airIoTService) Ws2Subscribe(client *Client, topic string) *PubSub {
+
+	clientSubs := s.Ws2GetSubscriptions(topic, client)
+	if len(clientSubs) > 0 {
+		return s.PubSub
+	}
+
+	newSubscription := Subscription{
+		Topic:  topic,
+		Client: client,
+	}
+	s.PubSub.Subscriptions = append(s.PubSub.Subscriptions, newSubscription)
+
+	return s.PubSub
+}
+func (s *airIoTService) Ws2Publish(topic string, message []byte, excludeClient *Client) {
+
+	subscriptions := s.Ws2GetSubscriptions(topic, nil)
+	for _, sub := range subscriptions {
+		fmt.Printf("Sending to Client is %s message is %s", sub.Client.ID, message)
+		sub.Client.Ws2Send(message)
+	}
+
+}
+func (s *airIoTService) Ws2Unsubscribe(client *Client, topic string) *PubSub {
+
+	for index, sub := range s.PubSub.Subscriptions {
+		if sub.Client.ID == client.ID && sub.Topic == topic {
+			s.PubSub.Subscriptions = append(s.PubSub.Subscriptions[:index], s.PubSub.Subscriptions[index+1:]...)
+		}
+	}
+
+	return s.PubSub
+}
+func (s *airIoTService) Ws2HandleReceiveMessage(client Client, messageType int, payload []byte) *PubSub {
+	m := WsMessage{}
+	err := json.Unmarshal(payload, &m)
+	if err != nil {
+		fmt.Println("This is not correct message payload")
+		return s.PubSub
+	}
+
+	switch m.Action {
+
+	case PUBLISH:
+		fmt.Println("This is publish new message")
+		s.Ws2Publish(m.Topic, m.Message, nil)
+		break
+	case SUBSCRIBE:
+		s.Ws2Subscribe(&client, m.Topic)
+		fmt.Println("new subscriber to topic", m.Message, len(s.PubSub.Subscriptions), client.ID)
+		break
+	case UNSUBSCRIBE:
+		fmt.Println("Client want to unsubscribe the topic", m.Topic, client.ID)
+		s.Ws2Unsubscribe(&client, m.Topic)
+		break
+	default:
+		break
+	}
+
+	return s.PubSub
+}
+func (c *Client) Ws2Send(message []byte) error {
+	return c.Conn.WriteMessage(1, message)
 }
 
 func NewAwsMqttConn(clientId string) (*mqtt.AWSIoTConnection, error) {
