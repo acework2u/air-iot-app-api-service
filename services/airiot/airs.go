@@ -2,6 +2,8 @@ package airiot
 
 import (
 	"encoding/json"
+	"github.com/acework2u/air-iot-app-api-service/repository"
+	"github.com/gorilla/websocket"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
 )
@@ -13,8 +15,12 @@ const (
 )
 
 type PubSub struct {
-	Clients       []Client
+	Clients       []Member
 	Subscriptions []Subscription
+}
+type Member struct {
+	ID   string
+	Conn *websocket.Conn
 }
 
 type WsMessage struct {
@@ -25,7 +31,7 @@ type WsMessage struct {
 
 type Subscription struct {
 	Topic  string
-	Client *Client
+	Client *Member
 }
 
 type (
@@ -50,11 +56,11 @@ type (
 		UpdatedDate  time.Time          `bson:"updatedDate"`
 	}
 	ResponseAir struct {
-		Id     primitive.ObjectID `json:"id"`
-		Serial string             `json:"serial"`
-		Title  string             `json:"title"`
-		Bg     string             `json:"bg"`
-		Indoor *IndoorInfo        `bson:"indoor"`
+		Id     primitive.ObjectID `json:"id,omitempty"`
+		Serial string             `json:"serial,omitempty"`
+		Title  string             `json:"title,omitempty"`
+		Bg     string             `json:"bg,omitempty"`
+		Indoor *IndoorInfo        `json:"indoor,omitempty"`
 	}
 	AirThingConfig struct {
 		Region          string `json:"region"`
@@ -73,9 +79,10 @@ type (
 	}
 
 	AirIoTConfig struct {
-		Region          string `json:"region"`
-		UserPoolId      string `json:"userPoolId"`
-		CognitoClientId string `json:"cognitoClientId"`
+		Region          string                   `json:"region"`
+		UserPoolId      string                   `json:"userPoolId"`
+		CognitoClientId string                   `json:"cognitoClientId"`
+		AirRepo         repository.AirRepository `json:"airRepo"`
 	}
 	ShadowsValue struct {
 		State struct {
@@ -98,10 +105,12 @@ type AirIoTService interface {
 	CheckAwsProduct() (interface{}, error)
 	CheckAws() (interface{}, error)
 	ShadowsAir(clientId string, serial string) (interface{}, error)
-	Ws2AddClient(client Client) *PubSub
-	Ws2RemoveClient(client Client) *PubSub
-	Ws2GetSubscriptions(topic string, client *Client) []Subscription
-	Ws2Subscribe(client *Client, topic string) *PubSub
-	Ws2Publish(topic string, message []byte, excludeClient *Client)
-	Ws2HandleReceiveMessage(client Client, messageType int, payload []byte) *PubSub
+	Ws2AddClient(client Member) *PubSub
+	Ws2RemoveClient(client Member) *PubSub
+	Ws2GetSubscriptions(topic string, client *Member) []*Subscription
+	Ws2Subscribe(client *Member, topic string) *PubSub
+	Ws2Publish(topic string, message []byte, excludeClient *Member)
+	Ws2HandleReceiveMessage(client Member, messageType int, payload []byte) *PubSub
+	Airlist(UserId string) ([]*ResponseAir, error)
+	CheckMyAc(UserId string, serial string) bool
 }

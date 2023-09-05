@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	airIotService "github.com/acework2u/air-iot-app-api-service/services/airiot"
 	"log"
 	"net/http"
 
@@ -11,7 +12,6 @@ import (
 	"github.com/acework2u/air-iot-app-api-service/repository"
 	"github.com/acework2u/air-iot-app-api-service/routers"
 	service "github.com/acework2u/air-iot-app-api-service/services"
-	airIotService "github.com/acework2u/air-iot-app-api-service/services/airiot"
 	"github.com/acework2u/air-iot-app-api-service/services/auth"
 	clientCog "github.com/acework2u/air-iot-app-api-service/services/clientcoginto"
 	"github.com/gin-contrib/cors"
@@ -107,17 +107,6 @@ func init() {
 	DeviceHandler = handler.NewDeviceHandler(deviceService)
 	DeviceRouter = routers.NewDeviceRouter(DeviceHandler)
 
-	//AirIoT
-	airCfg := &airIotService.AirIoTConfig{
-		Region:          cognitoRegion,
-		UserPoolId:      userPoolId,
-		CognitoClientId: cognitoClientId,
-	}
-
-	airIoTServ := airIotService.NewAirIoTService(airCfg)
-	airIoTHandler = handler.NewAirIoTHandler(airIoTServ)
-	AirIoTRouter = routers.NewAirIoTRouter(airIoTHandler)
-
 	//AirThing
 	airConfig := &service.AirThingConfig{Region: cognitoRegion, UserPoolId: userPoolId, CognitoClientId: cognitoClientId}
 	airThingsCollection = configs.GetCollection(mongoclient, "air_things")
@@ -125,6 +114,18 @@ func init() {
 	airThingService := service.NewAirThingService(airConfig, airRepo)
 	airThingHandler = handler.NewAirThingHandler(airThingService)
 	AirThingRouter = routers.NewAirThingRouter(airThingHandler)
+
+	//AirIoT
+	airCfg := &airIotService.AirIoTConfig{
+		Region:          cognitoRegion,
+		UserPoolId:      userPoolId,
+		CognitoClientId: cognitoClientId,
+		AirRepo:         airRepo,
+	}
+
+	airIoTServ := airIotService.NewAirIoTService(airCfg)
+	airIoTHandler = handler.NewAirIoTHandler(airIoTServ)
+	AirIoTRouter = routers.NewAirIoTRouter(airIoTHandler)
 
 	//Client
 	CustService = clientCog.NewCognitoService(cognitoRegion, cognitoClientId)

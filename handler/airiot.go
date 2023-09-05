@@ -198,7 +198,7 @@ func (h *AirIotHandler) Ws2Indoor(c *gin.Context) {
 	}
 	defer ws.Close()
 
-	client := airs.Client{
+	client := airs.Member{
 		ID:   userID.(string),
 		Conn: ws,
 	}
@@ -237,5 +237,23 @@ func (h *AirIotHandler) Ws2Indoor(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
 		"message": "Ws2 Indoor" + userID.(string),
+	})
+}
+func (h *AirIotHandler) AcIndoor(c *gin.Context) {
+
+	userID, _ := c.Get("UserSub")
+
+	//res, err := h.airIoTService.Airlist(userID.(string))
+	err := h.airIoTService.CheckMyAc(userID.(string), "23F01000006")
+	if !err {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": err,
 	})
 }

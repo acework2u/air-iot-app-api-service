@@ -15,6 +15,7 @@ import (
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"github.com/gorilla/websocket"
 	mqtt "github.com/tech-sumit/aws-iot-device-sdk-go"
+	"time"
 )
 
 var ClientAwsMqtt *mqtt.AWSIoTConnection
@@ -56,6 +57,7 @@ func NewAirIoTService(cfg *AirIoTConfig) AirIoTService {
 		Cfg:       &awsCfg,
 		IotClient: iotClient,
 		IotData:   iotData,
+		airRepo:   cfg.AirRepo,
 		Ctx:       context.TODO(),
 		PubSub:    &PubSub{},
 	}
@@ -188,14 +190,14 @@ func (s *airIoTService) ShadowsAir(clientId string, serial string) (interface{},
 
 	return shadowsVal, nil
 }
-func (s *airIoTService) Ws2AddClient(client Client) *PubSub {
+func (s *airIoTService) Ws2AddClient(client Member) *PubSub {
 
 	s.PubSub.Clients = append(s.PubSub.Clients, client)
 	payload := []byte("HI " + client.ID)
 	client.Conn.WriteMessage(1, payload)
 	return s.PubSub
 }
-func (s *airIoTService) Ws2RemoveClient(client Client) *PubSub {
+func (s *airIoTService) Ws2RemoveClient(client Member) *PubSub {
 
 	for index, sub := range s.PubSub.Subscriptions {
 		if client.ID == sub.Client.ID {
@@ -211,22 +213,22 @@ func (s *airIoTService) Ws2RemoveClient(client Client) *PubSub {
 
 	return s.PubSub
 }
-func (s *airIoTService) Ws2GetSubscriptions(topic string, client *Client) []Subscription {
-	subscriptionList := []Subscription{}
+func (s *airIoTService) Ws2GetSubscriptions(topic string, client *Member) []*Subscription {
+	subscriptionList := []*Subscription{}
 	for _, subscription := range s.PubSub.Subscriptions {
 		if client != nil {
 			if subscription.Client.ID == client.ID && subscription.Topic == topic {
-				subscriptionList = append(subscriptionList, subscription)
+				subscriptionList = append(subscriptionList, &subscription)
 			} else {
 				if subscription.Topic == topic {
-					subscriptionList = append(subscriptionList, subscription)
+					subscriptionList = append(subscriptionList, &subscription)
 				}
 			}
 		}
 	}
 	return subscriptionList
 }
-func (s *airIoTService) Ws2Subscribe(client *Client, topic string) *PubSub {
+func (s *airIoTService) Ws2Subscribe(client *Member, topic string) *PubSub {
 
 	clientSubs := s.Ws2GetSubscriptions(topic, client)
 	if len(clientSubs) > 0 {
@@ -239,18 +241,24 @@ func (s *airIoTService) Ws2Subscribe(client *Client, topic string) *PubSub {
 	}
 	s.PubSub.Subscriptions = append(s.PubSub.Subscriptions, newSubscription)
 
+	fmt.Println("s.PubSub.Subscriptions")
+	fmt.Println(s.PubSub.Subscriptions)
+
 	return s.PubSub
 }
-func (s *airIoTService) Ws2Publish(topic string, message []byte, excludeClient *Client) {
+func (s *airIoTService) Ws2Publish(topic string, message []byte, excludeClient *Member) {
 
 	subscriptions := s.Ws2GetSubscriptions(topic, nil)
+
+	fmt.Println(len(subscriptions))
+	fmt.Println(subscriptions)
 	for _, sub := range subscriptions {
 		fmt.Printf("Sending to Client is %s message is %s", sub.Client.ID, message)
 		sub.Client.Ws2Send(message)
 	}
 
 }
-func (s *airIoTService) Ws2Unsubscribe(client *Client, topic string) *PubSub {
+func (s *airIoTService) Ws2Unsubscribe(client *Member, topic string) *PubSub {
 
 	for index, sub := range s.PubSub.Subscriptions {
 		if sub.Client.ID == client.ID && sub.Topic == topic {
@@ -260,7 +268,7 @@ func (s *airIoTService) Ws2Unsubscribe(client *Client, topic string) *PubSub {
 
 	return s.PubSub
 }
-func (s *airIoTService) Ws2HandleReceiveMessage(client Client, messageType int, payload []byte) *PubSub {
+func (s *airIoTService) Ws2HandleReceiveMessage(client Member, messageType int, payload []byte) *PubSub {
 	m := WsMessage{}
 	err := json.Unmarshal(payload, &m)
 	if err != nil {
@@ -276,22 +284,76 @@ func (s *airIoTService) Ws2HandleReceiveMessage(client Client, messageType int, 
 		break
 	case SUBSCRIBE:
 		s.Ws2Subscribe(&client, m.Topic)
-		fmt.Println("new subscriber to topic", m.Message, len(s.PubSub.Subscriptions), client.ID)
+
+		checkAc := s.CheckMyAc(client.ID, m.Topic)
+		//fmt.Println("new subscriber to topic ", m.Topic, m.Message, len(s.PubSub.Subscriptions), client.ID)
+		if checkAc {
+			go func() {
+				for {
+					serial := string(m.Topic)
+					shadowName := "air-users"
+					res, err := s.GetShadowsDocument(serial, shadowName)
+					if err != nil {
+						return
+					}
+
+					acInfo, _ := json.Marshal(res)
+
+					client.Conn.WriteMessage(1, []byte(acInfo))
+					fmt.Println(s.PubSub.Subscriptions)
+
+					time.Sleep(4 * time.Second)
+				}
+
+			}()
+
+		}
+
 		break
 	case UNSUBSCRIBE:
 		fmt.Println("Client want to unsubscribe the topic", m.Topic, client.ID)
 		s.Ws2Unsubscribe(&client, m.Topic)
 		break
 	default:
+		client.Conn.Close()
 		break
 	}
 
 	return s.PubSub
 }
-func (c *Client) Ws2Send(message []byte) error {
-	return c.Conn.WriteMessage(1, message)
+func (s *airIoTService) Airlist(UserId string) ([]*ResponseAir, error) {
+	airList := []*ResponseAir{}
+	res, err := s.airRepo.Airs(UserId)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, items := range res {
+		item := &ResponseAir{
+			Serial: items.Serial,
+		}
+
+		airList = append(airList, item)
+	}
+
+	return airList, err
+}
+func (s *airIoTService) CheckMyAc(UserId string, serial string) bool {
+	res, err := s.Airlist(UserId)
+	if err != nil {
+		return false
+	}
+	for _, items := range res {
+		if string(items.Serial) == string(serial) {
+			return true
+		}
+	}
+	return false
 }
 
+func (c *Member) Ws2Send(message []byte) error {
+	return c.Conn.WriteMessage(1, message)
+}
 func NewAwsMqttConn(clientId string) (*mqtt.AWSIoTConnection, error) {
 	clientMq := &mqtt.AWSIoTConnection{}
 	clientMq, err := mqtt.NewConnection(mqtt.Config{

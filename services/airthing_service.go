@@ -66,10 +66,6 @@ func (s *airthingService) GetCerts(idToken string) (interface{}, error) {
 		return nil, err
 	}
 
-	fmt.Printf("Working inService")
-
-	fmt.Println(cresRes)
-
 	iotEndpoint := "a18xth5rea73tz-ats.iot.ap-southeast-1.amazonaws.com"
 	_ = iotEndpoint
 
