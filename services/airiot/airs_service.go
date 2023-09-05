@@ -300,7 +300,6 @@ func (s *airIoTService) Ws2HandleReceiveMessage(client Member, messageType int, 
 					acInfo, _ := json.Marshal(res)
 
 					client.Conn.WriteMessage(1, []byte(acInfo))
-					fmt.Println(s.PubSub.Subscriptions)
 
 					time.Sleep(4 * time.Second)
 				}
