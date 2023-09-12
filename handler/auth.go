@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/acework2u/air-iot-app-api-service/utils"
 	"net/http"
+	"strings"
 
 	services "github.com/acework2u/air-iot-app-api-service/services/auth"
 	"github.com/gin-gonic/gin"
@@ -161,17 +162,26 @@ func (h *AuthHandler) PostResendConfirmCode(c *gin.Context) {
 func (h *AuthHandler) PostRefreshToken(c *gin.Context) {
 
 	refreshToken := &services.SignInResponse{}
-
 	custErr := utils.NewCustomHandler(c)
 	err := c.ShouldBindJSON(refreshToken)
 	if err != nil {
 		custErr.CustomError(err)
 		return
 	}
-	refToken := fmt.Sprintf("%v", refreshToken.RefreshToken)
-
+	refToken := *refreshToken.RefreshToken
 	resToken, ok := h.authService.RefreshToken(refToken)
 	if ok != nil {
+
+		reshErr := strings.Split(ok.Error(), ",")
+		reshErr = strings.Split(reshErr[3], ":")
+		if len(reshErr[1]) > 0 {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"status":  http.StatusBadRequest,
+				"message": reshErr[1],
+			})
+			return
+		}
+
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"status":  http.StatusBadRequest,
 			"message": ok.Error(),

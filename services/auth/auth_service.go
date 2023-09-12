@@ -170,30 +170,25 @@ func (s *CognitoClient) RefreshToken(refreshToken string) (interface{}, error) {
 
 	param := map[string]string{
 		"REFRESH_TOKEN": *aws.String(refreshToken),
-		"DEVICE_KEY":    *aws.String("R3FR3SHT0K3N"),
 	}
-	parama := map[string]string{
-		"REFRESH_TOKEN": *aws.String(refreshToken),
-	}
-
-	_ = parama
-
-	adminRefreshTokenInput := &cip.AdminInitiateAuthInput{
-		AuthFlow:       types.AuthFlowTypeRefreshTokenAuth,
-		ClientId:       aws.String(s.AppClientId),
-		UserPoolId:     aws.String(s.UserPoolId),
-		AuthParameters: parama,
-	}
-	_ = adminRefreshTokenInput
 
 	refreshTokenInput := &cip.InitiateAuthInput{
 		AuthFlow:       types.AuthFlowTypeRefreshToken,
 		ClientId:       aws.String(s.AppClientId),
 		AuthParameters: param,
 	}
-	_ = refreshTokenInput
-
 	initiateAuthOutput, err := s.ClientCognito.InitiateAuth(ctx, refreshTokenInput)
+
+	//param := map[string]string{
+	//	"REFRESH_TOKEN": *aws.String(refreshToken),
+	//	"DEVICE_KEY":    *aws.String("R3FR3SHT0K3N"),
+	//}
+	//adminRefreshTokenInput := &cip.AdminInitiateAuthInput{
+	//	AuthFlow:       types.AuthFlowTypeRefreshTokenAuth,
+	//	ClientId:       aws.String(s.AppClientId),
+	//	UserPoolId:     aws.String(s.UserPoolId),
+	//	AuthParameters: parama,
+	//}
 	//initiateAuthOutput, err := s.ClientCognito.AdminInitiateAuth(ctx, adminRefreshTokenInput)
 	if err != nil {
 		return nil, err
