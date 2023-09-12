@@ -249,3 +249,28 @@ func (h *AuthHandler) PostConfirmNewPassword(c *gin.Context) {
 		"message": resp,
 	})
 }
+
+func (h *AuthHandler) PostChangePassword(c *gin.Context) {
+
+	changePasswordReq := services.ChangePasswordReq{}
+	err := c.ShouldBindJSON(&changePasswordReq)
+	custErr := utils.NewCustomHandler(c)
+	if err != nil {
+		custErr.CustomError(err)
+		return
+	}
+
+	resChange, err := h.authService.ChangePassword(&changePasswordReq)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"status": http.StatusBadRequest,
+			"error":  err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": resChange,
+	})
+}

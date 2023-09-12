@@ -10,6 +10,7 @@ type AuthenServices interface {
 	RefreshToken(refreshToken string) (interface{}, error)
 	ForgotPassword(userName string) (interface{}, error)
 	ConfirmNewPassword(*UserConfirmNewPassword) (interface{}, error)
+	ChangePassword(changeReq *ChangePasswordReq) (interface{}, error)
 }
 
 type (
@@ -26,6 +27,11 @@ type (
 		UserName    string `json:"userName" validate:"required" binding:"required"`
 		Password    string `json:"password" validate:"required,max=10,min=1" binding:"required"`
 		ConfirmCode string `json:"confirmCode" validate:"required" binding:"required"`
+	}
+	ChangePasswordReq struct {
+		AccessToken      string `json:"accessToken" validate:"required" binding:"required"`
+		PreviousPassword string `json:"currentPassword" validate:"required" binding:"required"`
+		ProposePassword  string `json:"newPassword" validate:"required" binding:"required"`
 	}
 
 	ResendConfirmCode struct {

@@ -195,6 +195,21 @@ func (s *CognitoClient) RefreshToken(refreshToken string) (interface{}, error) {
 	}
 	return initiateAuthOutput, nil
 }
+
+func (s *CognitoClient) ChangePassword(changeReq *ChangePasswordReq) (interface{}, error) {
+
+	changePwInput := &cip.ChangePasswordInput{
+		AccessToken:      aws.String(changeReq.AccessToken),
+		PreviousPassword: aws.String(changeReq.PreviousPassword),
+		ProposedPassword: aws.String(changeReq.ProposePassword),
+	}
+	changePasswordOutput, err := s.ClientCognito.ChangePassword(ctx, changePwInput)
+	if err != nil {
+		return nil, err
+	}
+	return changePasswordOutput, nil
+}
+
 func (s *CognitoClient) ForgotPassword(userName string) (interface{}, error) {
 	// ClientId: aws.String(s.AppClientId),
 	forgotPasswordInput := &cip.ForgotPasswordInput{
