@@ -21,5 +21,7 @@ func (rc *AuthController) AuthRoute(rg *gin.RouterGroup) {
 	router.POST("/confirm", rc.authHandler.PostConfirm)
 	router.POST("/refresh-token", rc.authHandler.PostRefreshToken)
 	router.POST("/resend-confirm-code", rc.authHandler.PostResendConfirmCode)
+	router.POST("/forgot-password", rc.authHandler.PostForgotPw)
+	router.POST("/confirm-password", rc.authHandler.PostConfirmNewPassword)
 
 }

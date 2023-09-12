@@ -170,7 +170,7 @@ func (s *CognitoClient) RefreshToken(refreshToken string) (interface{}, error) {
 
 	param := map[string]string{
 		"REFRESH_TOKEN": *aws.String(refreshToken),
-		"DEVICE_KEY":    *aws.String("<R3FR3SHT0K3N>"),
+		"DEVICE_KEY":    *aws.String("R3FR3SHT0K3N"),
 	}
 	parama := map[string]string{
 		"REFRESH_TOKEN": *aws.String(refreshToken),
@@ -200,7 +200,31 @@ func (s *CognitoClient) RefreshToken(refreshToken string) (interface{}, error) {
 	}
 	return initiateAuthOutput, nil
 }
-func checkError(message string) (resMsg string) {
+func (s *CognitoClient) ForgotPassword(userName string) (interface{}, error) {
+	// ClientId: aws.String(s.AppClientId),
+	forgotPasswordInput := &cip.ForgotPasswordInput{
+		Username: aws.String(userName),
+		ClientId: aws.String(s.AppClientId)}
+	forgotPasswordOutput, err := s.ClientCognito.ForgotPassword(ctx, forgotPasswordInput)
+	if err != nil {
+		return nil, err
+	}
+	return forgotPasswordOutput, nil
+}
 
-	return ""
+func (s *CognitoClient) ConfirmNewPassword(userConfirm *UserConfirmNewPassword) (interface{}, error) {
+
+	confirmForgotPasswordInput := &cip.ConfirmForgotPasswordInput{
+		ClientId:         aws.String(s.AppClientId),
+		ConfirmationCode: aws.String(userConfirm.ConfirmCode),
+		Username:         aws.String(userConfirm.UserName),
+		Password:         aws.String(userConfirm.Password),
+	}
+
+	cfpPwOutput, err := s.ClientCognito.ConfirmForgotPassword(ctx, confirmForgotPasswordInput)
+
+	if err != nil {
+		return nil, err
+	}
+	return cfpPwOutput, nil
 }

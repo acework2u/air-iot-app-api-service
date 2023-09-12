@@ -185,3 +185,57 @@ func (h *AuthHandler) PostRefreshToken(c *gin.Context) {
 
 	return
 }
+
+func (h *AuthHandler) PostForgotPw(c *gin.Context) {
+
+	userName := services.ResendConfirmCode{}
+	c.ShouldBindJSON(&userName)
+
+	if len(userName.Username) < 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": "User is required",
+		})
+		return
+	}
+
+	response, err := h.authService.ForgotPassword(userName.Username)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": response,
+	})
+}
+
+func (h *AuthHandler) PostConfirmNewPassword(c *gin.Context) {
+
+	confirmReq := services.UserConfirmNewPassword{}
+	customErr := utils.NewCustomHandler(c)
+	err := c.ShouldBindJSON(&confirmReq)
+
+	if err != nil {
+		customErr.CustomError(err)
+		return
+	}
+
+	resp, err := h.authService.ConfirmNewPassword(&confirmReq)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": resp,
+	})
+}

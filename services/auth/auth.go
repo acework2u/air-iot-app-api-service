@@ -8,6 +8,8 @@ type AuthenServices interface {
 	UserConfirm(string, string) (interface{}, error)
 	ResendConfirmCode(string) (*cognitoidentityprovider.ResendConfirmationCodeOutput, error)
 	RefreshToken(refreshToken string) (interface{}, error)
+	ForgotPassword(userName string) (interface{}, error)
+	ConfirmNewPassword(*UserConfirmNewPassword) (interface{}, error)
 }
 
 type (
@@ -19,6 +21,11 @@ type (
 	UserConfirm struct {
 		ConfirmationCode string `json:"confirmationCode" validate:"required" binding:"required"`
 		User             string `json:"username" validate:"required" binding:"required"`
+	}
+	UserConfirmNewPassword struct {
+		UserName    string `json:"userName" validate:"required" binding:"required"`
+		Password    string `json:"password" validate:"required,max=10,min=1" binding:"required"`
+		ConfirmCode string `json:"confirmCode" validate:"required" binding:"required"`
 	}
 
 	ResendConfirmCode struct {
