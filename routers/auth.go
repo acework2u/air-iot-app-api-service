@@ -24,5 +24,6 @@ func (rc *AuthController) AuthRoute(rg *gin.RouterGroup) {
 	router.POST("/forgot-password", rc.authHandler.PostForgotPw)
 	router.POST("/confirm-password", rc.authHandler.PostConfirmNewPassword)
 	router.POST("/change-password", rc.authHandler.PostChangePassword)
+	router.DELETE("/delete-my-account", rc.authHandler.DelCustomer)
 
 }

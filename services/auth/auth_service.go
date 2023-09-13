@@ -210,11 +210,12 @@ func (s *CognitoClient) ChangePassword(changeReq *ChangePasswordReq) (interface{
 	return changePasswordOutput, nil
 }
 
-func (s *CognitoClient) ForgotPassword(userName string) (interface{}, error) {
+func (s *CognitoClient) ForgotPassword(userName string) (*cip.ForgotPasswordOutput, error) {
 	// ClientId: aws.String(s.AppClientId),
 	forgotPasswordInput := &cip.ForgotPasswordInput{
 		Username: aws.String(userName),
 		ClientId: aws.String(s.AppClientId)}
+
 	forgotPasswordOutput, err := s.ClientCognito.ForgotPassword(ctx, forgotPasswordInput)
 	if err != nil {
 		return nil, err
@@ -222,7 +223,7 @@ func (s *CognitoClient) ForgotPassword(userName string) (interface{}, error) {
 	return forgotPasswordOutput, nil
 }
 
-func (s *CognitoClient) ConfirmNewPassword(userConfirm *UserConfirmNewPassword) (interface{}, error) {
+func (s *CognitoClient) ConfirmNewPassword(userConfirm *UserConfirmNewPassword) (*cip.ConfirmForgotPasswordOutput, error) {
 
 	confirmForgotPasswordInput := &cip.ConfirmForgotPasswordInput{
 		ClientId:         aws.String(s.AppClientId),
@@ -236,5 +237,14 @@ func (s *CognitoClient) ConfirmNewPassword(userConfirm *UserConfirmNewPassword) 
 	if err != nil {
 		return nil, err
 	}
+
 	return cfpPwOutput, nil
+}
+
+func (s *CognitoClient) DeleteMyAccount(accessKey string) error {
+	_, err := s.ClientCognito.DeleteUser(ctx, &cip.DeleteUserInput{AccessToken: aws.String(accessKey)})
+	if err != nil {
+		return err
+	}
+	return nil
 }

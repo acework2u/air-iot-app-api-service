@@ -8,9 +8,10 @@ type AuthenServices interface {
 	UserConfirm(string, string) (interface{}, error)
 	ResendConfirmCode(string) (*cognitoidentityprovider.ResendConfirmationCodeOutput, error)
 	RefreshToken(refreshToken string) (interface{}, error)
-	ForgotPassword(userName string) (interface{}, error)
-	ConfirmNewPassword(*UserConfirmNewPassword) (interface{}, error)
+	ForgotPassword(userName string) (*cognitoidentityprovider.ForgotPasswordOutput, error)
+	ConfirmNewPassword(*UserConfirmNewPassword) (*cognitoidentityprovider.ConfirmForgotPasswordOutput, error)
 	ChangePassword(changeReq *ChangePasswordReq) (interface{}, error)
+	DeleteMyAccount(accessKey string) error
 }
 
 type (
@@ -22,6 +23,9 @@ type (
 	UserConfirm struct {
 		ConfirmationCode string `json:"confirmationCode" validate:"required" binding:"required"`
 		User             string `json:"username" validate:"required" binding:"required"`
+	}
+	UserDelete struct {
+		AccessToken string `json:"accessToken" validate:"required" binding:"required"`
 	}
 	UserConfirmNewPassword struct {
 		UserName    string `json:"userName" validate:"required" binding:"required"`
@@ -36,6 +40,16 @@ type (
 
 	ResendConfirmCode struct {
 		Username string `json:"username" validate:"required" binding:"required"`
+	}
+
+	ResponseForgotPassword struct {
+		CodeDeliveryDetails struct {
+			AttributeName  string `json:"AttributeName"`
+			DeliveryMedium string `json:"DeliveryMedium"`
+			Destination    string `json:"Destination"`
+		} `json:"CodeDeliveryDetails"`
+		ResultMetadata struct {
+		} `json:"ResultMetadata"`
 	}
 
 	SignUpRequest struct {

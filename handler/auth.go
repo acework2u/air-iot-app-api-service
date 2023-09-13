@@ -12,10 +12,11 @@ import (
 
 type AuthHandler struct {
 	authService services.AuthenServices
+	resp        utils.Response
 }
 
 func NewAuthHandler(authService services.AuthenServices) AuthHandler {
-	return AuthHandler{authService: authService}
+	return AuthHandler{authService: authService, resp: utils.Response{}}
 }
 
 // Authenticate godoc
@@ -55,7 +56,7 @@ func (h *AuthHandler) PostSignIn(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
-		"message": res,
+		"message": res.AuthenticationResult,
 	})
 }
 
@@ -218,9 +219,11 @@ func (h *AuthHandler) PostForgotPw(c *gin.Context) {
 		return
 	}
 
+	sendToEmail := *response.CodeDeliveryDetails.Destination
+	txtResponse := fmt.Sprintf("ระบบได้ส่ง Password Reset Code ไปที่ %v : %v กรุณาใช้ Code เพื่อยืนยัน", response.CodeDeliveryDetails.DeliveryMedium, sendToEmail)
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
-		"message": response,
+		"message": txtResponse,
 	})
 }
 
@@ -235,7 +238,7 @@ func (h *AuthHandler) PostConfirmNewPassword(c *gin.Context) {
 		return
 	}
 
-	resp, err := h.authService.ConfirmNewPassword(&confirmReq)
+	response, err := h.authService.ConfirmNewPassword(&confirmReq)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"status":  http.StatusBadRequest,
@@ -246,7 +249,7 @@ func (h *AuthHandler) PostConfirmNewPassword(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
-		"message": resp,
+		"message": response,
 	})
 }
 
@@ -273,4 +276,27 @@ func (h *AuthHandler) PostChangePassword(c *gin.Context) {
 		"status":  http.StatusOK,
 		"message": resChange,
 	})
+}
+
+func (h *AuthHandler) DelCustomer(c *gin.Context) {
+	acsessToken := services.UserDelete{}
+	err := c.ShouldBindJSON(&acsessToken)
+	utils.NewCustomHandler(c)
+
+	if err != nil {
+		txtErr := strings.Split(err.Error(), ":")
+		if len(txtErr) > 0 {
+			h.resp.BadRequest(c, txtErr[len(txtErr)-1])
+			return
+		}
+		h.resp.BadRequest(c, err.Error())
+		return
+	}
+
+	if err != nil {
+		h.resp.BadRequest(c, err.Error())
+		return
+	}
+	h.resp.Success(c, "Delete your account is a complete")
+	//h.resp.Success(c, "Delete Customer")
 }

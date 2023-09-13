@@ -14,8 +14,8 @@ type Response struct {
 }
 
 type ApiResponse struct {
-	Status  int         `json:"status"`
-	Message interface{} `json:"message"`
+	Status  int         `json:"status,omitempty"`
+	Message interface{} `json:"message,omitempty"`
 }
 
 func SendResponse(c *gin.Context, response Response) {
@@ -26,6 +26,21 @@ func SendResponse(c *gin.Context, response Response) {
 	}
 }
 
+func (r *Response) Success(c *gin.Context, msg interface{}) {
+	c.Header("Content-Type", "application/json")
+	c.JSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": msg,
+	})
+}
+func (r *Response) BadRequest(c *gin.Context, msg interface{}) {
+	c.Header("Content-Type", "application/json")
+	c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+		"status": http.StatusBadRequest,
+		"error":  msg,
+	})
+}
+
 func ResponseSuccess(c *gin.Context, msg *ApiResponse) {
 	c.Header("Content-Type", "application/json")
 	c.JSON(http.StatusOK, msg)
@@ -33,5 +48,6 @@ func ResponseSuccess(c *gin.Context, msg *ApiResponse) {
 
 func ResponseFailed(c *gin.Context, msg *ApiResponse) {
 	c.Header("Content-Type", "application/json")
-	c.JSON(http.StatusBadRequest, msg)
+	c.AbortWithStatusJSON(http.StatusBadRequest, msg)
+	//c.JSON(http.StatusBadRequest, msg)
 }
