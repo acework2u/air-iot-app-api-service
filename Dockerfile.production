@@ -11,7 +11,8 @@ RUN go download
 
 COPY . .
 
-RUN go buil -o app /cmd/main.go
+# RUN go build -o app /cmd/main.go
+RUN go build -o app .
 
 FROM alpine:3.14 AS production
 RUN apk add --no-cach ca-certificates
