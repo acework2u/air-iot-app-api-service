@@ -142,7 +142,7 @@ func (s *airIoTService) CheckAwsProduct() (interface{}, error) {
 	}
 
 	data := fmt.Sprintf("AWS load Work : %v", awsCfg)
-	fmt.Println(awsCfg)
+	//fmt.Println(awsCfg)
 
 	return data, err
 
@@ -158,7 +158,7 @@ func (s *airIoTService) CheckAws() (interface{}, error) {
 	}
 
 	data := fmt.Sprintf("AWS load Work : %v", awsCfg)
-	fmt.Println(awsCfg)
+	//fmt.Println(awsCfg)
 
 	return data, err
 }

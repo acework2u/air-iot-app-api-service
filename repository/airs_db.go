@@ -26,6 +26,7 @@ func (r *AirRepositoryDB) RegisterAir(info *AirInfo) (*DBAirInfo, error) {
 	now := time.Now()
 	airInfo.RegisterDate = now.Local()
 	airInfo.UpdatedDate = airInfo.RegisterDate
+	airInfo.Status = true
 
 	check, _ := r.checkDuplicate(airInfo.Serial, airInfo.UserId)
 	if check > 0 {
@@ -47,7 +48,8 @@ func (r *AirRepositoryDB) RegisterAir(info *AirInfo) (*DBAirInfo, error) {
 	return newDevice, nil
 
 }
-func (r *AirRepositoryDB) UpdateAir(info *AirInfo) (*DBAirInfo, error) {
+func (r *AirRepositoryDB) UpdateAir(userId string, info *AirInfo) (*DBAirInfo, error) {
+
 	return nil, nil
 }
 func (r *AirRepositoryDB) Airs(userId string) ([]*DBAirInfo, error) {

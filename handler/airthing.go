@@ -9,10 +9,11 @@ import (
 
 type AirThingHandler struct {
 	airThingService service.AirThinkService
+	resp            utils.Response
 }
 
 func NewAirThingHandler(airThingService service.AirThinkService) AirThingHandler {
-	return AirThingHandler{airThingService}
+	return AirThingHandler{airThingService: airThingService, resp: utils.Response{}}
 }
 func (h *AirThingHandler) GetCerts(c *gin.Context) {
 
@@ -97,4 +98,33 @@ func (h *AirThingHandler) AddAir(c *gin.Context) {
 		"status":  http.StatusOK,
 		"message": resAir,
 	})
+}
+
+func (h *AirThingHandler) UpdateAir(c *gin.Context) {
+
+	airInfoUpdate := service.UpdateAirInfo{}
+	err := c.ShouldBindJSON(&airInfoUpdate)
+	cusErr := utils.NewCustomHandler(c)
+	if err != nil {
+		cusErr.CustomError(err)
+		return
+
+	}
+	id := c.Param("id")
+	userId, _ := c.Get("UserId")
+	_ = userId
+
+	filter := &service.FilterUpdate{
+		Id:     id,
+		UserId: userId.(string),
+	}
+
+	airInfo, err := h.airThingService.UpdateAir(filter, &airInfoUpdate)
+	_ = airInfo
+	if err != nil {
+		h.resp.BadRequest(c, err.Error())
+		return
+	}
+
+	h.resp.Success(c, airInfoUpdate)
 }

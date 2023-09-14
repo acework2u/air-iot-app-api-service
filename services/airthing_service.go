@@ -141,3 +141,8 @@ func (s *airthingService) GetAirs(userId string) ([]*ResponseAir, error) {
 	}
 	return airList, nil
 }
+func (s *airthingService) UpdateAir(filter *FilterUpdate, info *UpdateAirInfo) (*DBAirInfo, error) {
+	fmt.Println(filter)
+	fmt.Println(info)
+	return nil, nil
+}
