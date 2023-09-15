@@ -49,16 +49,16 @@ type AirThingConfig struct {
 	CognitoClientId string `json:"cognitoClientId"`
 }
 type AirWidget struct {
-	Swing             bool `json:"swing" default:"true"`
-	Mode              bool `json:"mode" default:"true"`
-	FanSpeed          bool `json:"fanSpeed" default:"true"`
-	Schedule          bool `json:"schedule"`
-	Engineer          bool `json:"engineer"`
-	Energy            bool `json:"energy"`
-	UltrafineParticle bool `json:"ultrafineParticle"`
-	Ewarranty         bool `json:"ewarranty" default:"true"`
-	Filter            bool `json:"filter"`
-	Sleep             bool `json:"sleep"`
+	Swing             bool `json:"swing,omitempty" default:"true"`
+	Mode              bool `json:"mode,omitempty" default:"true"`
+	FanSpeed          bool `json:"fanSpeed,omitempty" default:"true"`
+	Schedule          bool `json:"schedule,omitempty"`
+	Engineer          bool `json:"engineer,omitempty"`
+	Energy            bool `json:"energy,omitempty"`
+	UltrafineParticle bool `json:"ultrafineParticle,omitempty"`
+	Ewarranty         bool `json:"ewarranty,omitempty" default:"true"`
+	Filter            bool `json:"filter,omitempty"`
+	Sleep             bool `json:"sleep,omitempty"`
 }
 
 type AirThinkService interface {
