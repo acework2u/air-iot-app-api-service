@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	service "github.com/acework2u/air-iot-app-api-service/services"
 	"github.com/acework2u/air-iot-app-api-service/utils"
 	"github.com/gin-gonic/gin"
@@ -101,7 +102,6 @@ func (h *AirThingHandler) AddAir(c *gin.Context) {
 }
 
 func (h *AirThingHandler) UpdateAir(c *gin.Context) {
-
 	airInfoUpdate := service.UpdateAirInfo{}
 	err := c.ShouldBindJSON(&airInfoUpdate)
 	cusErr := utils.NewCustomHandler(c)
@@ -112,6 +112,8 @@ func (h *AirThingHandler) UpdateAir(c *gin.Context) {
 	}
 	id := c.Param("id")
 	userId, _ := c.Get("UserId")
+	airInfoUpdate.UserId = userId.(string)
+	fmt.Println(userId)
 	_ = userId
 
 	filter := &service.FilterUpdate{

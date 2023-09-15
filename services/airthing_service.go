@@ -89,7 +89,6 @@ func (s *airthingService) ThingConnect(idToken string) (interface{}, error) {
 func (s *airthingService) AddAir(info *AirInfo) (*DBAirInfo, error) {
 
 	now := time.Now()
-
 	airInfo := &repository.AirInfo{
 		Serial:       info.Serial,
 		UserId:       info.UserId,
@@ -99,17 +98,24 @@ func (s *airthingService) AddAir(info *AirInfo) (*DBAirInfo, error) {
 	}
 
 	res, err := s.airRepo.RegisterAir(airInfo)
+
 	if err != nil {
 		return nil, err
 	}
-
-	newAirRegInfo := (*DBAirInfo)(res)
+	//newAirRegInfo := (*DBAirInfo)(res)
+	newAirRegInfo := &DBAirInfo{
+		Id:      res.Id,
+		Serial:  res.Serial,
+		Title:   res.Title,
+		Widgets: (AirWidget)(res.Widgets),
+		Status:  res.Status,
+	}
 
 	return newAirRegInfo, nil
 }
 func (s *airthingService) GetAirs(userId string) ([]*ResponseAir, error) {
 
-	airList := []*ResponseAir{}
+	var airList []*ResponseAir
 	res, err := s.airRepo.Airs(userId)
 	if err != nil {
 		return nil, err
@@ -144,5 +150,28 @@ func (s *airthingService) GetAirs(userId string) ([]*ResponseAir, error) {
 func (s *airthingService) UpdateAir(filter *FilterUpdate, info *UpdateAirInfo) (*DBAirInfo, error) {
 	fmt.Println(filter)
 	fmt.Println(info)
-	return nil, nil
+
+	fil := (*repository.FilterUpdate)(filter)
+	updateInfo := &repository.UpdateAirInfo{
+		Serial:      info.Serial,
+		UserId:      info.UserId,
+		Title:       info.Title,
+		Widgets:     (repository.AirWidget)(info.Widgets),
+		UpdatedDate: time.Now(),
+	}
+	airInfo, err := s.airRepo.UpdateAir(fil, updateInfo)
+	if err != nil {
+		return nil, err
+	}
+
+	resAirInfo := &DBAirInfo{
+		Id:          airInfo.Id,
+		Serial:      airInfo.Serial,
+		Title:       airInfo.Title,
+		Status:      airInfo.Status,
+		Widgets:     (AirWidget)(airInfo.Widgets),
+		UpdatedDate: airInfo.UpdatedDate,
+	}
+
+	return resAirInfo, nil
 }

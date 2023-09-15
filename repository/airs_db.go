@@ -3,8 +3,11 @@ package repository
 import (
 	"context"
 	"errors"
+	"github.com/acework2u/air-iot-app-api-service/utils"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"time"
 )
 
@@ -27,6 +30,7 @@ func (r *AirRepositoryDB) RegisterAir(info *AirInfo) (*DBAirInfo, error) {
 	airInfo.RegisterDate = now.Local()
 	airInfo.UpdatedDate = airInfo.RegisterDate
 	airInfo.Status = true
+	airInfo.Widgets = AirWidget{Swing: true, Mode: true, FanSpeed: true, Ewarranty: true}
 
 	check, _ := r.checkDuplicate(airInfo.Serial, airInfo.UserId)
 	if check > 0 {
@@ -48,9 +52,23 @@ func (r *AirRepositoryDB) RegisterAir(info *AirInfo) (*DBAirInfo, error) {
 	return newDevice, nil
 
 }
-func (r *AirRepositoryDB) UpdateAir(userId string, info *AirInfo) (*DBAirInfo, error) {
+func (r *AirRepositoryDB) UpdateAir(filter *FilterUpdate, info *UpdateAirInfo) (*DBAirInfo, error) {
+	objId, _ := primitive.ObjectIDFromHex(filter.Id)
+	doc, err := utils.ToDoc(info)
+	if err != nil {
+		return nil, err
+	}
+	qurty := bson.D{{Key: "_id", Value: objId}, {Key: "userId", Value: filter.UserId}}
+	//qurty := bson.D{{Key: "_id", Value: objId}}
+	update := bson.D{{Key: "$set", Value: doc}}
+	res := r.airCollection.FindOneAndUpdate(r.ctx, qurty, update, options.FindOneAndUpdate().SetReturnDocument(1))
 
-	return nil, nil
+	airInfo := &DBAirInfo{}
+	if err := res.Decode(airInfo); err != nil {
+		return nil, errors.New("no device with that Id exists")
+	}
+	return airInfo, nil
+
 }
 func (r *AirRepositoryDB) Airs(userId string) ([]*DBAirInfo, error) {
 
