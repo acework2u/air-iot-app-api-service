@@ -93,6 +93,7 @@ func (s *airthingService) AddAir(info *AirInfo) (*DBAirInfo, error) {
 		Serial:       info.Serial,
 		UserId:       info.UserId,
 		Title:        info.Title,
+		Bg:           info.Bg,
 		RegisterDate: now.Local(),
 		UpdatedDate:  now.Local(),
 	}
@@ -107,6 +108,7 @@ func (s *airthingService) AddAir(info *AirInfo) (*DBAirInfo, error) {
 		Id:      res.Id,
 		Serial:  res.Serial,
 		Title:   res.Title,
+		Bg:      res.Bg,
 		Widgets: (AirWidget)(res.Widgets),
 		Status:  res.Status,
 	}
@@ -138,10 +140,11 @@ func (s *airthingService) GetAirs(userId string) ([]*ResponseAir, error) {
 		indInfo = <-result
 
 		item := &ResponseAir{
-			Id:     items.Id,
-			Serial: items.Serial,
-			Title:  items.Title,
-			Indoor: indInfo,
+			Id:      items.Id,
+			Serial:  items.Serial,
+			Title:   items.Title,
+			Indoor:  indInfo,
+			Widgets: (AirWidget)(items.Widgets),
 		}
 		airList = append(airList, item)
 	}
@@ -156,6 +159,7 @@ func (s *airthingService) UpdateAir(filter *FilterUpdate, info *UpdateAirInfo) (
 		Serial:      info.Serial,
 		UserId:      info.UserId,
 		Title:       info.Title,
+		Bg:          info.Bg,
 		Widgets:     (repository.AirWidget)(info.Widgets),
 		UpdatedDate: time.Now(),
 	}
@@ -174,4 +178,15 @@ func (s *airthingService) UpdateAir(filter *FilterUpdate, info *UpdateAirInfo) (
 	}
 
 	return resAirInfo, nil
+}
+func (s *airthingService) DeleteAir(id string, userId string) error {
+	filter := &repository.FilterUpdate{}
+	filter.Id = id
+	filter.UserId = userId
+
+	err := s.airRepo.DelAir(filter)
+	if err != nil {
+		return err
+	}
+	return nil
 }

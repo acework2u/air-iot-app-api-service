@@ -130,3 +130,21 @@ func (h *AirThingHandler) UpdateAir(c *gin.Context) {
 
 	h.resp.Success(c, airInfoUpdate)
 }
+
+func (h *AirThingHandler) DelAir(c *gin.Context) {
+	id := c.Param("id")
+	userId, _ := c.Get("UserId")
+
+	if len(id) < 0 {
+		h.resp.BadRequest(c, "device id is required")
+		return
+	}
+
+	err := h.airThingService.DeleteAir(id, userId.(string))
+	if err != nil {
+		h.resp.BadRequest(c, err.Error())
+		return
+	}
+
+	h.resp.Success(c, "Delete device "+id+" a successful ")
+}

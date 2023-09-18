@@ -56,4 +56,5 @@ type AirRepository interface {
 	RegisterAir(info *AirInfo) (*DBAirInfo, error)
 	UpdateAir(filter *FilterUpdate, info *UpdateAirInfo) (*DBAirInfo, error)
 	Airs(userId string) ([]*DBAirInfo, error)
+	DelAir(filter *FilterUpdate) error
 }

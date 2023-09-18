@@ -20,6 +20,7 @@ func (r *AirThingRouter) AirThingRoute(rg *gin.RouterGroup) {
 	router.GET("", r.airThingHandler.GetAirs)
 	router.POST("", r.airThingHandler.AddAir)
 	router.PUT("/:id", r.airThingHandler.UpdateAir)
+	router.DELETE("/:id", r.airThingHandler.DelAir)
 
 	//router.GET("/certs", r.airThingHandler.GetCerts)
 	//router.GET("/connect", r.airThingHandler.Connect)

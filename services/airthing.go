@@ -31,17 +31,19 @@ type DBAirInfo struct {
 	Serial       string             `json:"serial"`
 	UserId       string             `json:"userId,omitempty"`
 	Title        string             `json:"title"`
+	Bg           string             `json:"bg"`
 	Status       bool               `json:"status"`
 	Widgets      AirWidget          `json:"widgets"`
 	RegisterDate time.Time          `json:"registerDate,omitempty"`
 	UpdatedDate  time.Time          `bson:"updatedDate,omitempty"`
 }
 type ResponseAir struct {
-	Id     primitive.ObjectID `json:"id"`
-	Serial string             `json:"serial"`
-	Title  string             `json:"title"`
-	Bg     string             `json:"bg"`
-	Indoor *IndoorInfo        `bson:"indoor"`
+	Id      primitive.ObjectID `json:"id"`
+	Serial  string             `json:"serial"`
+	Title   string             `json:"title"`
+	Bg      string             `json:"bg"`
+	Indoor  *IndoorInfo        `json:"indoor"`
+	Widgets AirWidget          `json:"widgets"`
 }
 type AirThingConfig struct {
 	Region          string `json:"region"`
@@ -67,4 +69,5 @@ type AirThinkService interface {
 	AddAir(info *AirInfo) (*DBAirInfo, error)
 	GetAirs(userId string) ([]*ResponseAir, error)
 	UpdateAir(filter *FilterUpdate, info *UpdateAirInfo) (*DBAirInfo, error)
+	DeleteAir(id string, userId string) error
 }

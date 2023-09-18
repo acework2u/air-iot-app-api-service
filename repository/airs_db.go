@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/acework2u/air-iot-app-api-service/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -95,6 +96,25 @@ func (r *AirRepositoryDB) Airs(userId string) ([]*DBAirInfo, error) {
 		return []*DBAirInfo{}, nil
 	}
 	return airs, nil
+}
+func (r *AirRepositoryDB) DelAir(filter *FilterUpdate) error {
+	_id, _ := primitive.ObjectIDFromHex(filter.Id)
+	_ = _id
+	userId := filter.UserId
+
+	query := bson.M{"_id": _id, "userId": userId}
+	fmt.Println("In Repo")
+	fmt.Println(query)
+	resDel, err := r.airCollection.DeleteOne(r.ctx, query)
+	fmt.Println(resDel)
+	if err != nil {
+		return err
+	}
+	if resDel.DeletedCount == 0 {
+		return errors.New("no device with that Id exists")
+	}
+
+	return nil
 }
 func (r *AirRepositoryDB) checkDuplicate(serial string, userId string) (int64, error) {
 
