@@ -72,7 +72,7 @@ func (u *Air) Action() error {
 		case "4":
 			u.Value = "4"
 		default:
-			u.Value = ""
+			u.Value = "0"
 
 		}
 
