@@ -96,8 +96,6 @@ func (r *AddressRepositoryDB) UpdateAddress(id string, address *CustomerAddress)
 
 	newAddress := &DBAddress{}
 
-	fmt.Println(res)
-
 	if err = res.Decode(newAddress); err != nil {
 		return nil, err
 	}

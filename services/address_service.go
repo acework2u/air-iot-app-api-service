@@ -28,7 +28,17 @@ func (s *addressService) NewAddress(address *CustomerAddress) (*DBAddress, error
 
 func (s *addressService) UpdateAddress(filter *Filter, addressInfo *CustomerAddress) (*DBAddress, error) {
 
-	return nil, nil
+	addInfo := (*repository.CustomerAddress)(addressInfo)
+
+	_id := filter.Id
+	updateRes, err := s.addrRepo.UpdateAddress(_id, addInfo)
+	if err != nil {
+		return nil, err
+	}
+
+	updateInfo := (*DBAddress)(updateRes)
+
+	return updateInfo, nil
 }
 
 func (s *addressService) AllAddress(userid string) ([]*ResponseAddress, error) {

@@ -7,7 +7,8 @@ import (
 
 type (
 	Filter struct {
-		Id string `uri:"id" json:"id" binding:"required,uuid" validate:"required"`
+		Id     string `uri:"id" json:"id" binding:"required,uuid" validate:"required"`
+		UserId string `json:"userid"`
 	}
 	CustomerAddress struct {
 		CustomerId      string    `json:"customerId,omitempty" bson:"customerId,omitempty"`
