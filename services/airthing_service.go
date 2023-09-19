@@ -144,6 +144,7 @@ func (s *airthingService) GetAirs(userId string) ([]*ResponseAir, error) {
 			Serial:  items.Serial,
 			Title:   items.Title,
 			Indoor:  indInfo,
+			Bg:      items.Bg,
 			Widgets: (AirWidget)(items.Widgets),
 		}
 		airList = append(airList, item)
