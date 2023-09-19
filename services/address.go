@@ -6,8 +6,11 @@ import (
 )
 
 type (
+	Filter struct {
+		Id string `uri:"id" json:"id" binding:"required,uuid" validate:"required"`
+	}
 	CustomerAddress struct {
-		CustomerId      string    `json:"customerId" bson:"customerId"`
+		CustomerId      string    `json:"customerId,omitempty" bson:"customerId,omitempty"`
 		Name            string    `json:"name" bson:"name" binding:"required" `
 		LastName        string    `json:"lastName" bson:"lastName" binding:"required"`
 		Tel             string    `json:"tel" bson:"tel" binding:"required"`
@@ -61,4 +64,5 @@ type AddressService interface {
 	NewAddress(address *CustomerAddress) (*DBAddress, error)
 	AllAddress(userid string) ([]*ResponseAddress, error)
 	DelAddress(id string) error
+	UpdateAddress(filter *Filter, addressInfo *CustomerAddress) (*DBAddress, error)
 }

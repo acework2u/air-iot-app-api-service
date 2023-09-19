@@ -13,7 +13,7 @@ type (
 		Tel      string    `json:"tel" bson:"tel" binding:"required"`
 		Email    string    `json:"email" bson:"email"`
 		CreateAt time.Time `json:"created_date,omitempty" bson:"created_date,omitempty"`
-		UpdateAt time.Time `json:"updated_date,omitempty" bson:"updated_date,omtiempty"`
+		UpdateAt time.Time `json:"updated_date,omitempty" bson:"updated_date,omitempty"`
 	}
 
 	CreateCustomerRequest2 struct {
@@ -47,7 +47,7 @@ type (
 		Tel      string             `json:"tel" bson:"tel"`
 		Email    string             `json:"email" bson:"email"`
 		CreateAt time.Time          `json:"created_date,omitempty" bson:"created_date,omitempty"`
-		UpdateAt time.Time          `json:"updated_date,omitempty" bson:"updated_date,omtiempty"`
+		UpdateAt time.Time          `json:"updated_date,omitempty" bson:"updated_date,omitempty"`
 	}
 	CustomerResponse struct {
 		Id primitive.ObjectID `json:"id" bson:"_id,omitempty"`
@@ -57,7 +57,7 @@ type (
 		Lastname string    `json:"last_name"`
 		Tel      string    `json:"tel" bson:"tel"`
 		Email    string    `json:"email" bson:"emil"`
-		UpdateAt time.Time `json:"updated_date,omitempty" bson:"updated_date,omtiempty"`
+		UpdateAt time.Time `json:"updated_date,omitempty" bson:"updated_date,omitempty"`
 	}
 
 	UpdateInfoRequest struct {
@@ -84,4 +84,5 @@ type CustomerService interface {
 	DeleteCustomer(string) error
 	CustomerById(string) (*repository.DBCustomer2, error)
 	CustomerNewAddress(*CustomerAddress) (*repository.DBAddress, error)
+	CustomerUpdateAddress(filter *Filter, info *CustomerAddress) (*repository.DBAddress, error)
 }

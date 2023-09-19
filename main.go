@@ -84,21 +84,23 @@ func init() {
 	mongoclient = configs.ConnectDB()
 	userCollection = configs.GetCollection(mongoclient, "user")
 
-	userRepository := repository.NewUserRepositoryDB(userCollection, ctx)
-	customerService := service.NewUserService(&userRepository)
-	UserRouterCtl = handler.NewUserHandler(&customerService)
-
-	customerCollection = configs.GetCollection(mongoclient, "customers")
-	customerRepository := repository.NewCustomerRepositoryDB(customerCollection, ctx)
-	custService := service.NewCustomerService(customerRepository)
-	custHandler := handler.NewCustomerHandler(&custService)
-	CustomerRouter = routers.NewCustomerRouter(custHandler)
 	// Address
 	addressCollection = configs.GetCollection(mongoclient, "cus_address")
 	addrRepo := repository.NewAddressRepositoryDB(addressCollection, ctx)
 	addrService := service.NewAddressService(addrRepo)
 	addrHandler := handler.NewAddressHandler(addrService)
 	AddressRouter = routers.NewAddressRouter(addrHandler)
+
+	// User
+	userRepository := repository.NewUserRepositoryDB(userCollection, ctx)
+	customerService := service.NewUserService(&userRepository)
+	UserRouterCtl = handler.NewUserHandler(&customerService)
+	// Customer
+	customerCollection = configs.GetCollection(mongoclient, "customers")
+	customerRepository := repository.NewCustomerRepositoryDB(customerCollection, ctx)
+	custService := service.NewCustomerService(customerRepository, addrRepo)
+	custHandler := handler.NewCustomerHandler(&custService)
+	CustomerRouter = routers.NewCustomerRouter(custHandler)
 
 	// devices
 	deviceCollection = configs.GetCollection(mongoclient, "devices")

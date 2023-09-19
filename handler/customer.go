@@ -31,6 +31,8 @@ type UserInfo struct {
 
 type CustomerHandler struct {
 	cusService services.CustomerService
+	cusAddress services.AddressService
+	res        utils.Response
 }
 
 type User struct {
@@ -38,7 +40,7 @@ type User struct {
 }
 
 func NewCustomerHandler(cusService services.CustomerService) CustomerHandler {
-	return CustomerHandler{cusService}
+	return CustomerHandler{cusService: cusService, res: utils.Response{}}
 }
 
 // GetCustomer  godoc
@@ -277,7 +279,7 @@ func (h *CustomerHandler) PostNewAddress(c *gin.Context) {
 	addressInfo.CustomerId = userId.(string)
 	addressInfo.UpdateAt = time.Now()
 	// Insert to DB
-	res, err := h.cusService.CustomerNewAddress(addressInfo)
+	resp, err := h.cusService.CustomerNewAddress(addressInfo)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  http.StatusBadRequest,
@@ -287,8 +289,36 @@ func (h *CustomerHandler) PostNewAddress(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
-		"message": res,
+		"message": resp,
 	})
+}
+func (h *CustomerHandler) UpdateAddress(c *gin.Context) {
+	userId, _ := c.Get("UserId")
+	addressInfo := services.CustomerAddress{}
+	filter := services.Filter{}
+
+	c.ShouldBindUri(&filter)
+	err := c.ShouldBindJSON(&addressInfo)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	addressInfo.CustomerId = userId.(string)
+	addressInfo.UpdateAt = time.Now()
+
+	cusAddr, err := h.cusService.CustomerUpdateAddress(&filter, &addressInfo)
+	if err != nil {
+		h.res.BadRequest(c, err.Error())
+		return
+	}
+	fmt.Println(cusAddr)
+
+	h.res.Success(c, cusAddr)
 }
 
 //func AcceptAnyValue(arg any) {

@@ -22,5 +22,6 @@ func (rc *CustomerController) CustomerRoute(rg *gin.RouterGroup) {
 	//router.POST("/", rc.cusHandler.PostCustomer)
 	router.POST("/info", rc.cusHandler.UpdateCustomer)
 	router.POST("/address", rc.cusHandler.PostNewAddress)
+	router.PUT("/address/:id", rc.cusHandler.UpdateAddress)
 	//router.DELETE("/:id", rc.cusHandler.DelCustomer)
 }

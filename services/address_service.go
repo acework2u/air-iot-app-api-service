@@ -26,6 +26,11 @@ func (s *addressService) NewAddress(address *CustomerAddress) (*DBAddress, error
 	return responseData, nil
 }
 
+func (s *addressService) UpdateAddress(filter *Filter, addressInfo *CustomerAddress) (*DBAddress, error) {
+
+	return nil, nil
+}
+
 func (s *addressService) AllAddress(userid string) ([]*ResponseAddress, error) {
 
 	var myAddress []*ResponseAddress

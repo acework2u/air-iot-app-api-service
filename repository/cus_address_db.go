@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/acework2u/air-iot-app-api-service/utils"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -82,8 +83,27 @@ func (r *AddressRepositoryDB) CreateNewAddress(address *CustomerAddress) (*DBAdd
 
 	return newAddress, nil
 }
-func (r *AddressRepositoryDB) UpdateAddress(id string, address *UpdateCustomer) (*DBAddress, error) {
-	return nil, nil
+func (r *AddressRepositoryDB) UpdateAddress(id string, address *CustomerAddress) (*DBAddress, error) {
+	objID, _ := primitive.ObjectIDFromHex(id)
+	doc, err := utils.ToDoc(address)
+
+	if err != nil {
+		return nil, err
+	}
+	filter := bson.D{{Key: "_id", Value: objID}}
+	update := bson.D{{Key: "$set", Value: doc}}
+	res := r.addrCollection.FindOneAndUpdate(r.ctx, filter, update, options.FindOneAndUpdate().SetReturnDocument(1))
+
+	newAddress := &DBAddress{}
+
+	fmt.Println(res)
+
+	if err = res.Decode(newAddress); err != nil {
+		return nil, err
+	}
+
+	return newAddress, nil
+
 }
 func (r *AddressRepositoryDB) DeleteAddress(id string) error {
 	objID, _ := primitive.ObjectIDFromHex(id)

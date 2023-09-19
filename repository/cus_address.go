@@ -60,7 +60,7 @@ type (
 
 type AddressRepository interface {
 	CreateNewAddress(address *CustomerAddress) (*DBAddress, error)
-	UpdateAddress(string, *UpdateCustomer) (*DBAddress, error)
+	UpdateAddress(string, *CustomerAddress) (*DBAddress, error)
 	DeleteAddress(string) error
 	FindAddress(userid string) ([]*DBAddress, error)
 	FindAddressId(string) (*DBAddress, error)

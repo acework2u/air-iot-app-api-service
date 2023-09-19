@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	service "github.com/acework2u/air-iot-app-api-service/services"
+	"github.com/acework2u/air-iot-app-api-service/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
@@ -10,10 +11,11 @@ import (
 
 type AddressHandler struct {
 	addrService service.AddressService
+	res         utils.Response
 }
 
 func NewAddressHandler(addrService service.AddressService) AddressHandler {
-	return AddressHandler{addrService}
+	return AddressHandler{addrService: addrService, res: utils.Response{}}
 }
 
 func (h *AddressHandler) GetAddress(c *gin.Context) {
@@ -78,6 +80,11 @@ func (h *AddressHandler) PostNewAddress(c *gin.Context) {
 
 	}
 
+}
+
+func (h *AddressHandler) UpdateAddress(c *gin.Context) {
+
+	h.res.Success(c, "update my address")
 }
 
 func (h *AddressHandler) DeleteAddress(c *gin.Context) {
