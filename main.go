@@ -69,6 +69,10 @@ var (
 	//Product
 	ProductHandler handler.ProductHandler
 	ProductRouter  routers.ProductRouter
+
+	// Jobs
+	JobsHandler handler.JobsHandler
+	JobsRouter  routers.JobsController
 )
 
 func init() {
@@ -154,6 +158,12 @@ func init() {
 	ProductHandler = handler.NewProductHandler(productService)
 	ProductRouter = routers.NewProductRouter(ProductHandler)
 
+	//Jobs
+	jobsService := service.NewJobsService()
+	jobsHandler := handler.NewJobsHandler(jobsService, thingService)
+	JobsRouter = routers.NewJobsController(jobsHandler)
+
+	// Server Start
 	server = gin.Default()
 	//server = gin.New()
 
@@ -216,6 +226,7 @@ func startGinServer(config conf.Config) {
 	AirThingRouter.AirThingRoute(router)
 	ProductRouter.ProductRoute(router)
 	AirIoTRouter.AirIoTRoute(router)
+	JobsRouter.JobsRoute(router)
 
 	// Pro
 	//routerPro := server.Group("/api/v2")
