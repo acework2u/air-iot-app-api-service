@@ -33,3 +33,18 @@ func (h *JobsHandler) GetJobsDevice(c *gin.Context) {
 
 	h.res.Success(c, msg)
 }
+func (h *JobsHandler) GetJobsShadowsDevice(c *gin.Context) {
+
+	userId, _ := c.Get("UserId")
+
+	job, err := h.jobsService.JobsThingsHandler(userId.(string))
+
+	if err != nil {
+		h.res.BadRequest(c, err.Error())
+		return
+	}
+
+	msg := fmt.Sprintf("%s", job)
+
+	h.res.Success(c, msg)
+}

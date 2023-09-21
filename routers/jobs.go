@@ -19,4 +19,5 @@ func (r *JobsController) JobsRoute(rg *gin.RouterGroup) {
 	router := rg.Group("air-jobs", middleware.CognitoAuthMiddleware())
 
 	router.GET("", r.jobsHandler.GetJobsDevice)
+	router.GET("/sh/jobs", r.jobsHandler.GetJobsShadowsDevice)
 }
