@@ -4,15 +4,31 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/iot"
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 )
 
 type jobsService struct {
-	Ctx context.Context
+	Ctx       context.Context
+	airCfg    *AirThingConfig
+	Cfg       *aws.Config
+	IotClient *iot.Client
 }
 
-func NewJobsService() JobsService {
-	return &jobsService{}
+func NewJobsService(airCfg *AirThingConfig) JobsService {
+	cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(airCfg.Region), config.WithSharedConfigProfile("default"))
+
+	if err != nil {
+		panic(err)
+	}
+
+	iotClient := iot.NewFromConfig(cfg)
+	return &jobsService{
+		Cfg:       &cfg,
+		IotClient: iotClient,
+		Ctx:       context.TODO()}
 }
 
 func (s *jobsService) JobsThingsHandler(deviceSn string) (interface{}, error) {
@@ -44,12 +60,8 @@ func (s *jobsService) JobsThingsHandler(deviceSn string) (interface{}, error) {
 		shadVal := &JobsAccept{}
 		fmt.Println("Work in go")
 		err := clientMqtt.SubscribeWithHandler(jobTopic, 1, func(client MQTT.Client, message MQTT.Message) {
-			//msgPayload := fmt.Sprintf("%v", string(message.Payload()))
 
-			//fmt.Println(message)
-			//fmt.Sprintf("%v", string(message.Payload()))
 			fmt.Println("Work in job")
-			//fmt.Sprintf("%v", string(message.Payload()))
 
 			ok := json.Unmarshal(message.Payload(), &shadVal)
 			if ok != nil {
@@ -105,8 +117,46 @@ func (s *jobsService) JobsThingsHandler(deviceSn string) (interface{}, error) {
 
 	return shadowsVal, nil
 }
+func (s *jobsService) CreateJobsThings(deviceSn string) (interface{}, error) {
 
-func (s *jobsService) CreateJobs(deviceSn string) (interface{}, error) {
+	jobInput := &iot.DescribeJobInput{
+		JobId: aws.String("airConfig-v2"),
+	}
+	destOut, err := s.IotClient.DescribeJob(s.Ctx, jobInput)
+	if err != nil {
+		return nil, err
+	}
 
+	return destOut, nil
+}
+func (s *jobsService) GetJobsThings(deviceSn string) (interface{}, error) {
+
+	jobInput := &iot.ListJobExecutionsForThingInput{ThingName: aws.String(deviceSn)}
+	jobOut, err := s.IotClient.ListJobExecutionsForThing(s.Ctx, jobInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return jobOut, nil
+}
+func (s *jobsService) GetQueJobsThings(device string) (interface{}, error) {
+	jobId := "airConfig-v2"
+
+	jobInput := &iot.DescribeJobExecutionInput{
+		JobId:     aws.String(jobId),
+		ThingName: aws.String(device),
+	}
+	//DescribeJobExecution
+	jobsOut, err := s.IotClient.DescribeJobExecution(s.Ctx, jobInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return jobsOut, nil
+}
+func (s *jobsService) UpdateJobsThings() (interface{}, error) {
+
+	//s.IotClient.UpdateJob(s.Ctx, &iot.UpdateJobExecution{})
+	//
 	return nil, nil
 }

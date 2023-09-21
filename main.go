@@ -159,7 +159,7 @@ func init() {
 	ProductRouter = routers.NewProductRouter(ProductHandler)
 
 	//Jobs
-	jobsService := service.NewJobsService()
+	jobsService := service.NewJobsService(airConfig)
 	jobsHandler := handler.NewJobsHandler(jobsService, thingService)
 	JobsRouter = routers.NewJobsController(jobsHandler)
 

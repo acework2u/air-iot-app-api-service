@@ -35,16 +35,55 @@ func (h *JobsHandler) GetJobsDevice(c *gin.Context) {
 }
 func (h *JobsHandler) GetJobsShadowsDevice(c *gin.Context) {
 
-	userId, _ := c.Get("UserId")
+	//userId, _ := c.Get("UserId")
 
-	job, err := h.jobsService.JobsThingsHandler(userId.(string))
+	deviceSn := services.DeviceReq{}
+
+	c.ShouldBindUri(&deviceSn)
+
+	fmt.Println(deviceSn.DeviceSn)
+	fmt.Println("Device SN")
+
+	job, err := h.jobsService.GetJobsThings(deviceSn.DeviceSn)
 
 	if err != nil {
 		h.res.BadRequest(c, err.Error())
 		return
 	}
 
-	msg := fmt.Sprintf("%s", job)
+	h.res.Success(c, job)
+}
+func (h *JobsHandler) GetJobsQDevice(c *gin.Context) {
 
-	h.res.Success(c, msg)
+	//userId, _ := c.Get("UserId")
+
+	deviceSn := services.DeviceReq{}
+
+	_ = c.ShouldBindUri(&deviceSn)
+
+	fmt.Println(deviceSn.DeviceSn)
+	fmt.Println("Device SN")
+
+	job, err := h.jobsService.GetQueJobsThings(deviceSn.DeviceSn)
+
+	if err != nil {
+		h.res.BadRequest(c, err.Error())
+		return
+	}
+
+	h.res.Success(c, job)
+}
+func (h *JobsHandler) PostCreateJobs(c *gin.Context) {
+
+	data, err := h.jobsService.CreateJobsThings("")
+	if err != nil {
+		h.res.BadRequest(c, err.Error())
+		return
+	}
+
+	h.res.Success(c, data)
+}
+func (h *JobsHandler) PutUpdateJobs(c *gin.Context) {
+
+	h.res.Success(c, "Jobs ")
 }

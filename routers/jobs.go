@@ -17,7 +17,11 @@ func NewJobsController(jobsHandler handler.JobsHandler) JobsController {
 func (r *JobsController) JobsRoute(rg *gin.RouterGroup) {
 
 	router := rg.Group("air-jobs", middleware.CognitoAuthMiddleware())
-
 	router.GET("", r.jobsHandler.GetJobsDevice)
-	router.GET("/sh/jobs", r.jobsHandler.GetJobsShadowsDevice)
+	router.POST("", r.jobsHandler.PostCreateJobs)
+	router.PUT("", r.jobsHandler.PostCreateJobs)
+
+	router.GET("/:deviceSn", r.jobsHandler.GetJobsShadowsDevice)
+	router.GET("/q/:deviceSn", r.jobsHandler.GetJobsQDevice)
+
 }
