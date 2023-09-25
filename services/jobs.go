@@ -32,6 +32,12 @@ type JobsReq struct {
 	DeviceSn string `json:"deviceSn"`
 	UserId   string `json:"userId"`
 }
+type CreateJobsReq struct {
+	JobId    string `json:"jobId"`
+	DeviceSn string `json:"deviceSn"`
+	Cmd      string `json:"cmd"`
+	Value    string `json:"value"`
+}
 
 type LisJobsThing struct {
 	ExecutionSummaries []struct {
@@ -52,7 +58,7 @@ type LisJobsThing struct {
 
 type JobsService interface {
 	JobsThingsHandler(userId string) (interface{}, error)
-	CreateJobsThings(sn string) (interface{}, error)
+	CreateJobsThings(userId string, DeviceSn string) (interface{}, error)
 	GetJobsThings(device string) (interface{}, error)
 	GetQueJobsThings(device string) (interface{}, error)
 	UpdateJobsThings() (interface{}, error)

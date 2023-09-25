@@ -7,12 +7,14 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/iot"
+	"github.com/aws/aws-sdk-go-v2/service/iotdataplane"
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 )
 
 type jobsService struct {
 	Ctx       context.Context
 	airCfg    *AirThingConfig
+	IotData   *iotdataplane.Client
 	Cfg       *aws.Config
 	IotClient *iot.Client
 }
@@ -25,8 +27,10 @@ func NewJobsService(airCfg *AirThingConfig) JobsService {
 	}
 
 	iotClient := iot.NewFromConfig(cfg)
+	iotData := iotdataplane.NewFromConfig(cfg)
 	return &jobsService{
 		Cfg:       &cfg,
+		IotData:   iotData,
 		IotClient: iotClient,
 		Ctx:       context.TODO()}
 }
@@ -117,17 +121,43 @@ func (s *jobsService) JobsThingsHandler(deviceSn string) (interface{}, error) {
 
 	return shadowsVal, nil
 }
-func (s *jobsService) CreateJobsThings(deviceSn string) (interface{}, error) {
+func (s *jobsService) CreateJobsThings(userId string, deviceSn string) (interface{}, error) {
 
-	jobInput := &iot.DescribeJobInput{
-		JobId: aws.String("airConfig-v2"),
-	}
-	destOut, err := s.IotClient.DescribeJob(s.Ctx, jobInput)
-	if err != nil {
-		return nil, err
+	jobId := fmt.Sprintf("%v_%v", userId, deviceSn)
+	_ = jobId
+
+	//var targets []string
+	targets := []string{""}
+
+	if len(deviceSn) < 0 {
+		return nil, nil
 	}
 
-	return destOut, nil
+	targets = append(targets, deviceSn)
+
+	jobInput := &iot.CreateJobInput{
+		JobId:   aws.String(jobId),
+		Targets: targets,
+	}
+
+	_ = jobInput
+	//
+	//fmt.Println(jobId)
+	//
+	//s.IotData.Publish()
+
+	//listTarget := []string{}
+
+	//targtes := append(listTarget, deviceSn)
+
+	//createJobInput := &iot.CreateJobInput{
+	//	JobId: aws.String(jobId),
+	//	Targets: targtes,
+	//}
+	//
+	//s.IotClient.CreateJob(s.Ctx, createJobInput)
+
+	return jobInput, nil
 }
 func (s *jobsService) GetJobsThings(deviceSn string) (interface{}, error) {
 
@@ -156,7 +186,17 @@ func (s *jobsService) GetQueJobsThings(device string) (interface{}, error) {
 }
 func (s *jobsService) UpdateJobsThings() (interface{}, error) {
 
-	//s.IotClient.UpdateJob(s.Ctx, &iot.UpdateJobExecution{})
-	//
+	/*
+		jobInput := &iot.DescribeJobInput{
+			JobId: aws.String("airConfig-v2"),
+		}
+		destOut, err := s.IotClient.DescribeJob(s.Ctx, jobInput)
+		if err != nil {
+			return nil, err
+		}
+		return destOut, nil
+	*/
+
 	return nil, nil
+
 }

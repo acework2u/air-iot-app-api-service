@@ -75,13 +75,26 @@ func (h *JobsHandler) GetJobsQDevice(c *gin.Context) {
 }
 func (h *JobsHandler) PostCreateJobs(c *gin.Context) {
 
-	data, err := h.jobsService.CreateJobsThings("")
+	userId, _ := c.Get("UserId")
+
+	jobInput := services.CreateJobsReq{}
+
+	err := c.ShouldBindJSON(&jobInput)
+
 	if err != nil {
 		h.res.BadRequest(c, err.Error())
 		return
 	}
 
-	h.res.Success(c, data)
+	jobInput.JobId = fmt.Sprintf("%v_%v", jobInput.DeviceSn, userId)
+
+	//data, err := h.jobsService.CreateJobsThings(userId.(string), "2300F15050023")
+	//if err != nil {
+	//	h.res.BadRequest(c, err.Error())
+	//	return
+	//}
+
+	h.res.Success(c, jobInput)
 }
 func (h *JobsHandler) PutUpdateJobs(c *gin.Context) {
 
