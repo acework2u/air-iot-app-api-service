@@ -37,6 +37,7 @@ var (
 	deviceCollection    *mongo.Collection
 	productCollection   *mongo.Collection
 	airThingsCollection *mongo.Collection
+	scheduleCollection  *mongo.Collection
 
 	// UserRouterCtl routers.UserRouteController
 	UserRouterCtl  handler.UserHandler
@@ -162,6 +163,11 @@ func init() {
 	jobsService := service.NewJobsService(airConfig)
 	jobsHandler := handler.NewJobsHandler(jobsService, thingService)
 	JobsRouter = routers.NewJobsController(jobsHandler)
+
+	//scheduleCollection
+	scheduleCollection = configs.GetCollection(mongoclient, "job_schedule")
+	scheduleRepo := repository.NewAirRepository(ctx, scheduleCollection)
+	_ = scheduleRepo
 
 	// Server Start
 	server = gin.Default()
