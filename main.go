@@ -74,6 +74,10 @@ var (
 	// Jobs
 	JobsHandler handler.JobsHandler
 	JobsRouter  routers.JobsController
+
+	//Schedule
+	ScheduleHandler handler.ScheduleHandle
+	ScheduleRouter  routers.ScheduleRouter
 )
 
 func init() {
@@ -168,11 +172,13 @@ func init() {
 	scheduleCollection = configs.GetCollection(mongoclient, "job_schedule")
 	scheduleRepo := repository.NewScheduleRepository(ctx, scheduleCollection)
 	scheduleService := service.NewScheduleService(scheduleRepo)
+	ScheduleHandler = handler.NewScheduleHandler(scheduleService)
+	ScheduleRouter = routers.NewScheduleRouter(ScheduleHandler)
 
 	_ = scheduleService
 
 	_ = scheduleRepo
-
+	go scheduleService.CornJob()
 	// Server Start
 	server = gin.Default()
 	//server = gin.New()
@@ -237,6 +243,7 @@ func startGinServer(config conf.Config) {
 	ProductRouter.ProductRoute(router)
 	AirIoTRouter.AirIoTRoute(router)
 	JobsRouter.JobsRoute(router)
+	ScheduleRouter.ScheduleRoute(router)
 
 	// Pro
 	//routerPro := server.Group("/api/v2")

@@ -41,4 +41,5 @@ type JobDbSchedule struct {
 type ScheduleService interface {
 	GetSchedules(userId string) ([]*JobDbSchedule, error)
 	NewJobSchedules(userId string, jobInfo *JobSchedule) (*JobDbSchedule, error)
+	CornJob()
 }
