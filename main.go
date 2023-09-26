@@ -166,7 +166,11 @@ func init() {
 
 	//scheduleCollection
 	scheduleCollection = configs.GetCollection(mongoclient, "job_schedule")
-	scheduleRepo := repository.NewAirRepository(ctx, scheduleCollection)
+	scheduleRepo := repository.NewScheduleRepository(ctx, scheduleCollection)
+	scheduleService := service.NewScheduleService(scheduleRepo)
+
+	_ = scheduleService
+
 	_ = scheduleRepo
 
 	// Server Start

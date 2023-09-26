@@ -25,7 +25,30 @@ func NewScheduleRepository(ctx context.Context, scheduleCollection *mongo.Collec
 }
 
 func (r *ScheduleRepositoryDB) ListJob(UserId string) ([]*ScheduleJobDB, error) {
-	return nil, nil
+	filter := bson.M{"usrtId": UserId}
+	cursor, err := r.scheduleCollection.Find(r.ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(r.ctx)
+	jobs := []*ScheduleJobDB{}
+
+	for cursor.Next(r.ctx) {
+		job := &ScheduleJobDB{}
+		err := cursor.Decode(job)
+		if err != nil {
+			return nil, err
+		}
+		jobs = append(jobs, job)
+
+	}
+	if err := cursor.Err(); err != nil {
+		if len(jobs) == 0 {
+			return nil, err
+		}
+	}
+	return jobs, err
+
 }
 
 func (r *ScheduleRepositoryDB) NewJob(userId string, job *ScheduleJob) (*ScheduleJobDB, error) {
