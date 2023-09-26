@@ -25,8 +25,20 @@ type ScheduleJobDB struct {
 	Duration    []string           `bson:"duration" json:"duration"`
 	StartDate   time.Time          `bson:"startDate" json:"startDate"`
 	EndDate     time.Time          `json:"endDate" bson:"endDate"`
+	Status      bool               `bson:"status" json:"status"`
 	CreatedDate time.Time          `bson:"createdDate,omitempty" json:"createdDate"`
 	UpdatedDate time.Time          `bson:"updatedDate,omitempty" json:"updatedDate"`
+}
+type ScheduleJobUpdate struct {
+	SerialNo    string    `bson:"serialNo" json:"serialNo"`
+	UserId      string    `bson:"userId" json:"userId"`
+	Command     []string  `bson:"command" json:"command"`
+	Mode        string    `bson:"mode" json:"mode"`
+	Duration    []string  `bson:"duration" json:"duration"`
+	StartDate   time.Time `bson:"startDate" json:"startDate"`
+	EndDate     time.Time `json:"endDate" bson:"endDate"`
+	Status      bool      `bson:"status" json:"status"`
+	UpdatedDate time.Time `bson:"updatedDate,omitempty" json:"updatedDate"`
 }
 
 type JobCommand struct {
@@ -42,6 +54,6 @@ type DurationJob struct {
 type ScheduleRepository interface {
 	ListJob(UserId string) ([]*ScheduleJobDB, error)
 	NewJob(userId string, job *ScheduleJob) (*ScheduleJobDB, error)
-	UpdateJob(jobId string) (*ScheduleJobDB, error)
-	DeleteJob(jobId string) (*ScheduleJobDB, error)
+	UpdateJob(jobId string, update *ScheduleJobUpdate) (*ScheduleJobDB, error)
+	DeleteJob(jobId string) error
 }
