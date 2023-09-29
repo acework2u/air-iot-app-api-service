@@ -12,6 +12,7 @@ type JobSchedule struct {
 	Duration    []string  `bson:"duration" json:"duration"`
 	StartDate   time.Time `bson:"startDate" json:"startDate"`
 	EndDate     time.Time `json:"endDate" bson:"endDate"`
+	Status      bool      `bson:"status" json:"status"`
 	CreatedDate time.Time `bson:"createdDate,omitempty" json:"createdDate"`
 	UpdatedDate time.Time `bson:"updatedDate,omitempty" json:"updatedDate"`
 }

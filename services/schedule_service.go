@@ -47,7 +47,7 @@ func (s *scheduleService) NewJobSchedules(userId string, jobInfo *JobSchedule) (
 
 	dataInfo := &repository.ScheduleJob{
 		SerialNo:  jobInfo.SerialNo,
-		UserId:    jobInfo.UserId,
+		UserId:    userId,
 		Command:   jobInfo.Command,
 		Mode:      jobInfo.Mode,
 		Duration:  jobInfo.Duration,
@@ -77,7 +77,9 @@ func (s *scheduleService) NewJobSchedules(userId string, jobInfo *JobSchedule) (
 func (s *scheduleService) CornJob() {
 
 	for {
-		time.Sleep(2 * time.Second)
-		fmt.Println("Schedule Job")
+		time.Sleep(time.Minute)
+		now := time.Now()
+		tez := fmt.Sprintf("Schedule at : %s", now.Local())
+		fmt.Println(tez)
 	}
 }

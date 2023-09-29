@@ -63,7 +63,7 @@ func (s *jobsService) JobsThingsHandler(deviceSn string) (interface{}, error) {
 
 		shadVal := &JobsAccept{}
 		fmt.Println("Work in go")
-		err := clientMqtt.SubscribeWithHandler(jobTopic, 1, func(client MQTT.Client, message MQTT.Message) {
+		err := clientMqtt.SubscribeWithHandler(jobTopic, 0, func(client MQTT.Client, message MQTT.Message) {
 
 			fmt.Println("Work in job")
 
@@ -76,6 +76,8 @@ func (s *jobsService) JobsThingsHandler(deviceSn string) (interface{}, error) {
 			fmt.Sprintf("%v", shadVal)
 			fmt.Println(shadVal)
 			result <- shadVal
+			fmt.Println("shadVal.Execution.JobDocument")
+
 			if len(shadVal.Execution.JobID) > 0 {
 				upStatus := JobsStatus{}
 				upStatus.Status = "IN_PROGRESS"
@@ -86,7 +88,8 @@ func (s *jobsService) JobsThingsHandler(deviceSn string) (interface{}, error) {
 				if ok != nil {
 					fmt.Println("PUB FAILED")
 				}
-
+				fmt.Println("Shadow Document")
+				fmt.Println(shadVal.Execution.JobDocument)
 				fmt.Println("PUB SUCCEEDED")
 
 				upStatus.Status = "SUCCEEDED"

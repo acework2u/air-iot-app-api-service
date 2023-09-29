@@ -25,7 +25,7 @@ func NewScheduleRepository(ctx context.Context, scheduleCollection *mongo.Collec
 }
 
 func (r *ScheduleRepositoryDB) ListJob(UserId string) ([]*ScheduleJobDB, error) {
-	filter := bson.M{"usrtId": UserId}
+	filter := bson.M{"userId": UserId}
 	cursor, err := r.scheduleCollection.Find(r.ctx, filter)
 	if err != nil {
 		return nil, err
@@ -58,6 +58,7 @@ func (r *ScheduleRepositoryDB) NewJob(userId string, job *ScheduleJob) (*Schedul
 
 	jobInfo.CreatedDate = now.Local()
 	jobInfo.UpdatedDate = jobInfo.CreatedDate
+
 	// Insert
 	res, err := r.scheduleCollection.InsertOne(r.ctx, jobInfo)
 	if err != nil {
