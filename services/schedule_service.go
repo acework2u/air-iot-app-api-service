@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/acework2u/air-iot-app-api-service/repository"
+	"github.com/robfig/cron/v3"
 	"time"
 )
 
@@ -76,10 +77,31 @@ func (s *scheduleService) NewJobSchedules(userId string, jobInfo *JobSchedule) (
 
 func (s *scheduleService) CornJob() {
 
+	bkc, _ := time.LoadLocation("Asia/Bangkok")
+	now := time.Now()
+	cr := cron.New(cron.WithLocation(bkc))
+	fmt.Println("on Top Out Corn")
+	cr.AddFunc("* * * * *", func() {
+		fmt.Println(" Out CornJOb Task", now.Local())
+	})
+	cr.Start()
 	for {
 		time.Sleep(time.Minute)
 		now := time.Now()
 		tez := fmt.Sprintf("Schedule at : %s", now.Local())
 		fmt.Println(tez)
+
+		cr.AddFunc("*/2 * * * *", func() {
+			fmt.Println(" In CornJOb Task in 2 minute", now.Local())
+		})
+
+		cr.AddFunc("*/4 * * * *", func() {
+			fmt.Println(" In CornJOb Task in 4 minute", now.Local())
+		})
+
+		defer cr.Stop()
+
 	}
+
+	//inspect(cr.Entries())
 }
