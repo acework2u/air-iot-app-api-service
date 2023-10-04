@@ -363,28 +363,6 @@ func (h *ThingsHandler) WsIoT(c *gin.Context) {
 	shadowsAcceptTopic := "$aws/things/2300F15050023/shadow/name/air-users/update/accepted"
 	shadowRejectTopic := "$aws/things/2300F15050023/shadow/name/air-users/update/rejected"
 	shadowsUpdateDocTopic := "$aws/things/2300F15050023/shadow/name/air-users/update/documents"
-	//shadowsDocTopic := "$aws/things/2300F15050023/shadow/name/air-users/get/accepted"
-	//initTopic :="$aws/things/2300F15050023/shadow/name/air-users/get"
-	//dataResponse := make(chan []byte)
-	//
-	//go func(ctx *websocket.Conn, response chan<- []byte) {
-	//	mt, _, _ := ws.ReadMessage()
-	//	err := client.SubscribeWithHandler(shadowsDocTopic, 0, func(client MQTT.Client, message MQTT.Message) {
-	//		msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
-	//		fmt.Println("In msgPayload")
-	//		fmt.Println(msgPayload)
-	//		//resData := message.Payload()
-	//		//resOutData = &resData
-	//		//Response message to client
-	//		ctx.WriteMessage(mt, message.Payload())
-	//
-	//	})
-	//	if err != nil {
-	//		return
-	//	}
-	//
-	//}(ws, dataResponse)
-	//h.thingsService.PubGetShadows("2300F15050023", "")
 
 	revMsg := make(chan *services.IndoorInfo)
 
@@ -444,7 +422,7 @@ func (h *ThingsHandler) WsIoT(c *gin.Context) {
 				return
 			}
 			revMsg <- data
-			time.Sleep(1 * time.Second)
+			time.Sleep(4 * time.Second)
 		}(revMsg)
 
 		if err != nil {
@@ -460,73 +438,6 @@ func (h *ThingsHandler) WsIoT(c *gin.Context) {
 			return
 		}
 	}
-
-	//cogintoId := "646c33ba0e5800006e000abd"
-	//client, err := h.thingsService.NewAwsMqttConnect(cogintoId)
-	//if err != nil {
-	//	c.JSON(http.StatusBadRequest, gin.H{
-	//		"status":  http.StatusBadRequest,
-	//		"message": err,
-	//	})
-	//	return
-	//}
-
-	//shadowsDocTopic := "$aws/things/2300F15050023/shadow/name/air-users/update/accepted"
-	//dataResponse := make(chan []byte)
-	//go func(ctx *gin.Context, response chan<- []byte) {
-	//	resOutData := &[]byte{}
-	//	err := client.SubscribeWithHandler(shadowsDocTopic, 0, func(client MQTT.Client, message MQTT.Message) {
-	//		msgPayload := fmt.Sprintf(`%v`, string(message.Payload()))
-	//		fmt.Println("In msgPayload")
-	//		fmt.Println(msgPayload)
-	//		resData := message.Payload()
-	//		resOutData = &resData
-	//		ctx.Header("Content-Type", "application/json")
-	//		ctx.JSON(http.StatusOK, resData)
-	//		//	ctx.Writer.Write(resData)
-	//		//	c.Header("Content-Type", "application/json")
-	//		//	c.JSON(http.StatusOK, msg)
-	//		//time.Sleep(1 * time.Second)
-	//		//response <- message.Payload()
-	//
-	//	})
-	//	if err != nil {
-	//		return
-	//	}
-	//
-	//	fmt.Println("<-----Working in WS------->")
-	//	fmt.Println(resOutData)
-	//	//resP := map[string]interface{}{}
-	//	////json.Unmarshal(message.Payload(), &resP)
-	//	//respos := <-dataResponse
-	//	//json.Unmarshal(respos, &resP)
-	//	//
-	//	//fmt.Println(resP)
-	//	//return
-	//
-	//}(c, dataResponse)
-	//
-	//go func() {
-	//	fmt.Println("Work 2")
-	//	time.Sleep(2 * time.Second)
-	//}()
-	//////defer client.Disconnect()
-	////c.JSON(http.StatusOK, gin.H{
-	////	"status":  http.StatusOK,
-	////	"message": "ws socket",
-	////})
-	////go func(ctx *gin.Context) {
-	////	fmt.Println("Go Routine 2 Working")
-	////	c.JSON(http.StatusOK, gin.H{
-	////		"status":  http.StatusOK,
-	////		"message": "ws socket",
-	////	})
-	////}(c)
-	//
-	//c.JSON(http.StatusOK, gin.H{
-	//	"status":  http.StatusOK,
-	//	"message": " Out ws socket",
-	//})
 
 }
 

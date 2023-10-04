@@ -14,14 +14,14 @@ func NewAddressService(addrRepo repository.AddressRepository) AddressService {
 
 func (s *addressService) NewAddress(address *CustomerAddress) (*DBAddress, error) {
 
-	var userAddress *repository.CustomerAddress = (*repository.CustomerAddress)(address)
+	var userAddress = (*repository.CustomerAddress)(address)
 
 	addressRes, err := s.addrRepo.CreateNewAddress(userAddress)
 
 	if err != nil {
 		return nil, err
 	}
-	var responseData *DBAddress = (*DBAddress)(addressRes)
+	var responseData = (*DBAddress)(addressRes)
 
 	return responseData, nil
 }

@@ -171,7 +171,7 @@ func init() {
 	//scheduleCollection
 	scheduleCollection = configs.GetCollection(mongoclient, "job_schedule")
 	scheduleRepo := repository.NewScheduleRepository(ctx, scheduleCollection)
-	scheduleService := service.NewScheduleService(scheduleRepo)
+	scheduleService := service.NewScheduleService(scheduleRepo, airConfig)
 	ScheduleHandler = handler.NewScheduleHandler(scheduleService)
 	ScheduleRouter = routers.NewScheduleRouter(ScheduleHandler)
 

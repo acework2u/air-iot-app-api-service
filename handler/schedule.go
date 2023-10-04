@@ -35,22 +35,24 @@ func (h *ScheduleHandle) GetScheduleJobs(c *gin.Context) {
 func (h *ScheduleHandle) PostScheduleJobs(c *gin.Context) {
 
 	userId, _ := c.Get("UserId")
-	jobInfo := &service.JobSchedule{}
+	jobInfo := &service.JobScheduleReq{}
 
 	fmt.Println(userId)
 
 	err := c.ShouldBindJSON(jobInfo)
 
-	//cusErr := utils.NewCustomHandler(c)
-	//if err != nil {
-	//	cusErr.CustomError(err)
-	//	return
-	//}
+	cusErr := utils.NewCustomHandler(c)
+	if err != nil {
+		cusErr.CustomError(err)
+		return
+	}
 	now := time.Now()
 	jobInfo.CreatedDate = now.Local()
 	jobInfo.UpdatedDate = jobInfo.CreatedDate
 	jobInfo.UserId = userId.(string)
 
+	fmt.Println(jobInfo)
+	//res := jobInfo
 	res, err := h.scheduleService.NewJobSchedules(userId.(string), jobInfo)
 	if err != nil {
 		h.res.BadRequest(c, err.Error())

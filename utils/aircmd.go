@@ -171,7 +171,7 @@ func (u *Air) power() ([]byte, error) {
 
 	rtuFrame.SetData(payload)
 
-	var dataFrame []byte = rtuFrame.Bytes()
+	var dataFrame = rtuFrame.Bytes()
 
 	newPayload, _ := NewSaijoFrame(dataFrame)
 
@@ -196,7 +196,7 @@ func (u *Air) mode() ([]byte, error) {
 	payload[3] = uint8(val & 0xff)
 
 	rtuFrame.SetData(payload)
-	var dataFrame []byte = rtuFrame.Bytes()
+	var dataFrame = rtuFrame.Bytes()
 	newPayload, _ := NewSaijoFrame(dataFrame)
 
 	return newPayload, nil
@@ -224,7 +224,7 @@ func (u *Air) setTemp() ([]byte, error) {
 	payload[3] = uint8(val & 0xff)
 
 	rtuFrame.SetData(payload)
-	var dataFrame []byte = rtuFrame.Bytes()
+	var dataFrame = rtuFrame.Bytes()
 	newPayload, _ := NewSaijoFrame(dataFrame)
 
 	return newPayload, nil
@@ -254,7 +254,7 @@ func (u *Air) fan() ([]byte, error) {
 	payload[3] = uint8(val & 0xff)
 
 	rtuFrame.SetData(payload)
-	var dataFrame []byte = rtuFrame.Bytes()
+	var dataFrame = rtuFrame.Bytes()
 	newPayload, _ := NewSaijoFrame(dataFrame)
 
 	return newPayload, nil
@@ -284,7 +284,7 @@ func (u *Air) swing() ([]byte, error) {
 	payload[3] = uint8(val & 0xff)
 
 	rtuFrame.SetData(payload)
-	var dataFrame []byte = rtuFrame.Bytes()
+	var dataFrame = rtuFrame.Bytes()
 	newPayload, _ := NewSaijoFrame(dataFrame)
 
 	return newPayload, nil
@@ -314,7 +314,7 @@ func (u *Air) option() ([]byte, error) {
 	payload[3] = uint8(val & 0xff)
 
 	rtuFrame.SetData(payload)
-	var dataFrame []byte = rtuFrame.Bytes()
+	var dataFrame = rtuFrame.Bytes()
 	newPayload, _ := NewSaijoFrame(dataFrame)
 
 	return newPayload, nil
@@ -394,7 +394,7 @@ func AirPower(cmd string) *RTUFrame {
 	}
 	rtuFrame.SetData(payload)
 
-	var dataFrame []byte = rtuFrame.Bytes()
+	var dataFrame = rtuFrame.Bytes()
 
 	newPayload, _ := NewRTUFrame(dataFrame)
 
@@ -429,7 +429,7 @@ func AirPower2(cmd string) []byte {
 	}
 	rtuFrame.SetData(payload)
 
-	var dataFrame []byte = rtuFrame.Bytes()
+	var dataFrame = rtuFrame.Bytes()
 
 	newPayload, _ := NewSaijoFrame(dataFrame)
 

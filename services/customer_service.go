@@ -109,7 +109,7 @@ func (cs *customerService) CustomerById(uid string) (*repository.DBCustomer2, er
 }
 func (cs *customerService) CustomerNewAddress(address *CustomerAddress) (*repository.DBAddress, error) {
 
-	var userAddress *repository.CustomerAddress = (*repository.CustomerAddress)(address)
+	var userAddress = (*repository.CustomerAddress)(address)
 	client := *repository.Client
 	collection := client.Database("airs").Collection("cus_address")
 	_ = collection
