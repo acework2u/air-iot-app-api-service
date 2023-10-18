@@ -66,6 +66,11 @@ type AirCmd struct {
 	Value string `json:"value"`
 }
 
+type AirJob struct {
+	SerialNo string   `bson:"serialNo" json:"serialNo"`
+	Command  []AirCmd `bson:"command" json:"command"`
+}
+
 type ScheduleService interface {
 	GetSchedules(userId string) ([]*JobDbSchedule, error)
 	NewJobSchedules(userId string, jobInfo *JobScheduleReq) (*JobDbSchedule, error)

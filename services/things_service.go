@@ -559,13 +559,20 @@ func (s *CogClient) PubGetShadows(thinkName string, shadowName string) (*IndoorI
 		return nil, err
 	}
 
-	decodeShadow, _ := utils.GetClaimsFromToken(shadowVal.State.Reported.Message)
+	decodeShadow, err := utils.GetClaimsFromToken(shadowVal.State.Reported.Message)
+	if err != nil {
+		return nil, err
+	}
+
 	reg1000 := decodeShadow["data"].(map[string]interface{})["reg1000"].(string)
 	acVal := utils.NewGetAcVal(reg1000)
 	ac1000 := acVal.Ac1000()
 
 	pubTopic := fmt.Sprintf("$aws/things/%v/shadow/name/air-users/get", thinkName)
-	s.IotData.Publish(s.Ctx, &iotdataplane.PublishInput{Topic: aws.String(pubTopic)})
+	_, err = s.IotData.Publish(s.Ctx, &iotdataplane.PublishInput{Topic: aws.String(pubTopic)})
+	if err != nil {
+		return nil, err
+	}
 
 	acData := (*IndoorInfo)(ac1000)
 
@@ -591,7 +598,10 @@ func (s *CogClient) PubUpdateShadows(thinkName string, payload string) (*IndoorI
 	}
 	time.Sleep(2 * time.Second)
 
-	shadowOutput, _ := s.PubGetShadows(thinkName, "")
+	shadowOutput, ok := s.PubGetShadows(thinkName, "")
+	if ok != nil {
+		return nil, ok
+	}
 
 	return shadowOutput, nil
 }

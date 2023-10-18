@@ -67,16 +67,6 @@ func (s *scheduleService) GetSchedules(userId string) ([]*JobDbSchedule, error) 
 }
 func (s *scheduleService) NewJobSchedules(userId string, jobInfo *JobScheduleReq) (*JobDbSchedule, error) {
 
-	//dataInfo := &repository.ScheduleJob{
-	//	SerialNo:  jobInfo.SerialNo,
-	//	UserId:    userId,
-	//	Command:   jobInfo.Command,
-	//	Mode:      jobInfo.Mode,
-	//	Duration:  jobInfo.Duration,
-	//	StartDate: jobInfo.StartDate,
-	//	EndDate:   jobInfo.EndDate,
-	//}
-
 	acCmd := []repository.AirCmd{}
 	for _, item := range jobInfo.Command {
 		cmd := &repository.AirCmd{
@@ -126,15 +116,58 @@ func (s *scheduleService) NewJobSchedules(userId string, jobInfo *JobScheduleReq
 
 	return resJob, nil
 }
-func (s *scheduleService) Job(ac airCmdReq) {
+func (s *scheduleService) job(ac AirJob) {
 
-	airJob := utils.NewAirCmd(ac.SerialNo, ac.Cmd, ac.Value)
-	ok := airJob.Action()
-	if ok != nil {
-		return
+	if len(ac.Command) > 0 {
+
+		for _, item := range ac.Command {
+			airJob := utils.NewAirCmd(ac.SerialNo, item.Cmd, item.Value)
+			ok := airJob.Action()
+
+			if ok != nil {
+				return
+			}
+			acPayload := airJob.GetPayload()
+
+			if len(acPayload) > 10 {
+				go s.thingServ.PubUpdateShadows(ac.SerialNo, acPayload)
+
+			}
+
+			//fmt.Println("SN: ", ac.SerialNo, "ac Command ", item.Cmd, " ", item.Value)
+			//fmt.Println(acPayload)
+
+			//fmt.Printf(" serial %v : payload : %v", ac.SerialNo, acPayload)
+
+			//fmt.Printf(" serial %v : payload : %v", ac.SerialNo, acPayload)
+			//go s.thingServ.PubUpdateShadows(ac.SerialNo, acPayload)
+			//go func() {
+			//
+			//	fmt.Printf(" serial %v : payload : %v", ac.SerialNo, acPayload)
+			//
+			//	if len(acPayload) > 10 {
+			//		_, err := s.thingServ.PubUpdateShadows(ac.SerialNo, acPayload)
+			//
+			//		if err != nil {
+			//			fmt.Println("Err In Job")
+			//			fmt.Println("SN: ", ac.SerialNo, "ac Command ", item.Cmd, " ", item.Value)
+			//
+			//			fmt.Println(err.Error())
+			//			return
+			//			//return
+			//		}
+			//	}
+			//
+			//}()
+
+			time.Sleep(2 * time.Second)
+
+		}
+
 	}
-	acPayload := airJob.GetPayload()
-	_ = acPayload
+
+}
+func (s *scheduleService) job2(ac AirJob) {
 
 }
 func (s *scheduleService) CornJob() {
@@ -142,32 +175,18 @@ func (s *scheduleService) CornJob() {
 	bkc, _ := time.LoadLocation("Asia/Bangkok")
 	cr := cron.New(cron.WithLocation(bkc))
 	_ = cr
-
 	defer cr.Stop()
 	cr.Start()
 
-	// Demo device : 2300F15050023
-	//userCommand := &airCmdReq{
-	//	Cmd:      "temp",
-	//	Value:    "19",
-	//	SerialNo: "2300F15050023",
-	//}
-	//_ = userCommand
-	//
-	//airJob := utils.NewAirCmd(userCommand.SerialNo, userCommand.Cmd, userCommand.Value)
-	//ok := airJob.Action()
-	//if ok != nil {
-	//	return
-	//}
-	//airJobPayload := airJob.GetPayload()
-	//_ = airJobPayload
-
 	for {
-		time.Sleep(time.Minute)
+
+		//time.Sleep(time.Minute)
+		time.Sleep(4 * time.Second)
 
 		fmt.Println("Air Payload")
-		//fmt.Println(airJobPayload)
+
 		jobWork, err := s.WorkList()
+
 		if err != nil {
 			fmt.Println("No Data")
 			return
@@ -175,26 +194,34 @@ func (s *scheduleService) CornJob() {
 		//
 		fmt.Println(len(jobWork))
 		//
+		myJobs := AirJob{}
 		for _, job := range jobWork {
 
-			//fmt.Printf("Job No, %v \n", job.SerialNo, strings.Join(job.Duration, " "))
-			fmt.Printf("%v , %s \n", job.SerialNo, strings.Join(job.Duration[:], " "))
-			fmt.Println("Command", job.Command)
-			//airJob := utils.NewAirCmd(userCommand.SerialNo, userCommand.Cmd, userCommand.Value)
-			//ok := airJob.Action()
-			//airJobPayload := airJob.GetPayload()
-			fmt.Println("Serial No.", job.SerialNo)
-			//fmt.Println(airJobPayload)
+			myJobs.SerialNo = job.SerialNo
+			myJobs.Command = job.Command
 
-			//if ok != nil {
-			//	return
-			//}
+			fmt.Println(myJobs)
+
+			//s.job(*myJobs)
+			//cr.AddFunc()
+
+			//fmt.Println("myJobs ")
+			//fmt.Println(myJobs)
+
+			//cr.AddFunc(getTimeCornJob(job.Duration), func() {
+			//	s.job(*myJobs)
+			//})
+			//s.job(*myJobs)
+			//
+			//fmt.Printf("%v , %s \n", job.SerialNo, getTimeCornJob(job.Duration))
+			//fmt.Println("Command", job.Command)
 
 		}
 
 	}
 
 	/*
+
 		cr := cron.New(cron.WithLocation(bkc))
 		fmt.Println("on Top Out Corn")
 
@@ -258,4 +285,10 @@ func (s *scheduleService) WorkList() ([]*JobWork, error) {
 
 	return workList, err
 
+}
+func getTimeCornJob(duration []string) string {
+
+	strDuration := strings.Join(duration[:], " ")
+
+	return strDuration
 }
