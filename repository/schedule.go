@@ -56,6 +56,9 @@ type DurationJob struct {
 	StartDate time.Time `bson:"startDate" json:"startDate"`
 	EndDate   time.Time `json:"endDate" bson:"endDate"`
 }
+type JobRequireId struct {
+	Id primitive.ObjectID `bson:"_id" json:"id"`
+}
 
 type ScheduleRepository interface {
 	ListJob(UserId string) ([]*ScheduleJobDB, error)

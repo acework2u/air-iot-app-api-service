@@ -17,4 +17,6 @@ func (r *ScheduleRouter) ScheduleRoute(rg *gin.RouterGroup) {
 	router := rg.Group("schedule", middleware.CognitoAuthMiddleware())
 	router.GET("", r.scheduleHandler.GetScheduleJobs)
 	router.POST("", r.scheduleHandler.PostScheduleJobs)
+	router.DELETE("/:jobId", r.scheduleHandler.DelScheduleJobs)
+
 }

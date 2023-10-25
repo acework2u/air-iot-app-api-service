@@ -62,3 +62,21 @@ func (h *ScheduleHandle) PostScheduleJobs(c *gin.Context) {
 	h.res.Success(c, res)
 
 }
+
+func (h *ScheduleHandle) DelScheduleJobs(c *gin.Context) {
+
+	jobId := c.Param("jobId")
+
+	if len(jobId) < 0 {
+		h.res.BadRequest(c, "job id is required")
+		return
+	}
+	err := h.scheduleService.DeleteJobSchedule(jobId)
+	if err != nil {
+		h.res.BadRequest(c, "can't delete a job")
+		return
+	}
+	//job := c.Param("jobId")
+	delText := fmt.Sprintf("delete a schedule job %s to successful", jobId)
+	h.res.Success(c, delText)
+}

@@ -61,6 +61,10 @@ type JobWork struct {
 	EndDate   time.Time `json:"endDate" bson:"endDate"`
 }
 
+type JobScheduleDeleteReq struct {
+	jobId string `json:"jobId" uri:"jobId" binding:"required,uuid"`
+}
+
 type AirCmd struct {
 	Cmd   string `json:"cmd"`
 	Value string `json:"value"`
@@ -74,5 +78,6 @@ type AirJob struct {
 type ScheduleService interface {
 	GetSchedules(userId string) ([]*JobDbSchedule, error)
 	NewJobSchedules(userId string, jobInfo *JobScheduleReq) (*JobDbSchedule, error)
+	DeleteJobSchedule(jobId string) error
 	CornJob()
 }

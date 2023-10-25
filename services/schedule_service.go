@@ -116,6 +116,14 @@ func (s *scheduleService) NewJobSchedules(userId string, jobInfo *JobScheduleReq
 
 	return resJob, nil
 }
+func (s *scheduleService) DeleteJobSchedule(jobId string) error {
+	err := s.scheduleRepo.DeleteJob(jobId)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *scheduleService) job(ac AirJob) {
 
 	if len(ac.Command) > 0 {
@@ -180,8 +188,8 @@ func (s *scheduleService) CornJob() {
 
 	for {
 
-		//time.Sleep(time.Minute)
-		time.Sleep(4 * time.Second)
+		time.Sleep(time.Minute)
+		//time.Sleep(4 * time.Second)
 
 		fmt.Println("Air Payload")
 
