@@ -63,6 +63,29 @@ func (h *ScheduleHandle) PostScheduleJobs(c *gin.Context) {
 
 }
 
+func (h *ScheduleHandle) UpdateScheduleJobs(c *gin.Context) {
+
+	updateReq := service.UpdateJobSchedule{}
+	jobId := c.Param("jobId")
+
+	err := c.ShouldBindJSON(&updateReq)
+	if err != nil {
+		h.res.BadRequest(c, err.Error())
+		return
+	}
+
+	jobDb, err := h.scheduleService.UpdateJobInSchedule(jobId, &updateReq)
+
+	if err != nil {
+		h.res.BadRequest(c, err.Error())
+		return
+	}
+
+	updateTxt := fmt.Sprintf("Uptated is a success : %s ,\n %v", jobId, jobDb)
+
+	h.res.Success(c, updateTxt)
+}
+
 func (h *ScheduleHandle) DelScheduleJobs(c *gin.Context) {
 
 	jobId := c.Param("jobId")

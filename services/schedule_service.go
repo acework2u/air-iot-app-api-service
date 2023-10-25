@@ -116,6 +116,24 @@ func (s *scheduleService) NewJobSchedules(userId string, jobInfo *JobScheduleReq
 
 	return resJob, nil
 }
+func (s *scheduleService) UpdateJobInSchedule(jobId string, jobInfo *UpdateJobSchedule) (*JobDbSchedule, error) {
+	jobRes := &JobDbSchedule{}
+
+	updateInfo := &repository.ScheduleJobUpdate{}
+
+	job, err := s.scheduleRepo.UpdateJob(jobId, updateInfo)
+
+	if err != nil {
+		return nil, err
+	}
+
+	jobRes = &JobDbSchedule{
+		SerialNo: job.SerialNo,
+		Duration: job.Duration,
+	}
+
+	return jobRes, nil
+}
 func (s *scheduleService) DeleteJobSchedule(jobId string) error {
 	err := s.scheduleRepo.DeleteJob(jobId)
 	if err != nil {
@@ -183,9 +201,9 @@ func (s *scheduleService) CornJob() {
 	bkc, _ := time.LoadLocation("Asia/Bangkok")
 	cr := cron.New(cron.WithLocation(bkc))
 	_ = cr
-	defer cr.Stop()
-	cr.Start()
 
+	cr.Start()
+	defer cr.Stop()
 	for {
 
 		time.Sleep(time.Minute)
@@ -202,9 +220,9 @@ func (s *scheduleService) CornJob() {
 		//
 		fmt.Println(len(jobWork))
 		//
-		myJobs := AirJob{}
-		for _, job := range jobWork {
 
+		for _, job := range jobWork {
+			myJobs := AirJob{}
 			myJobs.SerialNo = job.SerialNo
 			myJobs.Command = job.Command
 
@@ -216,9 +234,9 @@ func (s *scheduleService) CornJob() {
 			//fmt.Println("myJobs ")
 			//fmt.Println(myJobs)
 
-			//cr.AddFunc(getTimeCornJob(job.Duration), func() {
-			//	s.job(*myJobs)
-			//})
+			cr.AddFunc(getTimeCornJob(job.Duration), func() {
+				s.job(myJobs)
+			})
 			//s.job(*myJobs)
 			//
 			//fmt.Printf("%v , %s \n", job.SerialNo, getTimeCornJob(job.Duration))

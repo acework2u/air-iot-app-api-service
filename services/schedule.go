@@ -51,6 +51,11 @@ type JobDbSchedule struct {
 	Status    bool      `bson:"status" json:"status"`
 }
 
+type UpdateJobSchedule struct {
+	Duration []string `bson:"duration" json:"duration"`
+	Status   bool     `bson:"status" json:"status"`
+}
+
 type JobWork struct {
 	SerialNo  string    `bson:"serialNo" json:"serialNo"`
 	Command   []AirCmd  `bson:"command" json:"command"`
@@ -78,6 +83,7 @@ type AirJob struct {
 type ScheduleService interface {
 	GetSchedules(userId string) ([]*JobDbSchedule, error)
 	NewJobSchedules(userId string, jobInfo *JobScheduleReq) (*JobDbSchedule, error)
+	UpdateJobInSchedule(jobId string, jobInfo *UpdateJobSchedule) (*JobDbSchedule, error)
 	DeleteJobSchedule(jobId string) error
 	CornJob()
 }

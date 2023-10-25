@@ -89,7 +89,6 @@ func (r *ScheduleRepositoryDB) UpdateJob(jobId string, updateInfo *ScheduleJobUp
 	}
 	return jobInfo, err
 
-	return nil, nil
 }
 func (r *ScheduleRepositoryDB) DeleteJob(jobId string) error {
 	id, _ := primitive.ObjectIDFromHex(jobId)
