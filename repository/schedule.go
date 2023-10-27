@@ -7,6 +7,7 @@ import (
 
 type ScheduleJob struct {
 	SerialNo    string    `bson:"serialNo" json:"serialNo"`
+	JobId       int       `bson:"jobId" json:"jobId"`
 	UserId      string    `bson:"userId" json:"userId"`
 	Command     []AirCmd  `bson:"command" json:"command"`
 	Mode        string    `bson:"mode" json:"mode"`
@@ -19,6 +20,7 @@ type ScheduleJob struct {
 }
 type ScheduleJobDB struct {
 	Id          primitive.ObjectID `bson:"_id" json:"id"`
+	JobId       int                `bson:"jobId" json:"jobId"`
 	SerialNo    string             `bson:"serialNo" json:"serialNo"`
 	UserId      string             `bson:"userId" json:"userId"`
 	Command     []AirCmd           `bson:"command" json:"command"`
@@ -60,10 +62,15 @@ type JobRequireId struct {
 	Id primitive.ObjectID `bson:"_id" json:"id"`
 }
 
+type ScheduleJobInfo struct {
+	JobId int `json:"jobId" bson:"jobId"`
+}
+
 type ScheduleRepository interface {
 	ListJob(UserId string) ([]*ScheduleJobDB, error)
 	NewJob(userId string, job *ScheduleJob) (*ScheduleJobDB, error)
 	UpdateJob(jobId string, update *ScheduleJobUpdate) (*ScheduleJobDB, error)
 	DeleteJob(jobId string) error
 	JobsSchedule() ([]*ScheduleJobDB, error)
+	UpdateScheduleId(id string, info *ScheduleJobInfo) error
 }

@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/acework2u/air-iot-app-api-service/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -103,10 +102,9 @@ func (r *AirRepositoryDB) DelAir(filter *FilterUpdate) error {
 	userId := filter.UserId
 
 	query := bson.M{"_id": _id, "userId": userId}
-	fmt.Println("In Repo")
-	fmt.Println(query)
+
 	resDel, err := r.airCollection.DeleteOne(r.ctx, query)
-	fmt.Println(resDel)
+
 	if err != nil {
 		return err
 	}

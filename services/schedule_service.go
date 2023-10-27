@@ -51,7 +51,8 @@ func (s *scheduleService) GetSchedules(userId string) ([]*JobDbSchedule, error) 
 		}
 
 		job := &JobDbSchedule{
-			Id:        jobs.Id.String(),
+			Id:        jobs.Id,
+			JobId:     jobs.JobId,
 			SerialNo:  jobs.SerialNo,
 			Command:   acCmd,
 			Mode:      jobs.Mode,
@@ -78,6 +79,7 @@ func (s *scheduleService) NewJobSchedules(userId string, jobInfo *JobScheduleReq
 
 	dataInfo := &repository.ScheduleJob{
 		SerialNo:    jobInfo.SerialNo,
+		JobId:       int(0),
 		UserId:      jobInfo.UserId,
 		Command:     acCmd,
 		Mode:        jobInfo.Mode,
@@ -105,7 +107,9 @@ func (s *scheduleService) NewJobSchedules(userId string, jobInfo *JobScheduleReq
 	}
 
 	resJob := &JobDbSchedule{
+		Id:        job.Id,
 		SerialNo:  job.SerialNo,
+		JobId:     job.JobId,
 		Command:   jobs,
 		Mode:      job.Mode,
 		Duration:  job.Duration,
@@ -141,7 +145,15 @@ func (s *scheduleService) DeleteJobSchedule(jobId string) error {
 	}
 	return nil
 }
+func (s *scheduleService) UpdateJobId(jobId string, entryId int) error {
 
+	info := &repository.ScheduleJobInfo{JobId: entryId}
+	err := s.scheduleRepo.UpdateScheduleId(jobId, info)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 func (s *scheduleService) job(ac AirJob) {
 
 	if len(ac.Command) > 0 {
@@ -160,32 +172,6 @@ func (s *scheduleService) job(ac AirJob) {
 
 			}
 
-			//fmt.Println("SN: ", ac.SerialNo, "ac Command ", item.Cmd, " ", item.Value)
-			//fmt.Println(acPayload)
-
-			//fmt.Printf(" serial %v : payload : %v", ac.SerialNo, acPayload)
-
-			//fmt.Printf(" serial %v : payload : %v", ac.SerialNo, acPayload)
-			//go s.thingServ.PubUpdateShadows(ac.SerialNo, acPayload)
-			//go func() {
-			//
-			//	fmt.Printf(" serial %v : payload : %v", ac.SerialNo, acPayload)
-			//
-			//	if len(acPayload) > 10 {
-			//		_, err := s.thingServ.PubUpdateShadows(ac.SerialNo, acPayload)
-			//
-			//		if err != nil {
-			//			fmt.Println("Err In Job")
-			//			fmt.Println("SN: ", ac.SerialNo, "ac Command ", item.Cmd, " ", item.Value)
-			//
-			//			fmt.Println(err.Error())
-			//			return
-			//			//return
-			//		}
-			//	}
-			//
-			//}()
-
 			time.Sleep(2 * time.Second)
 
 		}
@@ -193,14 +179,10 @@ func (s *scheduleService) job(ac AirJob) {
 	}
 
 }
-func (s *scheduleService) job2(ac AirJob) {
-
-}
 func (s *scheduleService) CornJob() {
 
 	bkc, _ := time.LoadLocation("Asia/Bangkok")
 	cr := cron.New(cron.WithLocation(bkc))
-	_ = cr
 
 	cr.Start()
 	defer cr.Stop()
@@ -208,9 +190,7 @@ func (s *scheduleService) CornJob() {
 
 		time.Sleep(time.Minute)
 		//time.Sleep(4 * time.Second)
-
 		fmt.Println("Air Payload")
-
 		jobWork, err := s.WorkList()
 
 		if err != nil {
@@ -219,6 +199,8 @@ func (s *scheduleService) CornJob() {
 		}
 		//
 		fmt.Println(len(jobWork))
+		numberJob := len(jobWork)
+
 		//
 
 		for _, job := range jobWork {
@@ -226,56 +208,83 @@ func (s *scheduleService) CornJob() {
 			myJobs.SerialNo = job.SerialNo
 			myJobs.Command = job.Command
 
-			fmt.Println(myJobs)
+			if !job.Status {
+				jobId := cron.EntryID(int(job.JobId))
+				cr.Remove(jobId)
+				fmt.Println("Job id Remove is : ", jobId)
 
-			//s.job(*myJobs)
-			//cr.AddFunc()
+			}
 
-			//fmt.Println("myJobs ")
-			//fmt.Println(myJobs)
+			if job.Status {
 
-			cr.AddFunc(getTimeCornJob(job.Duration), func() {
-				s.job(myJobs)
-			})
-			//s.job(*myJobs)
-			//
-			//fmt.Printf("%v , %s \n", job.SerialNo, getTimeCornJob(job.Duration))
-			//fmt.Println("Command", job.Command)
+				crn := cr.Entries()
+
+				fmt.Println("crn = ", crn)
+				idJob := job.Id.Hex()
+				if job.JobId == 0 {
+
+					fmt.Printf("ID %s \n", idJob)
+					fmt.Println("cron ID", job.JobId)
+
+					schId, err := cr.AddFunc(getTimeCornJob(job.Duration), func() {
+						s.job(myJobs)
+					})
+					if err != nil {
+						fmt.Println(err.Error())
+					}
+					fmt.Printf("%s", schId)
+					err = s.UpdateJobId(idJob, int(schId))
+					if err != nil {
+						fmt.Println("Error in UpdateJObId")
+						fmt.Println(err.Error())
+					}
+
+				} else {
+					// Have a job in db
+					m := cr.Entries()
+					if len(m) >= 0 && len(m) < numberJob {
+						fmt.Println("lese then 0")
+
+						schId, err := cr.AddFunc(getTimeCornJob(job.Duration), func() {
+							s.job(myJobs)
+						})
+						if err != nil {
+							fmt.Println(err.Error())
+						}
+						fmt.Printf("%s", schId)
+						err = s.UpdateJobId(idJob, int(schId))
+						if err != nil {
+							fmt.Println("Error in UpdateJObId")
+							fmt.Println(err.Error())
+						}
+
+					}
+
+					//fmt.Println(crn)
+
+				}
+
+				//err = s.UpdateJobId(Id, int(schId))
+				//if err != nil {
+				//	fmt.Println("Error in UpdateJObId")
+				//	fmt.Println(err.Error())
+				//}
+				//
+				//fmt.Println(myJobs)
+			}
+
+			m := cr.Entries()
+
+			fmt.Println("This a job Entry is : ", len(m))
+
+			for _, g := range m {
+				fmt.Printf("%v", g.ID)
+			}
 
 		}
 
 	}
 
-	/*
-
-		cr := cron.New(cron.WithLocation(bkc))
-		fmt.Println("on Top Out Corn")
-
-		cr.AddFunc("* * * * *", func() {
-			fmt.Println(" Out CornJOb Task", now.Local())
-		})
-		cr.Start()
-	*/
-
-	//for {
-	//	time.Sleep(time.Minute)
-	//	now := time.Now()
-	//	tez := fmt.Sprintf("Schedule at : %s", now.Local())
-	//	fmt.Println(tez)
-	//
-	//	cr.AddFunc("*/2 * * * *", func() {
-	//		fmt.Println(" In CornJOb Task in 2 minute", now.Local())
-	//	})
-	//
-	//	cr.AddFunc("*/4 * * * *", func() {
-	//		fmt.Println(" In CornJOb Task in 4 minute", now.Local())
-	//	})
-	//
-	//	defer cr.Stop()
-	//
-	//}
-
-	//inspect(cr.Entries())
 }
 func (s *scheduleService) WorkList() ([]*JobWork, error) {
 
@@ -298,6 +307,8 @@ func (s *scheduleService) WorkList() ([]*JobWork, error) {
 		}
 
 		job := &JobWork{
+			Id:        item.Id,
+			JobId:     item.JobId,
 			SerialNo:  item.SerialNo,
 			Command:   acCmd,
 			Mode:      item.Mode,

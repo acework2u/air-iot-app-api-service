@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/acework2u/air-iot-app-api-service/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -53,8 +54,6 @@ func (r *ScheduleRepositoryDB) ListJob(UserId string) ([]*ScheduleJobDB, error) 
 func (r *ScheduleRepositoryDB) NewJob(userId string, job *ScheduleJob) (*ScheduleJobDB, error) {
 	now := time.Now()
 	jobInfo := (*ScheduleJob)(job)
-	_ = jobInfo
-
 	jobInfo.CreatedDate = now.Local()
 	jobInfo.UpdatedDate = jobInfo.CreatedDate
 
@@ -104,7 +103,8 @@ func (r *ScheduleRepositoryDB) DeleteJob(jobId string) error {
 
 }
 func (r *ScheduleRepositoryDB) JobsSchedule() ([]*ScheduleJobDB, error) {
-	filter := bson.M{"status": true}
+	//filter := bson.M{"status": true}
+	filter := bson.M{}
 	cursor, err := r.scheduleCollection.Find(r.ctx, filter)
 	if err != nil {
 		return nil, err
@@ -128,4 +128,38 @@ func (r *ScheduleRepositoryDB) JobsSchedule() ([]*ScheduleJobDB, error) {
 	}
 	return jobs, err
 
+}
+func (r *ScheduleRepositoryDB) UpdateScheduleId(id string, info *ScheduleJobInfo) error {
+
+	objId, _ := primitive.ObjectIDFromHex(id)
+
+	filters := bson.D{{"_id", objId}}
+
+	doc, err := utils.ToDoc(info)
+	if err != nil {
+		return err
+	}
+
+	query := bson.D{{"$set", doc}}
+
+	fmt.Println("filters")
+	fmt.Println(filters)
+	fmt.Println("query")
+	fmt.Println(query)
+
+	res := r.scheduleCollection.FindOneAndUpdate(r.ctx, filters, query, options.FindOneAndUpdate().SetReturnDocument(1))
+
+	if res != nil {
+		return err
+	}
+
+	//res, err := r.scheduleCollection.UpdateOne(r.ctx, filters, query)
+	//if err != nil {
+	//	return err
+	//}
+
+	fmt.Println("In Repo")
+	fmt.Println(res)
+
+	return nil
 }
