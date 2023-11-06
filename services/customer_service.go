@@ -92,20 +92,15 @@ func (cs *customerService) DeleteCustomer(id string) error {
 
 	return nil
 }
-func (cs *customerService) CustomerById(uid string) (*repository.DBCustomer2, error) {
+func (cs *customerService) CustomerById(uid string) (*DbCustomerResponse2, error) {
 
 	result, err := cs.cusRepo.FindCustomerID(uid)
-
 	if err != nil {
 		return nil, err
 	}
+	userInfo := (*DbCustomerResponse2)(result)
 
-	//var userInfo *DbCustomerResponse2
-
-	//userInfo.Id = result.Id
-	//fmt.Println(result)
-
-	return result, nil
+	return userInfo, nil
 }
 func (cs *customerService) CustomerNewAddress(address *CustomerAddress) (*repository.DBAddress, error) {
 

@@ -20,22 +20,27 @@ func NewAuthHandler(authService services.AuthenServices) AuthHandler {
 }
 
 // Authenticate godoc
-// @Summary Air IoT User Authentication
-// @Description Authenticates a user and provides a JWT to Authorize API Calls
+// @Summary User signin
+// @Description Authenticates a user and provides authorize API Calls
 // @ID Authentication
 // @Tags Authentication
 // @Consume application/x-www-form-urlencoded
 // @Produce json
-// @Param username formData string true "User Credentials"
-// @Param password formData string true "User Credentials"
-// @Success 200 {object} utils.ApiResponse
-// @Failure 401 {object} utils.ApiResponse
-// @Failure 400 {object} utils.ApiResponse
+// @Schemes https http
+// @Param SignIn body services.SignInRequest true "User and Password "
+// @Success 200 {object} utils.ApiResponse{}
+// @Success 400 {object} utils.ApiResponse{}
 // @Router /auth/signin [post]
 func (h *AuthHandler) PostSignIn(c *gin.Context) {
 	authInput := &services.SignInRequest{}
+	authResponse := &utils.ApiResponse{}
+
 	err := c.ShouldBindJSON(authInput)
 	if err != nil {
+
+		//errRes := &utils.Response{Status: http.StatusBadRequest, Message: []string{err.Error()}}
+		//_ = errRes
+
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  http.StatusBadRequest,
 			"message": err.Error(),
@@ -47,19 +52,33 @@ func (h *AuthHandler) PostSignIn(c *gin.Context) {
 	res, err := h.authService.SignIn(authInput.Username, authInput.Password)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": "NotAuthorizedException: Incorrect username or password",
-		})
+
+		errText := utils.ApiResponse{Status: http.StatusBadRequest, Message: "Incorrect username or password."}
+		_ = errText
+		c.Header("Content-Type", "application-json")
+		c.AbortWithStatusJSON(http.StatusBadRequest, errText)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": res.AuthenticationResult,
-	})
+	authResponse = &utils.ApiResponse{
+		Status:  http.StatusOK,
+		Message: res.AuthenticationResult,
+	}
+	c.Header("Content-Type", "application-json")
+	c.JSON(http.StatusOK, authResponse)
+
+	//c.JSON(http.StatusOK, authResponse)
 }
 
+// Authenticate godoc
+// @Summary User Sign Up
+// @Description User SignUp for use a Air IoT resource
+// @Produce application/json
+// @Tags Authentication
+// @Param SignUp body services.SignUpRequest true "New User information"
+// @Success 200 {object} utils.ApiResponse{}
+// @Failure 400 {object} utils.ApiResponse{}
+// @Router /auth/signup [post]
 func (h *AuthHandler) PostSignUp(c *gin.Context) {
 
 	var authSignUp *services.SignUpRequest
@@ -77,23 +96,25 @@ func (h *AuthHandler) PostSignUp(c *gin.Context) {
 
 	result, ok := h.authService.SignUp(authSignUp.Username, authSignUp.Password, authSignUp.PhoneNo)
 	if ok != nil {
-
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": ok.Error(),
-		})
-
+		txtErr := strings.Split(ok.Error(), ",")
+		h.resp.BadRequest(c, fmt.Sprintf("%s", txtErr[len(txtErr)-1]))
 		return
 	}
 
 	// Add to Customer
-
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": result,
-	})
+	apiResult := utils.ApiResponse{Status: http.StatusOK, Message: result}
+	c.JSON(http.StatusOK, apiResult)
 }
 
+// Authenticate godoc
+// @Summary User confirm is sign up
+// @Description New user confirm a sign up
+// @Produce application/json
+// @Tags Authentication
+// @Param SignUp body services.UserConfirm true "New User confirm information"
+// @Success 200 {object} utils.ApiResponse{}
+// @Success 400 {object} utils.ApiResponse{}
+// @Router /auth/confirm [post]
 func (h *AuthHandler) PostConfirm(c *gin.Context) {
 
 	var user *services.UserConfirm
@@ -113,20 +134,33 @@ func (h *AuthHandler) PostConfirm(c *gin.Context) {
 
 	if err != nil {
 
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": "Invalid verification code provided, please try again.",
-		})
-
+		resErr := "Invalid verification code provided, please try again."
+		h.resp.BadRequest(c, resErr)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": result,
-	})
+	apiResponse := utils.ApiResponse{
+		Status:  http.StatusOK,
+		Message: result,
+	}
+
+	h.resp.Success(c, apiResponse)
+	//
+	//c.JSON(http.StatusOK, gin.H{
+	//	"status":  http.StatusOK,
+	//	"message": result,
+	//})
 }
 
+// Authenticate godoc
+// @Summary Resend confirm code for a new user
+// @Description retern Resend confirmation code for a new user
+// @Produce application/json
+// @Tags Authentication
+// @Param ResendConfirmCode body services.ResendConfirmCode true "Resend confirm code"
+// @Success 200 {object} utils.ApiResponse{}
+// @Failure 400 {object} utils.ApiResponse{}
+// @Router /auth/resend-confirm-code [post]
 func (h *AuthHandler) PostResendConfirmCode(c *gin.Context) {
 
 	var user *services.ResendConfirmCode
@@ -160,6 +194,15 @@ func (h *AuthHandler) PostResendConfirmCode(c *gin.Context) {
 	})
 }
 
+// Authenticate godoc
+// @Summary Refresh user token
+// @Description refresh new user token
+// @Produce json
+// @Tags Authentication
+// @Security BearerAuth
+// @Success 200 {object} utils.ApiResponse{}
+// @Failure 400 {object} utils.ApiResponse{}
+// @Router /auth/refresh-token [post]
 func (h *AuthHandler) PostRefreshToken(c *gin.Context) {
 
 	refreshToken := &services.SignInResponse{}
@@ -172,28 +215,19 @@ func (h *AuthHandler) PostRefreshToken(c *gin.Context) {
 	refToken := *refreshToken.RefreshToken
 	resToken, ok := h.authService.RefreshToken(refToken)
 	if ok != nil {
-
 		reshErr := strings.Split(ok.Error(), ",")
 		reshErr = strings.Split(reshErr[3], ":")
+
 		if len(reshErr[1]) > 0 {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-				"status":  http.StatusBadRequest,
-				"message": reshErr[1],
-			})
+			h.resp.BadRequest(c, reshErr[1])
 			return
 		}
 
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": ok.Error(),
-		})
+		h.resp.BadRequest(c, ok.Error())
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": resToken,
-	})
 
+	h.resp.Success(c, resToken)
 	return
 }
 

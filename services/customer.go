@@ -34,7 +34,7 @@ type (
 		Name          string             `json:"name" bson:"name"`
 		Lastname      string             `json:"last_name" bson:"last_name"`
 		Email         string             `json:"email" bson:"email"`
-		Mobile        string             `json:"mobile_no" bson:"mobile"`
+		Mobile        string             `json:"mobile" bson:"mobile"`
 		UserConfirmed bool               `json:"UserConfirmed" bson:"UserConfirmed"`
 		CreateAt      time.Time          `json:"created_at,omitempty" bson:"created_at,omitempty"`
 		UpdateAt      time.Time          `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
@@ -82,7 +82,7 @@ type CustomerService interface {
 	AllCustomers() ([]*DBCustomer, error)
 	UpdateCustomer(string, *UpdateInfoRequest) (*DBCustomer, error)
 	DeleteCustomer(string) error
-	CustomerById(string) (*repository.DBCustomer2, error)
+	CustomerById(string) (*DbCustomerResponse2, error)
 	CustomerNewAddress(*CustomerAddress) (*repository.DBAddress, error)
 	CustomerUpdateAddress(filter *Filter, info *CustomerAddress) (*repository.DBAddress, error)
 }

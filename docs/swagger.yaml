@@ -1,17 +1,49 @@
 basePath: /api/v1
 definitions:
-  handler.Response:
+  auth.ResendConfirmCode:
     properties:
-      message: {}
-      status:
-        type: integer
+      username:
+        type: string
+    required:
+    - username
+    type: object
+  auth.SignInRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  auth.SignUpRequest:
+    properties:
+      password:
+        type: string
+      phone_no:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - phone_no
+    - username
+    type: object
+  auth.UserConfirm:
+    properties:
+      confirmationCode:
+        type: string
+      username:
+        description: code for confirm
+        type: string
+    required:
+    - confirmationCode
+    - username
     type: object
   utils.ApiResponse:
     properties:
-      message:
-        items:
-          type: string
-        type: array
+      message: {}
       status:
         type: integer
     type: object
@@ -22,21 +54,16 @@ info:
   title: Air IoT API Service 2023
   version: "1.0"
 paths:
-  /auth/signin:
+  /auth/confirm:
     post:
-      description: Authenticates a user and provides a JWT to Authorize API Calls
-      operationId: Authentication
+      description: New user confirm a sign up
       parameters:
-      - description: User Credentials
-        in: formData
-        name: username
+      - description: New User confirm information
+        in: body
+        name: SignUp
         required: true
-        type: string
-      - description: User Credentials
-        in: formData
-        name: password
-        required: true
-        type: string
+        schema:
+          $ref: '#/definitions/auth.UserConfirm'
       produces:
       - application/json
       responses:
@@ -48,11 +75,99 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/utils.ApiResponse'
-        "401":
-          description: Unauthorized
+      summary: User confirm is sign up
+      tags:
+      - Authentication
+  /auth/refresh-token:
+    post:
+      description: refresh new user token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
           schema:
             $ref: '#/definitions/utils.ApiResponse'
-      summary: Air IoT User Authentication
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Refresh user token
+      tags:
+      - Authentication
+  /auth/resend-confirm-code:
+    post:
+      description: retern Resend confirmation code for a new user
+      parameters:
+      - description: Resend confirm code
+        in: body
+        name: ResendConfirmCode
+        required: true
+        schema:
+          $ref: '#/definitions/auth.ResendConfirmCode'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+      summary: Resend confirm code for a new user
+      tags:
+      - Authentication
+  /auth/signin:
+    post:
+      description: Authenticates a user and provides authorize API Calls
+      operationId: Authentication
+      parameters:
+      - description: 'User and Password '
+        in: body
+        name: SignIn
+        required: true
+        schema:
+          $ref: '#/definitions/auth.SignInRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+      summary: User signin
+      tags:
+      - Authentication
+  /auth/signup:
+    post:
+      description: User SignUp for use a Air IoT resource
+      parameters:
+      - description: New User information
+        in: body
+        name: SignUp
+        required: true
+        schema:
+          $ref: '#/definitions/auth.SignUpRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+      summary: User Sign Up
       tags:
       - Authentication
   /my:
@@ -64,10 +179,18 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handler.Response'
+            $ref: '#/definitions/utils.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+      security:
+      - BearerAuth: []
       summary: Get User info
       tags:
       - Users
+schemes:
+- http
 securityDefinitions:
   BearerAuth:
     in: header

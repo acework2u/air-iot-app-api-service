@@ -47,8 +47,10 @@ func NewCustomerHandler(cusService services.CustomerService) CustomerHandler {
 // @Summary  Get User info
 // @Description Return User Information
 // @Produce  application/json
+// @Security BearerAuth
 // @Tags  Users
-// @Success 200 {object} Response{}
+// @Success 200 {object} utils.ApiResponse{}
+// @Failure 400 {object} utils.ApiResponse{}
 // @Router  /my [get]
 func (h *CustomerHandler) GetCustomer(c *gin.Context) {
 

@@ -19,3 +19,6 @@ test-winds:
 
 test-linux:
 	GOOS=linux GOARCH=amd64 go build -o ./app/linux/server ./cmd/main.go
+
+api-docs:
+	swag init

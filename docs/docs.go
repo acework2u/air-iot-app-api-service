@@ -16,31 +16,25 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth/signin": {
+        "/auth/confirm": {
             "post": {
-                "description": "Authenticates a user and provides a JWT to Authorize API Calls",
+                "description": "New user confirm a sign up",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Authentication"
                 ],
-                "summary": "Air IoT User Authentication",
-                "operationId": "Authentication",
+                "summary": "User confirm is sign up",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "User Credentials",
-                        "name": "username",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "User Credentials",
-                        "name": "password",
-                        "in": "formData",
-                        "required": true
+                        "description": "New User confirm information",
+                        "name": "SignUp",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.UserConfirm"
+                        }
                     }
                 ],
                 "responses": {
@@ -55,9 +49,146 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/utils.ApiResponse"
                         }
+                    }
+                }
+            }
+        },
+        "/auth/refresh-token": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "refresh new user token",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Refresh user token",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
                     },
-                    "401": {
-                        "description": "Unauthorized",
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/resend-confirm-code": {
+            "post": {
+                "description": "retern Resend confirmation code for a new user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Resend confirm code for a new user",
+                "parameters": [
+                    {
+                        "description": "Resend confirm code",
+                        "name": "ResendConfirmCode",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.ResendConfirmCode"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/signin": {
+            "post": {
+                "description": "Authenticates a user and provides authorize API Calls",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "User signin",
+                "operationId": "Authentication",
+                "parameters": [
+                    {
+                        "description": "User and Password ",
+                        "name": "SignIn",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.SignInRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/signup": {
+            "post": {
+                "description": "User SignUp for use a Air IoT resource",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "User Sign Up",
+                "parameters": [
+                    {
+                        "description": "New User information",
+                        "name": "SignUp",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.SignUpRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/utils.ApiResponse"
                         }
@@ -67,6 +198,11 @@ const docTemplate = `{
         },
         "/my": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Return User Information",
                 "produces": [
                     "application/json"
@@ -79,7 +215,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.Response"
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
                         }
                     }
                 }
@@ -87,24 +229,71 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "handler.Response": {
+        "auth.ResendConfirmCode": {
             "type": "object",
+            "required": [
+                "username"
+            ],
             "properties": {
-                "message": {},
-                "status": {
-                    "type": "integer"
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "auth.SignInRequest": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "auth.SignUpRequest": {
+            "type": "object",
+            "required": [
+                "password",
+                "phone_no",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "phone_no": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "auth.UserConfirm": {
+            "type": "object",
+            "required": [
+                "confirmationCode",
+                "username"
+            ],
+            "properties": {
+                "confirmationCode": {
+                    "type": "string"
+                },
+                "username": {
+                    "description": "code for confirm",
+                    "type": "string"
                 }
             }
         },
         "utils.ApiResponse": {
             "type": "object",
             "properties": {
-                "message": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
+                "message": {},
                 "status": {
                     "type": "integer"
                 }
@@ -125,7 +314,7 @@ var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:8080",
 	BasePath:         "/api/v1",
-	Schemes:          []string{},
+	Schemes:          []string{"http"},
 	Title:            "Air IoT API Service 2023",
 	Description:      "Air Smart IoT App API Service",
 	InfoInstanceName: "swagger",

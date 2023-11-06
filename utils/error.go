@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-errors/errors"
 	"github.com/go-playground/validator/v10"
@@ -15,8 +16,21 @@ type ApiError struct {
 	Msg   string `json:"msg"`
 }
 
+func ErrorHandler(c *gin.Context) {
+	c.Next()
+	for _, err := range c.Errors {
+		//log, handler, etc
+		fmt.Println(err)
+	}
+	c.JSON(http.StatusInternalServerError, "")
+}
+
 func NewCustomHandler(ctx *gin.Context) ErrHandler {
 	return ErrHandler{ctx: ctx}
+}
+
+func (c *ErrHandler) MyErr(err error) {
+	fmt.Println(err)
 }
 
 func (c *ErrHandler) CustomError(err error) {

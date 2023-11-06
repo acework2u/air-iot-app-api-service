@@ -21,8 +21,9 @@ type (
 	}
 
 	UserConfirm struct {
-		ConfirmationCode string `json:"confirmationCode" validate:"required" binding:"required"`
+		// code for confirm
 		User             string `json:"username" validate:"required" binding:"required"`
+		ConfirmationCode string `json:"confirmationCode" validate:"required" binding:"required"`
 	}
 	UserDelete struct {
 		AccessToken string `json:"accessToken" validate:"required" binding:"required"`

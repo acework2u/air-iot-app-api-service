@@ -36,8 +36,8 @@ func (r *Response) Success(c *gin.Context, msg interface{}) {
 func (r *Response) BadRequest(c *gin.Context, msg interface{}) {
 	c.Header("Content-Type", "application/json")
 	c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-		"status": http.StatusBadRequest,
-		"error":  msg,
+		"status":  http.StatusBadRequest,
+		"message": msg,
 	})
 }
 

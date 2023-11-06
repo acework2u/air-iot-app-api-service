@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/acework2u/air-iot-app-api-service/middleware"
 	airIotService "github.com/acework2u/air-iot-app-api-service/services/airiot"
 	"log"
 	"net/http"
@@ -188,6 +189,7 @@ func init() {
 // @title Air IoT API Service 2023
 // @version 1.0
 // @description Air Smart IoT App API Service
+// @Schemes http
 // @host localhost:8080
 // @BasePath /api/v1
 // @securityDefinitions.apiKey	BearerAuth
@@ -212,9 +214,9 @@ func startGinServer(config conf.Config) {
 	server.Use(cors.New(corsConfig))
 	server.Use(gin.Recovery())
 
-	//server.Use(
-	//	middleware.ErrorHandler(),
-	//)
+	server.Use(
+		middleware.ErrorHandler(),
+	)
 
 	server.NoRoute(func(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, gin.H{
@@ -227,6 +229,7 @@ func startGinServer(config conf.Config) {
 	router := server.Group("/api/v1")
 	// Add Swagger
 	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	router.GET("/healthchecker", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": "OK"})
 	})
