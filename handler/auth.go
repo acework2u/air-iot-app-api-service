@@ -37,15 +37,7 @@ func (h *AuthHandler) PostSignIn(c *gin.Context) {
 
 	err := c.ShouldBindJSON(authInput)
 	if err != nil {
-
-		//errRes := &utils.Response{Status: http.StatusBadRequest, Message: []string{err.Error()}}
-		//_ = errRes
-
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": err.Error(),
-		})
-
+		h.resp.BadRequest(c, err.Error())
 		return
 	}
 
@@ -54,9 +46,7 @@ func (h *AuthHandler) PostSignIn(c *gin.Context) {
 	if err != nil {
 
 		errText := utils.ApiResponse{Status: http.StatusBadRequest, Message: "Incorrect username or password."}
-		_ = errText
-		c.Header("Content-Type", "application-json")
-		c.AbortWithStatusJSON(http.StatusBadRequest, errText)
+		h.resp.BadRequest(c, errText)
 		return
 	}
 
@@ -64,10 +54,9 @@ func (h *AuthHandler) PostSignIn(c *gin.Context) {
 		Status:  http.StatusOK,
 		Message: res.AuthenticationResult,
 	}
-	c.Header("Content-Type", "application-json")
-	c.JSON(http.StatusOK, authResponse)
 
-	//c.JSON(http.StatusOK, authResponse)
+	h.resp.Success(c, authResponse)
+
 }
 
 // Authenticate godoc
@@ -86,11 +75,7 @@ func (h *AuthHandler) PostSignUp(c *gin.Context) {
 	err := c.ShouldBindJSON(&authSignUp)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": err.Error(),
-		})
-
+		h.resp.BadRequest(c, err.Error())
 		return
 	}
 
@@ -100,7 +85,6 @@ func (h *AuthHandler) PostSignUp(c *gin.Context) {
 		h.resp.BadRequest(c, fmt.Sprintf("%s", txtErr[len(txtErr)-1]))
 		return
 	}
-
 	// Add to Customer
 	apiResult := utils.ApiResponse{Status: http.StatusOK, Message: result}
 	c.JSON(http.StatusOK, apiResult)
@@ -121,10 +105,11 @@ func (h *AuthHandler) PostConfirm(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&user); err != nil {
 
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": err.Error(),
-		})
+		h.resp.BadRequest(c, err.Error())
+		//c.JSON(http.StatusBadRequest, gin.H{
+		//	"status":  http.StatusBadRequest,
+		//	"message": err.Error(),
+		//})
 
 		return
 	}
@@ -164,34 +149,21 @@ func (h *AuthHandler) PostConfirm(c *gin.Context) {
 func (h *AuthHandler) PostResendConfirmCode(c *gin.Context) {
 
 	var user *services.ResendConfirmCode
-
 	err := c.ShouldBindJSON(&user)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": err.Error(),
-		})
-
+		h.resp.BadRequest(c, err.Error())
 		return
 	}
 
 	result, ok := h.authService.ResendConfirmCode(user.Username)
 
 	if ok != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": ok.Error(),
-		})
-
+		h.resp.BadRequest(c, ok.Error())
 		return
 	}
-
 	resultMsg := fmt.Sprintf("ใช้ Confirmation code จากอีเมล %v เพื่อยืนยันตัวตน", *result.CodeDeliveryDetails.Destination)
+	h.resp.Success(c, resultMsg)
 
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": resultMsg,
-	})
 }
 
 // Authenticate godoc
@@ -231,38 +203,57 @@ func (h *AuthHandler) PostRefreshToken(c *gin.Context) {
 	return
 }
 
+// Authenticate godoc
+// @Summary Refresh user token
+// @Description refresh new user token
+// @Produce json
+// @Tags Authentication
+// @Param resendConfirmCode body services.ResendConfirmCode true "response confirm code"
+// @Success 200 {object} utils.ApiResponse{}
+// @Failure 400 {object} utils.ApiResponse{}
+// @Router /auth/forgot-password [post]
 func (h *AuthHandler) PostForgotPw(c *gin.Context) {
 
-	userName := services.ResendConfirmCode{}
-	c.ShouldBindJSON(&userName)
+	userName := &services.ResendConfirmCode{}
 
-	if len(userName.Username) < 0 {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": "User is required",
-		})
+	err := c.ShouldBindJSON(userName)
+	cusErr := utils.NewCustomHandler(c)
+	if err != nil {
+
+		erList := cusErr.MyErr(err)
+
+		for _, fe := range erList {
+			textErr := fmt.Sprintf("field is a %s %s", fe.Field, fe.Msg)
+			h.resp.BadRequest(c, textErr)
+
+		}
+
 		return
 	}
 
 	response, err := h.authService.ForgotPassword(userName.Username)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": err.Error(),
-		})
+		h.resp.BadRequest(c, err.Error())
 		return
 	}
 
 	sendToEmail := *response.CodeDeliveryDetails.Destination
 	txtResponse := fmt.Sprintf("ระบบได้ส่ง Password Reset Code ไปที่ %v : %v กรุณาใช้ Code เพื่อยืนยัน", response.CodeDeliveryDetails.DeliveryMedium, sendToEmail)
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": txtResponse,
-	})
+	// Response Success
+	h.resp.Success(c, txtResponse)
+
 }
 
+// Authenticate godoc
+// @Summary Refresh user token
+// @Description refresh new user token
+// @Produce json
+// @Tags Authentication
+// @Param ConfirmNewPassword body services.UserConfirmNewPassword true "response confirm new password"
+// @Success 200 {object} utils.ApiResponse{}
+// @Failure 400 {object} utils.ApiResponse{}
+// @Router /auth/confirm-password [post]
 func (h *AuthHandler) PostConfirmNewPassword(c *gin.Context) {
-
 	confirmReq := services.UserConfirmNewPassword{}
 	customErr := utils.NewCustomHandler(c)
 	err := c.ShouldBindJSON(&confirmReq)
@@ -274,17 +265,12 @@ func (h *AuthHandler) PostConfirmNewPassword(c *gin.Context) {
 
 	response, err := h.authService.ConfirmNewPassword(&confirmReq)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": err.Error(),
-		})
+		h.resp.BadRequest(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": response,
-	})
+	// Response Success
+	h.resp.Success(c, response)
 }
 
 func (h *AuthHandler) PostChangePassword(c *gin.Context) {
@@ -299,17 +285,13 @@ func (h *AuthHandler) PostChangePassword(c *gin.Context) {
 
 	resChange, err := h.authService.ChangePassword(&changePasswordReq)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"status": http.StatusBadRequest,
-			"error":  err.Error(),
-		})
+		h.resp.BadRequest(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": resChange,
-	})
+	// Success Response
+	h.resp.Success(c, resChange)
+
 }
 
 func (h *AuthHandler) DelCustomer(c *gin.Context) {

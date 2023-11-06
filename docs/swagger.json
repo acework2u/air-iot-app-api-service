@@ -49,6 +49,80 @@
                 }
             }
         },
+        "/auth/confirm-password": {
+            "post": {
+                "description": "refresh new user token",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Refresh user token",
+                "parameters": [
+                    {
+                        "description": "response confirm new password",
+                        "name": "ConfirmNewPassword",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.UserConfirmNewPassword"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/forgot-password": {
+            "post": {
+                "description": "refresh new user token",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Refresh user token",
+                "parameters": [
+                    {
+                        "description": "response confirm code",
+                        "name": "resendConfirmCode",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.ResendConfirmCode"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/refresh-token": {
             "post": {
                 "security": [
@@ -282,6 +356,27 @@
                 },
                 "username": {
                     "description": "code for confirm",
+                    "type": "string"
+                }
+            }
+        },
+        "auth.UserConfirmNewPassword": {
+            "type": "object",
+            "required": [
+                "confirmCode",
+                "password",
+                "userName"
+            ],
+            "properties": {
+                "confirmCode": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 10,
+                    "minLength": 1
+                },
+                "userName": {
                     "type": "string"
                 }
             }

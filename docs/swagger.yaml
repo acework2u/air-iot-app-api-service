@@ -41,6 +41,21 @@ definitions:
     - confirmationCode
     - username
     type: object
+  auth.UserConfirmNewPassword:
+    properties:
+      confirmCode:
+        type: string
+      password:
+        maxLength: 10
+        minLength: 1
+        type: string
+      userName:
+        type: string
+    required:
+    - confirmCode
+    - password
+    - userName
+    type: object
   utils.ApiResponse:
     properties:
       message: {}
@@ -76,6 +91,54 @@ paths:
           schema:
             $ref: '#/definitions/utils.ApiResponse'
       summary: User confirm is sign up
+      tags:
+      - Authentication
+  /auth/confirm-password:
+    post:
+      description: refresh new user token
+      parameters:
+      - description: response confirm new password
+        in: body
+        name: ConfirmNewPassword
+        required: true
+        schema:
+          $ref: '#/definitions/auth.UserConfirmNewPassword'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+      summary: Refresh user token
+      tags:
+      - Authentication
+  /auth/forgot-password:
+    post:
+      description: refresh new user token
+      parameters:
+      - description: response confirm code
+        in: body
+        name: resendConfirmCode
+        required: true
+        schema:
+          $ref: '#/definitions/auth.ResendConfirmCode'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+      summary: Refresh user token
       tags:
       - Authentication
   /auth/refresh-token:

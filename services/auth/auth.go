@@ -40,7 +40,7 @@ type (
 	}
 
 	ResendConfirmCode struct {
-		Username string `json:"username" validate:"required" binding:"required"`
+		Username string `json:"username" validate:"required,email" binding:"required,email"`
 	}
 
 	ResponseForgotPassword struct {

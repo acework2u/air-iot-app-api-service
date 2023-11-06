@@ -29,8 +29,21 @@ func NewCustomHandler(ctx *gin.Context) ErrHandler {
 	return ErrHandler{ctx: ctx}
 }
 
-func (c *ErrHandler) MyErr(err error) {
-	fmt.Println(err)
+func (c *ErrHandler) MyErr(err error) []*ApiError {
+
+	var ve validator.ValidationErrors
+	if errors.As(err, &ve) {
+		out := make([]*ApiError, len(ve))
+		for i, fe := range ve {
+			out[i] = &ApiError{fe.Field(), getErrorMsg(fe)}
+			//c.ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": out})
+			//return
+		}
+		return out
+
+	}
+	return nil
+
 }
 
 func (c *ErrHandler) CustomError(err error) {
@@ -41,6 +54,7 @@ func (c *ErrHandler) CustomError(err error) {
 			out[i] = ApiError{fe.Field(), getErrorMsg(fe)}
 		}
 		c.ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": out})
+		return
 
 	}
 }
@@ -56,17 +70,17 @@ func (c *ErrHandler) StatusBadRequest(msg string) {
 func getErrorMsg(fe validator.FieldError) string {
 	switch fe.Tag() {
 	case "required":
-		return "This field is required"
+		return "this field is required"
 	case "email":
-		return "Invalid email"
+		return "invalid email"
 	case "numeric":
-		return "Invalid numeric"
+		return "invalid numeric"
 	case "lte":
-		return "Should be less than " + fe.Param()
+		return "should be less than " + fe.Param()
 	case "gte":
-		return "Should be greater than " + fe.Param()
+		return "should be greater than " + fe.Param()
 	case "min":
-		return "Should be less than " + fe.Param()
+		return "should be less than " + fe.Param()
 	}
 
 	return "Unknown error"
@@ -75,11 +89,11 @@ func getErrorMsg(fe validator.FieldError) string {
 func msgForTag(tag string) string {
 	switch tag {
 	case "required":
-		return "This field is required"
+		return "this field is required"
 	case "email":
-		return "Invalid email"
+		return "invalid email"
 	case "numeric":
-		return "Invalid numeric"
+		return "invalid numeric"
 	}
 
 	return ""
