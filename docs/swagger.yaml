@@ -56,6 +56,61 @@ definitions:
     - password
     - userName
     type: object
+  services.CustomerAddress:
+    properties:
+      address:
+        type: string
+      address_default:
+        type: boolean
+      amphur:
+        type: string
+      customerId:
+        type: string
+      district:
+        type: string
+      lastName:
+        type: string
+      name:
+        type: string
+      province:
+        type: string
+      tax:
+        type: string
+      tax_default:
+        type: boolean
+      tax_used:
+        type: boolean
+      tel:
+        type: string
+      updatedAt:
+        type: string
+      zipcode:
+        type: integer
+    required:
+    - address
+    - amphur
+    - district
+    - lastName
+    - name
+    - province
+    - tel
+    - zipcode
+    type: object
+  services.UpdateInfoRequest:
+    properties:
+      lastname:
+        type: string
+      mobile:
+        type: string
+      name:
+        type: string
+      updateAt:
+        type: string
+    required:
+    - lastname
+    - mobile
+    - name
+    type: object
   utils.ApiResponse:
     properties:
       message: {}
@@ -250,6 +305,131 @@ paths:
       security:
       - BearerAuth: []
       summary: Get User info
+      tags:
+      - Users
+  /my/{id}:
+    delete:
+      description: Delete user by id
+      parameters:
+      - description: Account ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete user by id
+      tags:
+      - Users
+    get:
+      consumes:
+      - application/json
+      description: get user information by id
+      parameters:
+      - description: Account ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+      security:
+      - BearerAuth: []
+      summary: get user information by id
+      tags:
+      - Users
+    put:
+      description: Update
+      parameters:
+      - description: Account ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Address information
+        in: body
+        name: address
+        required: true
+        schema:
+          $ref: '#/definitions/services.CustomerAddress'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+      summary: Update user address
+      tags:
+      - Users
+  /my/address:
+    post:
+      description: PostNewAddress user by id
+      parameters:
+      - description: Customer Address
+        in: body
+        name: CustomerAddress
+        required: true
+        schema:
+          $ref: '#/definitions/services.CustomerAddress'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+      security:
+      - BearerAuth: []
+      summary: PostNewAddress user by id
+      tags:
+      - Users
+  /my/info:
+    post:
+      description: post method user information update
+      parameters:
+      - description: User information
+        in: body
+        name: userInfo
+        required: true
+        schema:
+          $ref: '#/definitions/services.UpdateInfoRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+      security:
+      - BearerAuth: []
+      summary: update user information
       tags:
       - Users
 schemes:
