@@ -24,7 +24,6 @@ func NewDeviceHandler(deviceService service.DevicesService) DevicesHandler {
 // @Description Get device list
 // @Tags ThingsDevice
 // @Security BearerAuth
-// @Param DeviceRequest body service.DeviceRequest true "Get Device list"
 // @Success 200 {object} utils.ApiResponse{}
 // @Failure 400 {object} utils.ApiResponse{}
 // @Router /devices [get]
@@ -147,5 +146,5 @@ func (h *DevicesHandler) DelDevice(c *gin.Context) {
 		h.resp.BadRequest(c, err.Error())
 		return
 	}
-	h.resp.Success(c, "delete success success")
+	h.resp.Success(c, "delete device success")
 }

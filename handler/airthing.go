@@ -79,7 +79,7 @@ func (h *AirThingHandler) AddAir(c *gin.Context) {
 	airInfo := &service.AirInfo{}
 	err := c.ShouldBindJSON(airInfo)
 	airInfo.UserId = userId.(string)
-	cusErr := utils.NewCustomHandler(c)
+	cusErr := utils.NewErrorHandler(c)
 	if err != nil {
 		cusErr.CustomError(err)
 		return
@@ -108,7 +108,7 @@ func (h *AirThingHandler) UpdateAir(c *gin.Context) {
 	airInfoUpdate := service.UpdateAirInfo{}
 	err := c.ShouldBindJSON(&airInfoUpdate)
 
-	cusErr := utils.NewCustomHandler(c)
+	cusErr := utils.NewErrorHandler(c)
 	if err != nil {
 		cusErr.CustomError(err)
 		return

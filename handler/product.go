@@ -37,7 +37,7 @@ func (h *ProductHandler) GetProduct(c *gin.Context) {
 
 	}
 
-	cusErr := utils.NewCustomHandler(c)
+	cusErr := utils.NewErrorHandler(c)
 	if err != nil {
 
 		cusErr.CustomError(err)
@@ -70,7 +70,7 @@ func (h *ProductHandler) PostProduct(c *gin.Context) {
 
 	productReq := &service.ProductNew{}
 	err := c.ShouldBindJSON(productReq)
-	cusErr := utils.NewCustomHandler(c)
+	cusErr := utils.NewErrorHandler(c)
 	if err != nil {
 		cusErr.CustomError(err)
 		return
@@ -98,7 +98,7 @@ func (h *ProductHandler) UpdateProduct(c *gin.Context) {
 	product := &service.ProductInfo{}
 	serialNo := c.Param("id")
 	err := c.ShouldBindJSON(product)
-	cusErr := utils.NewCustomHandler(c)
+	cusErr := utils.NewErrorHandler(c)
 	if err != nil {
 		cusErr.CustomError(err)
 		return
@@ -122,7 +122,7 @@ func (h *ProductHandler) UpdateProduct(c *gin.Context) {
 
 func (h *ProductHandler) UpdateEWarranty(c *gin.Context) {
 
-	cusErr := utils.NewCustomHandler(c)
+	cusErr := utils.NewErrorHandler(c)
 	productWarranty := &service.ProductWarranty{}
 	err := c.ShouldBindJSON(productWarranty)
 

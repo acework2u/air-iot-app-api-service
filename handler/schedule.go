@@ -41,7 +41,7 @@ func (h *ScheduleHandle) PostScheduleJobs(c *gin.Context) {
 
 	err := c.ShouldBindJSON(jobInfo)
 
-	cusErr := utils.NewCustomHandler(c)
+	cusErr := utils.NewErrorHandler(c)
 	if err != nil {
 		cusErr.CustomError(err)
 		return

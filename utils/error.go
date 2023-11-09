@@ -25,7 +25,7 @@ func ErrorHandler(c *gin.Context) {
 	c.JSON(http.StatusInternalServerError, "")
 }
 
-func NewCustomHandler(ctx *gin.Context) ErrHandler {
+func NewErrorHandler(ctx *gin.Context) ErrHandler {
 	return ErrHandler{ctx: ctx}
 }
 

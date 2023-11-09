@@ -441,17 +441,6 @@ const docTemplate = `{
                     "ThingsDevice"
                 ],
                 "summary": "Get Device list",
-                "parameters": [
-                    {
-                        "description": "Get Device list",
-                        "name": "DeviceRequest",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/services.DeviceRequest"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1044,17 +1033,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "warranty": {
-                    "type": "string"
-                }
-            }
-        },
-        "services.DeviceRequest": {
-            "type": "object",
-            "required": [
-                "userid"
-            ],
-            "properties": {
-                "userid": {
                     "type": "string"
                 }
             }

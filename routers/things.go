@@ -20,7 +20,7 @@ func (rc *ThingController) ThingsRoute(rg *gin.RouterGroup) {
 	router.POST("/upload", rc.thingsHandler.UploadFile)
 	router.GET("/thing/register", rc.thingsHandler.ThingsRegister)
 	router.GET("/thing/connected", rc.thingsHandler.ThingConnect)
-	router.GET("/thing/cert", rc.thingsHandler.ThingsCert)
+	router.GET("/thing/cert", rc.thingsHandler.ThingsPayload)
 	router.GET("/thing/cmd", rc.thingsHandler.CmdThing)
 
 	router.GET("/thing/shadows", rc.thingsHandler.Shadows)
@@ -31,7 +31,7 @@ func (rc *ThingController) ThingsRoute(rg *gin.RouterGroup) {
 	shRouter.GET("/things", rc.thingsHandler.WsShadows)
 	shRouter.POST("/things", rc.thingsHandler.PostCmdShadows)
 
-	wsRouter := rg.Group("/ws")
+	wsRouter := rg.Group("/ws", middleware.CognitoAuthMiddleware())
 	wsRouter.GET("thing/shadows", rc.thingsHandler.WsIoT)
 
 	//router.GET("/things", rc.thingsHandler.ConnectThing)

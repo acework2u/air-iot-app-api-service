@@ -164,13 +164,6 @@ definitions:
     - title
     - warranty
     type: object
-  services.DeviceRequest:
-    properties:
-      userid:
-        type: string
-    required:
-    - userid
-    type: object
   services.ReqUpdateDevice:
     properties:
       model:
@@ -507,13 +500,6 @@ paths:
   /devices:
     get:
       description: Get device list
-      parameters:
-      - description: Get Device list
-        in: body
-        name: DeviceRequest
-        required: true
-        schema:
-          $ref: '#/definitions/services.DeviceRequest'
       responses:
         "200":
           description: OK

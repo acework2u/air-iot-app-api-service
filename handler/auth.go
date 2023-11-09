@@ -179,7 +179,7 @@ func (h *AuthHandler) PostResendConfirmCode(c *gin.Context) {
 func (h *AuthHandler) PostRefreshToken(c *gin.Context) {
 
 	refreshToken := &services.SignInResponse{}
-	custErr := utils.NewCustomHandler(c)
+	custErr := utils.NewErrorHandler(c)
 	err := c.ShouldBindJSON(refreshToken)
 	if err != nil {
 		custErr.CustomError(err)
@@ -218,7 +218,7 @@ func (h *AuthHandler) PostForgotPw(c *gin.Context) {
 	userName := &services.ResendConfirmCode{}
 
 	err := c.ShouldBindJSON(userName)
-	cusErr := utils.NewCustomHandler(c)
+	cusErr := utils.NewErrorHandler(c)
 	if err != nil {
 
 		erList := cusErr.MyErr(err)
@@ -256,7 +256,7 @@ func (h *AuthHandler) PostForgotPw(c *gin.Context) {
 // @Router /auth/confirm-password [post]
 func (h *AuthHandler) PostConfirmNewPassword(c *gin.Context) {
 	confirmReq := services.UserConfirmNewPassword{}
-	customErr := utils.NewCustomHandler(c)
+	customErr := utils.NewErrorHandler(c)
 	err := c.ShouldBindJSON(&confirmReq)
 
 	if err != nil {
@@ -278,7 +278,7 @@ func (h *AuthHandler) PostChangePassword(c *gin.Context) {
 
 	changePasswordReq := services.ChangePasswordReq{}
 	err := c.ShouldBindJSON(&changePasswordReq)
-	custErr := utils.NewCustomHandler(c)
+	custErr := utils.NewErrorHandler(c)
 	if err != nil {
 		custErr.CustomError(err)
 		return
@@ -298,7 +298,7 @@ func (h *AuthHandler) PostChangePassword(c *gin.Context) {
 func (h *AuthHandler) DelCustomer(c *gin.Context) {
 	acsessToken := services.UserDelete{}
 	err := c.ShouldBindJSON(&acsessToken)
-	utils.NewCustomHandler(c)
+	utils.NewErrorHandler(c)
 
 	if err != nil {
 		txtErr := strings.Split(err.Error(), ":")
