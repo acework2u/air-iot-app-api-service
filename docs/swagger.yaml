@@ -143,6 +143,57 @@ definitions:
     - tel
     - zipcode
     type: object
+  services.Device:
+    properties:
+      model:
+        type: string
+      name:
+        type: string
+      serialNo:
+        type: string
+      title:
+        type: string
+      userId:
+        type: string
+      warranty:
+        type: string
+    required:
+    - model
+    - name
+    - serialNo
+    - title
+    - warranty
+    type: object
+  services.DeviceRequest:
+    properties:
+      userid:
+        type: string
+    required:
+    - userid
+    type: object
+  services.ReqUpdateDevice:
+    properties:
+      model:
+        type: string
+      name:
+        type: string
+      serialNo:
+        type: string
+      title:
+        type: string
+      updatedAt:
+        type: string
+      userId:
+        type: string
+      warranty:
+        type: string
+    required:
+    - model
+    - name
+    - serialNo
+    - title
+    - warranty
+    type: object
   services.UpdateAirInfo:
     properties:
       bg:
@@ -357,6 +408,13 @@ paths:
   /auth/refresh-token:
     post:
       description: refresh new user token
+      parameters:
+      - description: refresh a token string
+        in: body
+        name: refresh_token
+        required: true
+        schema:
+          type: string
       produces:
       - application/json
       responses:
@@ -446,6 +504,99 @@ paths:
       summary: User Sign Up
       tags:
       - Authentication
+  /devices:
+    get:
+      description: Get device list
+      parameters:
+      - description: Get Device list
+        in: body
+        name: DeviceRequest
+        required: true
+        schema:
+          $ref: '#/definitions/services.DeviceRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Get Device list
+      tags:
+      - ThingsDevice
+    post:
+      description: user is a new things device
+      parameters:
+      - description: a device information
+        in: body
+        name: DeviceInfo
+        required: true
+        schema:
+          $ref: '#/definitions/services.Device'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+      security:
+      - BearerAuth: []
+      summary: New a Things Device
+      tags:
+      - ThingsDevice
+  /devices/:id:
+    delete:
+      description: Delete a things device
+      parameters:
+      - description: Device id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a things device
+      tags:
+      - ThingsDevice
+    put:
+      description: Update my things device
+      parameters:
+      - description: Update things device
+        in: body
+        name: DeviceInfo
+        required: true
+        schema:
+          $ref: '#/definitions/services.ReqUpdateDevice'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Update my things device
+      tags:
+      - ThingsDevice
   /my:
     get:
       description: Return User Information

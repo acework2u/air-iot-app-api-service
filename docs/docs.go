@@ -290,6 +290,17 @@ const docTemplate = `{
                     "Authentication"
                 ],
                 "summary": "Refresh user token",
+                "parameters": [
+                    {
+                        "description": "refresh a token string",
+                        "name": "refresh_token",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -400,6 +411,156 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/auth.SignUpRequest"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/devices": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get device list",
+                "tags": [
+                    "ThingsDevice"
+                ],
+                "summary": "Get Device list",
+                "parameters": [
+                    {
+                        "description": "Get Device list",
+                        "name": "DeviceRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.DeviceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "user is a new things device",
+                "tags": [
+                    "ThingsDevice"
+                ],
+                "summary": "New a Things Device",
+                "parameters": [
+                    {
+                        "description": "a device information",
+                        "name": "DeviceInfo",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.Device"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/:id": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update my things device",
+                "tags": [
+                    "ThingsDevice"
+                ],
+                "summary": "Update my things device",
+                "parameters": [
+                    {
+                        "description": "Update things device",
+                        "name": "DeviceInfo",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.ReqUpdateDevice"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete a things device",
+                "tags": [
+                    "ThingsDevice"
+                ],
+                "summary": "Delete a things device",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Device id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -854,6 +1015,80 @@ const docTemplate = `{
                 },
                 "zipcode": {
                     "type": "integer"
+                }
+            }
+        },
+        "services.Device": {
+            "type": "object",
+            "required": [
+                "model",
+                "name",
+                "serialNo",
+                "title",
+                "warranty"
+            ],
+            "properties": {
+                "model": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "serialNo": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                },
+                "warranty": {
+                    "type": "string"
+                }
+            }
+        },
+        "services.DeviceRequest": {
+            "type": "object",
+            "required": [
+                "userid"
+            ],
+            "properties": {
+                "userid": {
+                    "type": "string"
+                }
+            }
+        },
+        "services.ReqUpdateDevice": {
+            "type": "object",
+            "required": [
+                "model",
+                "name",
+                "serialNo",
+                "title",
+                "warranty"
+            ],
+            "properties": {
+                "model": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "serialNo": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                },
+                "warranty": {
+                    "type": "string"
                 }
             }
         },

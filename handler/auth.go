@@ -172,6 +172,7 @@ func (h *AuthHandler) PostResendConfirmCode(c *gin.Context) {
 // @Produce json
 // @Tags Authentication
 // @Security BearerAuth
+// @Param refresh_token body string true "refresh a token string"
 // @Success 200 {object} utils.ApiResponse{}
 // @Failure 400 {object} utils.ApiResponse{}
 // @Router /auth/refresh-token [post]
