@@ -12,6 +12,154 @@
     "host": "localhost:8080",
     "basePath": "/api/v1",
     "paths": {
+        "/air/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update Air Information",
+                "tags": [
+                    "AirThings"
+                ],
+                "summary": "Update Air Information",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Acccount ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update air infomation",
+                        "name": "AirInfo",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.UpdateAirInfo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/airs": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get Air list",
+                "tags": [
+                    "AirThings"
+                ],
+                "summary": "Get Air list",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "add a new air things",
+                "tags": [
+                    "AirThings"
+                ],
+                "summary": "add a new air things",
+                "parameters": [
+                    {
+                        "description": "Air information",
+                        "name": "AirInfo",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.AirInfo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/airs/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete Air by Id",
+                "tags": [
+                    "AirThings"
+                ],
+                "summary": "Delete Air by Id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Account ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/confirm": {
             "post": {
                 "description": "New user confirm a sign up",
@@ -579,6 +727,75 @@
                 }
             }
         },
+        "services.AirInfo": {
+            "type": "object",
+            "required": [
+                "serial",
+                "title"
+            ],
+            "properties": {
+                "bg": {
+                    "type": "string"
+                },
+                "registerDate": {
+                    "type": "string"
+                },
+                "serial": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "boolean"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updatedDate": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
+        "services.AirWidget": {
+            "type": "object",
+            "properties": {
+                "energy": {
+                    "type": "boolean"
+                },
+                "engineer": {
+                    "type": "boolean"
+                },
+                "ewarranty": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "fanSpeed": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "filter": {
+                    "type": "boolean"
+                },
+                "mode": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "schedule": {
+                    "type": "boolean"
+                },
+                "sleep": {
+                    "type": "boolean"
+                },
+                "swing": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "ultrafineParticle": {
+                    "type": "boolean"
+                }
+            }
+        },
         "services.CustomerAddress": {
             "type": "object",
             "required": [
@@ -633,6 +850,34 @@
                 },
                 "zipcode": {
                     "type": "integer"
+                }
+            }
+        },
+        "services.UpdateAirInfo": {
+            "type": "object",
+            "required": [
+                "serial",
+                "title",
+                "userId"
+            ],
+            "properties": {
+                "bg": {
+                    "type": "string"
+                },
+                "serial": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updatedDate": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                },
+                "widgets": {
+                    "$ref": "#/definitions/services.AirWidget"
                 }
             }
         },

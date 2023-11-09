@@ -1,11 +1,9 @@
 package handler
 
 import (
-	"fmt"
 	service "github.com/acework2u/air-iot-app-api-service/services"
 	"github.com/acework2u/air-iot-app-api-service/utils"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type AirThingHandler struct {
@@ -22,57 +20,59 @@ func (h *AirThingHandler) GetCerts(c *gin.Context) {
 
 	res, err := h.airThingService.GetCerts(userToken.(string))
 
-	_ = res
-
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": err.Error(),
-		})
+		h.resp.BadRequest(c, err.Error())
+		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": res,
-	})
+	h.resp.Success(c, res)
 }
 func (h *AirThingHandler) Connect(c *gin.Context) {
 
 	TokenID, _ := c.Get("UserAuthToken")
 
-	respCert, _ := h.airThingService.ThingConnect(TokenID.(string))
+	respCert, err := h.airThingService.ThingConnect(TokenID.(string))
 
-	_ = respCert
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": respCert,
-	})
+	if err != nil {
+		h.resp.BadRequest(c, err.Error())
+		return
+	}
+	h.resp.Success(c, respCert)
 }
+
+// GetAirs godoc
+// @Summary Get Air list
+// @Description Get Air list
+// @Tags AirThings
+// @Security BearerAuth
+// @Success 200 {object} utils.ApiResponse{}
+// @Failure 400 {object} utils.ApiResponse{}
+// @Router /airs [get]
 func (h *AirThingHandler) GetAirs(c *gin.Context) {
 
 	userId, _ := c.Get("UserId")
 	if len(userId.(string)) < 0 {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": "no data",
-		})
+		h.resp.BadRequest(c, "field user id is required")
 		return
 	}
-
 	resData, err := h.airThingService.GetAirs(userId.(string))
 
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": err.Error(),
-		})
+		h.resp.BadRequest(c, err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": resData,
-	})
+	h.resp.Success(c, resData)
+
 }
+
+// AddAirThings godoc
+// @Summary add a new air things
+// @Description add a new air things
+// @Tags AirThings
+// @Security BearerAuth
+// @Param AirInfo body service.AirInfo true "Air information"
+// @Success 200 {object} utils.ApiResponse{}
+// @Failure 400 {object} utils.ApiResponse{}
+// @Router /airs [post]
 func (h *AirThingHandler) AddAir(c *gin.Context) {
 
 	userId, _ := c.Get("UserId")
@@ -83,27 +83,31 @@ func (h *AirThingHandler) AddAir(c *gin.Context) {
 	if err != nil {
 		cusErr.CustomError(err)
 		return
-
 	}
 
 	resAir, err := h.airThingService.AddAir(airInfo)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": err.Error(),
-		})
+		h.resp.BadRequest(c, err.Error())
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": resAir,
-	})
+	h.resp.Success(c, resAir)
 }
 
+// UpdateAirThings godoc
+// @Summary Update Air Information
+// @Description Update Air Information
+// @Tags AirThings
+// @Security BearerAuth
+// @Param id path int true "Acccount ID"
+// @Param AirInfo body service.UpdateAirInfo true "Update air infomation"
+// @Success 200 {object} utils.ApiResponse{}
+// @Failure 400 {object} utils.ApiResponse{}
+// @Router /air/{id} [put]
 func (h *AirThingHandler) UpdateAir(c *gin.Context) {
+
 	airInfoUpdate := service.UpdateAirInfo{}
 	err := c.ShouldBindJSON(&airInfoUpdate)
+
 	cusErr := utils.NewCustomHandler(c)
 	if err != nil {
 		cusErr.CustomError(err)
@@ -113,8 +117,6 @@ func (h *AirThingHandler) UpdateAir(c *gin.Context) {
 	id := c.Param("id")
 	userId, _ := c.Get("UserId")
 	airInfoUpdate.UserId = userId.(string)
-	fmt.Println(userId)
-	_ = userId
 
 	filter := &service.FilterUpdate{
 		Id:     id,
@@ -131,6 +133,15 @@ func (h *AirThingHandler) UpdateAir(c *gin.Context) {
 	h.resp.Success(c, airInfoUpdate)
 }
 
+// AirDelete godoc
+// @Summary Delete Air by Id
+// @Description Delete Air by Id
+// @Tags AirThings
+// @Security BearerAuth
+// @Param id path int true "Account ID"
+// @Success 200 {object} utils.ApiResponse{}
+// @Failure 400 {object} utils.ApiResponse{}
+// @Router /airs/{id} [delete]
 func (h *AirThingHandler) DelAir(c *gin.Context) {
 	id := c.Param("id")
 	userId, _ := c.Get("UserId")

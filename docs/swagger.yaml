@@ -56,6 +56,53 @@ definitions:
     - password
     - userName
     type: object
+  services.AirInfo:
+    properties:
+      bg:
+        type: string
+      registerDate:
+        type: string
+      serial:
+        type: string
+      status:
+        type: boolean
+      title:
+        type: string
+      updatedDate:
+        type: string
+      userId:
+        type: string
+    required:
+    - serial
+    - title
+    type: object
+  services.AirWidget:
+    properties:
+      energy:
+        type: boolean
+      engineer:
+        type: boolean
+      ewarranty:
+        default: true
+        type: boolean
+      fanSpeed:
+        default: true
+        type: boolean
+      filter:
+        type: boolean
+      mode:
+        default: true
+        type: boolean
+      schedule:
+        type: boolean
+      sleep:
+        type: boolean
+      swing:
+        default: true
+        type: boolean
+      ultrafineParticle:
+        type: boolean
+    type: object
   services.CustomerAddress:
     properties:
       address:
@@ -96,6 +143,25 @@ definitions:
     - tel
     - zipcode
     type: object
+  services.UpdateAirInfo:
+    properties:
+      bg:
+        type: string
+      serial:
+        type: string
+      title:
+        type: string
+      updatedDate:
+        type: string
+      userId:
+        type: string
+      widgets:
+        $ref: '#/definitions/services.AirWidget'
+    required:
+    - serial
+    - title
+    - userId
+    type: object
   services.UpdateInfoRequest:
     properties:
       lastname:
@@ -124,6 +190,98 @@ info:
   title: Air IoT API Service 2023
   version: "1.0"
 paths:
+  /air/{id}:
+    put:
+      description: Update Air Information
+      parameters:
+      - description: Acccount ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update air infomation
+        in: body
+        name: AirInfo
+        required: true
+        schema:
+          $ref: '#/definitions/services.UpdateAirInfo'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Update Air Information
+      tags:
+      - AirThings
+  /airs:
+    get:
+      description: Get Air list
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Get Air list
+      tags:
+      - AirThings
+    post:
+      description: add a new air things
+      parameters:
+      - description: Air information
+        in: body
+        name: AirInfo
+        required: true
+        schema:
+          $ref: '#/definitions/services.AirInfo'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+      security:
+      - BearerAuth: []
+      summary: add a new air things
+      tags:
+      - AirThings
+  /airs/{id}:
+    delete:
+      description: Delete Air by Id
+      parameters:
+      - description: Account ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete Air by Id
+      tags:
+      - AirThings
   /auth/confirm:
     post:
       description: New user confirm a sign up

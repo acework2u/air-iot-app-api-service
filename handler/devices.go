@@ -18,6 +18,8 @@ func NewDeviceHandler(deviceService service.DevicesService) DevicesHandler {
 	return DevicesHandler{deviceService: deviceService}
 }
 
+// GetDevice godoc
+// @Summary Get Device list
 func (h *DevicesHandler) GetDevice(c *gin.Context) {
 
 	userId, _ := c.Get("UserId")
