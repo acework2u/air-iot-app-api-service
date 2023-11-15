@@ -700,6 +700,31 @@ paths:
       summary: get user information by id
       tags:
       - Users
+  /my/address:
+    post:
+      description: PostNewAddress user by id
+      parameters:
+      - description: Customer Address
+        in: body
+        name: CustomerAddress
+        required: true
+        schema:
+          $ref: '#/definitions/services.CustomerAddress'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+      security:
+      - BearerAuth: []
+      summary: PostNewAddress user by id
+      tags:
+      - Users
+  /my/address/:id:
     put:
       description: Update
       parameters:
@@ -726,30 +751,6 @@ paths:
           schema:
             $ref: '#/definitions/utils.ApiResponse'
       summary: Update user address
-      tags:
-      - Users
-  /my/address:
-    post:
-      description: PostNewAddress user by id
-      parameters:
-      - description: Customer Address
-        in: body
-        name: CustomerAddress
-        required: true
-        schema:
-          $ref: '#/definitions/services.CustomerAddress'
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/utils.ApiResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/utils.ApiResponse'
-      security:
-      - BearerAuth: []
-      summary: PostNewAddress user by id
       tags:
       - Users
   /my/info:

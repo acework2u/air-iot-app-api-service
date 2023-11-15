@@ -235,7 +235,7 @@ func (h *CustomerHandler) PostNewAddress(c *gin.Context) {
 // @Param address body services.CustomerAddress true "Address information"
 // @Success 200 {object} utils.ApiResponse{}
 // @Failure 400 {object} utils.ApiResponse{}
-// @Router /my/{id} [put]
+// @Router /my/address/:id [put]
 func (h *CustomerHandler) UpdateAddress(c *gin.Context) {
 
 	userId, _ := c.Get("UserId")
@@ -252,7 +252,6 @@ func (h *CustomerHandler) UpdateAddress(c *gin.Context) {
 
 	addressInfo.CustomerId = userId.(string)
 	addressInfo.UpdateAt = time.Now()
-
 	cusAddr, err := h.cusService.CustomerUpdateAddress(&filter, &addressInfo)
 	if err != nil {
 		h.res.BadRequest(c, err.Error())
