@@ -69,6 +69,13 @@ definitions:
     - serialNo
     - value
     type: object
+  services.AirCmd:
+    properties:
+      cmd:
+        type: string
+      value:
+        type: string
+    type: object
   services.AirInfo:
     properties:
       bg:
@@ -176,6 +183,35 @@ definitions:
     - serialNo
     - title
     - warranty
+    type: object
+  services.JobScheduleReq:
+    properties:
+      command:
+        items:
+          $ref: '#/definitions/services.AirCmd'
+        type: array
+      createdDate:
+        type: string
+      duration:
+        items:
+          type: string
+        type: array
+      endDate:
+        type: string
+      jobId:
+        type: integer
+      mode:
+        type: string
+      serialNo:
+        type: string
+      startDate:
+        type: string
+      status:
+        type: boolean
+      updatedDate:
+        type: string
+      userId:
+        type: string
     type: object
   services.ReqUpdateDevice:
     properties:
@@ -740,6 +776,50 @@ paths:
       summary: update user information
       tags:
       - Users
+  /schedule:
+    get:
+      description: get a schedule job air things
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+      security:
+      - BearerAuth: []
+      summary: get a schedule job air things
+      tags:
+      - AirScheduleJobs
+    post:
+      description: add a new job for Schedule
+      parameters:
+      - description: air scheule job
+        in: body
+        name: jobScheduleReq
+        required: true
+        schema:
+          $ref: '#/definitions/services.JobScheduleReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+      security:
+      - BearerAuth: []
+      summary: add a new job for Schedule
+      tags:
+      - AirScheduleJobs
   /thing/shadows:
     post:
       description: Air things shadows command

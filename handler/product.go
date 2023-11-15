@@ -4,15 +4,15 @@ import (
 	service "github.com/acework2u/air-iot-app-api-service/services"
 	"github.com/acework2u/air-iot-app-api-service/utils"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type ProductHandler struct {
 	productService service.ProductService
+	resp           utils.Response
 }
 
 func NewProductHandler(productService service.ProductService) ProductHandler {
-	return ProductHandler{productService: productService}
+	return ProductHandler{productService: productService, resp: utils.Response{}}
 }
 
 func (h *ProductHandler) GetProduct(c *gin.Context) {
@@ -20,50 +20,35 @@ func (h *ProductHandler) GetProduct(c *gin.Context) {
 	serialNo := c.Param("id")
 
 	if len(serialNo) < 0 {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": "serial lte 10  is required ",
-		})
+		h.resp.BadRequest(c, "serial lte 10  is required")
 		return
 	}
 
 	productInfo, err := h.productService.GetProduct(serialNo)
 
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": "no documents in result",
-		})
-
+		h.resp.BadRequest(c, "no document in result")
+		return
 	}
 
 	cusErr := utils.NewErrorHandler(c)
 	if err != nil {
-
 		cusErr.CustomError(err)
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": productInfo,
-	})
+	// Success
+	h.resp.Success(c, productInfo)
 }
 
 func (h *ProductHandler) GetProducts(c *gin.Context) {
 
 	products, err := h.productService.GetProducts()
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": err.Error(),
-		})
+		h.resp.BadRequest(c, err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": products,
-	})
+	// Success
+	h.resp.Success(c, products)
 }
 
 func (h *ProductHandler) PostProduct(c *gin.Context) {
@@ -80,17 +65,11 @@ func (h *ProductHandler) PostProduct(c *gin.Context) {
 	res, err := h.productService.CreateProduct(productReq)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": err.Error(),
-		})
+		h.resp.BadRequest(c, err.Error())
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": res,
-	})
+	// Success
+	h.resp.Success(c, res)
 }
 
 func (h *ProductHandler) UpdateProduct(c *gin.Context) {
@@ -107,17 +86,11 @@ func (h *ProductHandler) UpdateProduct(c *gin.Context) {
 	// Update
 	productResponse, err := h.productService.UpdateProduct(serialNo, product)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": err.Error(),
-		})
+		h.resp.BadRequest(c, err.Error())
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": productResponse,
-	})
+	// Success
+	h.resp.Success(c, productResponse)
 }
 
 func (h *ProductHandler) UpdateEWarranty(c *gin.Context) {
@@ -132,20 +105,14 @@ func (h *ProductHandler) UpdateEWarranty(c *gin.Context) {
 	}
 	serialNo := productWarranty.SerialNo
 
-	regwarranty, err := h.productService.UpdateEWarranty(serialNo)
+	regWarranty, err := h.productService.UpdateEWarranty(serialNo)
 
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": "no product in result",
-		})
+		h.resp.BadRequest(c, "no product in result")
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": regwarranty.EWarranty,
-	})
+	// Success
+	h.resp.Success(c, regWarranty.EWarranty)
 }
 
 func (h *ProductHandler) DelProduct(c *gin.Context) {
@@ -155,21 +122,12 @@ func (h *ProductHandler) DelProduct(c *gin.Context) {
 	if len(serial) > 0 {
 		err := h.productService.DeleteProduct(serial)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-				"status":  http.StatusBadRequest,
-				"message": err.Error(),
-			})
+			h.resp.BadRequest(c, err.Error())
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{
-			"status":  http.StatusOK,
-			"message": "delete successful",
-		})
+		//Success
+		h.resp.Success(c, "delete successful")
 		return
 	}
-	c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-		"status":  http.StatusBadRequest,
-		"message": "serial no is wrong",
-	})
-
+	h.resp.BadRequest(c, "serial number id wrong")
 }

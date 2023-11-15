@@ -5,6 +5,7 @@ import (
 	"github.com/acework2u/air-iot-app-api-service/services"
 	"github.com/acework2u/air-iot-app-api-service/utils"
 	"github.com/gin-gonic/gin"
+	"log"
 	"time"
 )
 
@@ -257,6 +258,7 @@ func (h *CustomerHandler) UpdateAddress(c *gin.Context) {
 		h.res.BadRequest(c, err.Error())
 		return
 	}
-	fmt.Println(cusAddr)
+	log.Println(cusAddr)
+	//fmt.Println(cusAddr)
 	h.res.Success(c, cusAddr)
 }

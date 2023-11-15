@@ -4,27 +4,26 @@ import (
 	"encoding/json"
 	"fmt"
 	airs "github.com/acework2u/air-iot-app-api-service/services/airiot"
+	"github.com/acework2u/air-iot-app-api-service/utils"
 	"github.com/gin-gonic/gin"
-	"net/http"
+	"log"
 )
 
 type AirIotHandler struct {
 	airIoTService airs.AirIoTService
+	resp          utils.Response
 }
 
 func NewAirIoTHandler(airIoTService airs.AirIoTService) AirIotHandler {
 
-	return AirIotHandler{airIoTService: airIoTService}
+	return AirIotHandler{airIoTService: airIoTService, resp: utils.Response{}}
 }
 func (h *AirIotHandler) GetIndoor(c *gin.Context) {
 
 	req := &airs.AirRq{}
 	err := c.ShouldBindJSON(req)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": err.Error(),
-		})
+		h.resp.BadRequest(c, err.Error())
 		return
 	}
 
@@ -33,27 +32,17 @@ func (h *AirIotHandler) GetIndoor(c *gin.Context) {
 
 	indoor, err := h.airIoTService.GetIndoorVal(serial, shadowsName)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": err.Error(),
-		})
+		h.resp.BadRequest(c, err.Error())
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": indoor,
-	})
+	h.resp.Success(c, indoor)
 }
 func (h *AirIotHandler) GetShadowsDoc(c *gin.Context) {
 
 	req := &airs.AirRq{}
 	err := c.ShouldBindJSON(req)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": err.Error(),
-		})
+		h.resp.BadRequest(c, err.Error())
 		return
 	}
 
@@ -62,98 +51,63 @@ func (h *AirIotHandler) GetShadowsDoc(c *gin.Context) {
 
 	indoor, err := h.airIoTService.GetShadowsDocument(serial, shadowsName)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": err.Error(),
-		})
+		h.resp.BadRequest(c, err.Error())
 		return
 	}
 
-	fmt.Println(indoor)
+	//fmt.Println(indoor)
+	h.resp.Success(c, indoor)
 
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": indoor,
-	})
 }
 func (h *AirIotHandler) CheckDefault(c *gin.Context) {
 
 	indoor, err := h.airIoTService.CheckAwsDefault()
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": err.Error(),
-		})
+		h.resp.BadRequest(c, err.Error())
 		return
 	}
-
-	fmt.Println(indoor)
-
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": indoor,
-	})
+	//fmt.Println(indoor)
+	h.resp.Success(c, indoor)
 }
 func (h *AirIotHandler) CheckProduction(c *gin.Context) {
 	indoor, err := h.airIoTService.CheckAwsDefault()
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": err.Error(),
-		})
+		h.resp.BadRequest(c, err.Error())
 		return
 	}
-
-	fmt.Println(indoor)
-
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": indoor,
-	})
+	//fmt.Println(indoor)
+	h.resp.Success(c, indoor)
 
 }
 func (h *AirIotHandler) CheckAWS(c *gin.Context) {
 	indoor, err := h.airIoTService.CheckAws()
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": err.Error(),
-		})
+		h.resp.BadRequest(c, err.Error())
 		return
 	}
-
-	fmt.Println(indoor)
-
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": indoor,
-	})
+	//fmt.Println(indoor)
+	h.resp.Success(c, indoor)
 
 }
 func (h *AirIotHandler) WsIoT(c *gin.Context) {
-	//conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
-	//if err != nil {
-	//	return
-	//}
-	//defer conn.Close()
-
 	ws, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		fmt.Println(err)
+		//fmt.Println(err)
+		log.Println(err)
 		return
 	}
 	defer ws.Close()
 	for {
 		mt, message, err := ws.ReadMessage()
+		_ = message
 		if err != nil {
-			fmt.Println(err)
+			//fmt.Println(err)
+			log.Println(err)
 			return
-			//break
 		}
-		fmt.Println("Ws Working...")
-		fmt.Println(message)
-		msg := fmt.Sprintf("WIOT OK")
-		ok, _ := json.Marshal(msg)
+		log.Println("Ws Working...")
+		//msg := fmt.Sprintf("WIOT OK")
+		ok, _ := json.Marshal(message)
 		ws.WriteMessage(mt, ok)
 	}
 
@@ -164,10 +118,7 @@ func (h *AirIotHandler) MqSubShadows(c *gin.Context) {
 
 	err := c.ShouldBindJSON(airSerial)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": err.Error(),
-		})
+		h.resp.BadRequest(c, err.Error())
 		return
 	}
 	serial := fmt.Sprintf("%s", airSerial.Serial)
@@ -175,17 +126,11 @@ func (h *AirIotHandler) MqSubShadows(c *gin.Context) {
 
 	res, err := h.airIoTService.ShadowsAir(clientId, serial)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"message": err.Error(),
-		})
+		h.resp.BadRequest(c, err.Error())
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": res,
-	})
+	// Success
+	h.resp.Success(c, res)
 }
 func (h *AirIotHandler) Ws2Indoor(c *gin.Context) {
 
@@ -193,7 +138,8 @@ func (h *AirIotHandler) Ws2Indoor(c *gin.Context) {
 
 	ws, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		fmt.Println(err)
+		//fmt.Println(err)
+		log.Println(err)
 		return
 	}
 	defer ws.Close()
@@ -215,6 +161,9 @@ func (h *AirIotHandler) Ws2Indoor(c *gin.Context) {
 		h.airIoTService.Ws2HandleReceiveMessage(client, msgType, msg)
 	}
 
+	dataId := fmt.Sprintf("Ws indoor %s", userID.(string))
+	h.resp.Success(c, dataId)
+
 	//for {
 	//	//Read Message from client
 	//	mt, message, err := ws.ReadMessage()
@@ -234,10 +183,6 @@ func (h *AirIotHandler) Ws2Indoor(c *gin.Context) {
 	//	}
 	//}
 
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": "Ws2 Indoor" + userID.(string),
-	})
 }
 func (h *AirIotHandler) AcIndoor(c *gin.Context) {
 
@@ -246,14 +191,9 @@ func (h *AirIotHandler) AcIndoor(c *gin.Context) {
 	//res, err := h.airIoTService.Airlist(userID.(string))
 	err := h.airIoTService.CheckMyAc(userID.(string), "23F01000006")
 	if !err {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": err,
-		})
+		h.resp.BadRequest(c, err)
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"status":  http.StatusOK,
-		"message": err,
-	})
+	// is True
+	h.resp.Success(c, err)
 }

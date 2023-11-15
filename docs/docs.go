@@ -797,6 +797,77 @@ const docTemplate = `{
                 }
             }
         },
+        "/schedule": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "get a schedule job air things",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AirScheduleJobs"
+                ],
+                "summary": "get a schedule job air things",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "add a new job for Schedule",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AirScheduleJobs"
+                ],
+                "summary": "add a new job for Schedule",
+                "parameters": [
+                    {
+                        "description": "air scheule job",
+                        "name": "jobScheduleReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.JobScheduleReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/thing/shadows": {
             "post": {
                 "security": [
@@ -932,6 +1003,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "serialNo": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "services.AirCmd": {
+            "type": "object",
+            "properties": {
+                "cmd": {
                     "type": "string"
                 },
                 "value": {
@@ -1091,6 +1173,50 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "warranty": {
+                    "type": "string"
+                }
+            }
+        },
+        "services.JobScheduleReq": {
+            "type": "object",
+            "properties": {
+                "command": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/services.AirCmd"
+                    }
+                },
+                "createdDate": {
+                    "type": "string"
+                },
+                "duration": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "endDate": {
+                    "type": "string"
+                },
+                "jobId": {
+                    "type": "integer"
+                },
+                "mode": {
+                    "type": "string"
+                },
+                "serialNo": {
+                    "type": "string"
+                },
+                "startDate": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "boolean"
+                },
+                "updatedDate": {
+                    "type": "string"
+                },
+                "userId": {
                     "type": "string"
                 }
             }
