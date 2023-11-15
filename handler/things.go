@@ -195,20 +195,17 @@ func (h *ThingsHandler) PostShadows(c *gin.Context) {
 func (h *ThingsHandler) Shadows(c *gin.Context) {
 	//userID, _ := c.Get("UserId")
 	userID, _ := c.Get("UserSub")
-	res := ""
-	resShadows, _ := h.thingsService.ThinksShadows(userID.(string), res)
-
-	shadows, err := utils.GetClaimsFromToken(resShadows.State.Reported.Message)
+	deviceSn := c.Param("device_sn")
+	//cogintoId := "646c33ba0e5800006e000abd"
+	cogintoId := userID.(string)
+	fmt.Println(cogintoId)
+	val, err := h.thingsService.ThinksShadows(cogintoId, deviceSn)
 	if err != nil {
 		h.resp.BadRequest(c, err.Error())
 		return
 	}
-	reg1000 := shadows["data"].(map[string]interface{})["reg1000"].(string)
-	acVal := utils.NewGetAcVal(reg1000)
-	ac1000 := acVal.Ac1000()
 
-	// Success
-	h.resp.Success(c, ac1000)
+	h.resp.Success(c, val)
 
 }
 

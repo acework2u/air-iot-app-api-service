@@ -2,7 +2,6 @@ package services
 
 import (
 	"github.com/aws/aws-sdk-go-v2/service/iotdataplane"
-	mqtt "github.com/tech-sumit/aws-iot-device-sdk-go"
 	"mime/multipart"
 )
 
@@ -40,6 +39,22 @@ type (
 		FanSpeed string `json:"fanSpeed,omitempty"`
 		Louver   string `json:"louver,omitempty"`
 	}
+	ShadowsAccepted struct {
+		State struct {
+			Reported struct {
+				Message string `json:"message"`
+			} `json:"reported"`
+		} `json:"state"`
+		Metadata struct {
+			Reported struct {
+				Message struct {
+					Timestamp int `json:"timestamp"`
+				} `json:"message"`
+			} `json:"reported"`
+		} `json:"metadata"`
+		Version   int `json:"version"`
+		Timestamp int `json:"timestamp"`
+	}
 )
 
 type ThinksService interface {
@@ -50,7 +65,7 @@ type ThinksService interface {
 	ThingsConnected(idToken string, thing string) (*iotdataplane.PublishOutput, error)
 	ThingsCert(idToken string) (interface{}, error)
 	ThinksShadows(idToken string, rs string) (*ShadowsValue, error)
-	NewAwsMqttConnect(cognitoId string) (*mqtt.AWSIoTConnection, error)
+	NewAwsMqttConnect(cognitoId string) error
 	PubGetShadows(thinkName string, shadowName string) (*IndoorInfo, error)
 	PubUpdateShadows(thinkName string, payload string) (*IndoorInfo, error)
 }

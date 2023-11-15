@@ -796,6 +796,45 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/thing/shadows": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Air things shadows command",
+                "tags": [
+                    "AirThingsCommand"
+                ],
+                "summary": "Air things shadows command",
+                "parameters": [
+                    {
+                        "description": "Air cmd request",
+                        "name": "AirCommandReq",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.airCmdReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -877,6 +916,25 @@ const docTemplate = `{
                     "minLength": 1
                 },
                 "userName": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.airCmdReq": {
+            "type": "object",
+            "required": [
+                "cmd",
+                "serialNo",
+                "value"
+            ],
+            "properties": {
+                "cmd": {
+                    "type": "string"
+                },
+                "serialNo": {
+                    "type": "string"
+                },
+                "value": {
                     "type": "string"
                 }
             }

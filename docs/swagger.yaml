@@ -56,6 +56,19 @@ definitions:
     - password
     - userName
     type: object
+  handler.airCmdReq:
+    properties:
+      cmd:
+        type: string
+      serialNo:
+        type: string
+      value:
+        type: string
+    required:
+    - cmd
+    - serialNo
+    - value
+    type: object
   services.AirInfo:
     properties:
       bg:
@@ -727,6 +740,30 @@ paths:
       summary: update user information
       tags:
       - Users
+  /thing/shadows:
+    post:
+      description: Air things shadows command
+      parameters:
+      - description: Air cmd request
+        in: body
+        name: AirCommandReq
+        required: true
+        schema:
+          $ref: '#/definitions/handler.airCmdReq'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiResponse'
+      security:
+      - BearerAuth: []
+      summary: Air things shadows command
+      tags:
+      - AirThingsCommand
 schemes:
 - http
 securityDefinitions:

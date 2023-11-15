@@ -22,10 +22,11 @@ func (rc *ThingController) ThingsRoute(rg *gin.RouterGroup) {
 	router.GET("/thing/connected", rc.thingsHandler.ThingConnect)
 	router.GET("/thing/cert", rc.thingsHandler.ThingsPayload)
 	router.GET("/thing/cmd", rc.thingsHandler.CmdThing)
-
-	router.GET("/thing/shadows", rc.thingsHandler.Shadows)
-
 	router.POST("/thing/shadows", rc.thingsHandler.PostShadows)
+
+	rtg2 := rg.Group("/thing", middleware.CognitoAuthMiddleware())
+	rtg2.GET("/:device_sn/shadows", rc.thingsHandler.Shadows)
+	rtg2.POST("/shadows", rc.thingsHandler.PostShadows)
 
 	shRouter := rg.Group("/shadows")
 	shRouter.GET("/things", rc.thingsHandler.WsShadows)
