@@ -141,7 +141,7 @@ func roomTemp(val int) string {
 	}
 
 	val2 := float64(val)
-	tempVal := val2 / 2
+	tempVal := val2 / 4
 	s := fmt.Sprintf("%3.1f", tempVal)
 	displayTxt = s
 
