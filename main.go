@@ -10,6 +10,7 @@ import (
 	conf "github.com/acework2u/air-iot-app-api-service/config"
 	"github.com/acework2u/air-iot-app-api-service/configs"
 	"github.com/acework2u/air-iot-app-api-service/handler"
+	"github.com/acework2u/air-iot-app-api-service/handler/smartapp"
 	"github.com/acework2u/air-iot-app-api-service/repository"
 	"github.com/acework2u/air-iot-app-api-service/routers"
 	service "github.com/acework2u/air-iot-app-api-service/services"
@@ -79,6 +80,10 @@ var (
 	//Schedule
 	ScheduleHandler handler.ScheduleHandle
 	ScheduleRouter  routers.ScheduleRouter
+
+	//SmartApp
+	AcErrorCodeHandler smartapp.ErrorCodeHandler
+	AcErrorCodeRouter  routers.AcErrorCodeRouter
 )
 
 func init() {
@@ -176,6 +181,10 @@ func init() {
 	ScheduleHandler = handler.NewScheduleHandler(scheduleService)
 	ScheduleRouter = routers.NewScheduleRouter(ScheduleHandler)
 
+	//SmartApp
+	AcErrorCodeHandler = smartapp.NewErrorCodeHandler()
+	AcErrorCodeRouter = routers.NewAcErrorCodeRouter(AcErrorCodeHandler)
+
 	_ = scheduleService
 
 	_ = scheduleRepo
@@ -227,6 +236,7 @@ func startGinServer(config conf.Config) {
 
 	//Production
 	router := server.Group("/api/v1")
+
 	// Add Swagger
 	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
@@ -247,6 +257,10 @@ func startGinServer(config conf.Config) {
 	AirIoTRouter.AirIoTRoute(router)
 	JobsRouter.JobsRoute(router)
 	ScheduleRouter.ScheduleRoute(router)
+
+	//E-Service
+	router2 := server.Group("/smart/app/v1")
+	AcErrorCodeRouter.ErrorCodeRoute(router2)
 
 	// Pro
 	//routerPro := server.Group("/api/v2")

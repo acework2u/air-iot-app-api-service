@@ -22,3 +22,6 @@ test-linux:
 
 api-docs:
 	swag init
+
+dev-app-api:
+	@go run cmd/app/main.go
