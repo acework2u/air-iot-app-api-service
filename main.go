@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"github.com/acework2u/air-iot-app-api-service/middleware"
 	airIotService "github.com/acework2u/air-iot-app-api-service/services/airiot"
+	"github.com/uptrace/bun"
 	"log"
 	"net/http"
 
@@ -12,10 +14,12 @@ import (
 	"github.com/acework2u/air-iot-app-api-service/handler"
 	"github.com/acework2u/air-iot-app-api-service/handler/smartapp"
 	"github.com/acework2u/air-iot-app-api-service/repository"
+	smartapp_repo "github.com/acework2u/air-iot-app-api-service/repository/smartapp"
 	"github.com/acework2u/air-iot-app-api-service/routers"
 	service "github.com/acework2u/air-iot-app-api-service/services"
 	"github.com/acework2u/air-iot-app-api-service/services/auth"
 	clientCog "github.com/acework2u/air-iot-app-api-service/services/clientcoginto"
+	smartapp_s "github.com/acework2u/air-iot-app-api-service/services/smartapp"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
@@ -32,6 +36,9 @@ var (
 	server      *gin.Engine
 	ctx         context.Context
 	mongoclient *mongo.Client
+
+	Db2 *bun.DB
+	DB  *sql.DB
 
 	userCollection      *mongo.Collection
 	customerCollection  *mongo.Collection
@@ -182,7 +189,17 @@ func init() {
 	ScheduleRouter = routers.NewScheduleRouter(ScheduleHandler)
 
 	//SmartApp
-	AcErrorCodeHandler = smartapp.NewErrorCodeHandler()
+	Db, _ := configs.ConnectToMariaDB()
+	Db2, ok := configs.SmartConnect()
+	if ok != nil {
+		log.Fatal(ok)
+	}
+
+	_ = Db2
+
+	acErrRepo := smartapp_repo.NewAcErrorCodeRepo(Db)
+	acErrorService := smartapp_s.NewAcErrorService(acErrRepo)
+	AcErrorCodeHandler = smartapp.NewErrorCodeHandler(acErrorService)
 	AcErrorCodeRouter = routers.NewAcErrorCodeRouter(AcErrorCodeHandler)
 
 	_ = scheduleService
