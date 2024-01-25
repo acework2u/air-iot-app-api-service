@@ -31,3 +31,24 @@ func (s *acErrorService) GetErrorByCode(code int) (*APIErrorCode, error) {
 
 	return &errInfo, nil
 }
+
+func (s *acErrorService) GetErrors() ([]APIErrorCode, error) {
+
+	rows, err := s.acErrRepo.AcErrorCodeList()
+	if err != nil {
+		return nil, err
+	}
+	res := []APIErrorCode{}
+	for _, items := range rows {
+		item := APIErrorCode{
+			Code:   items.Code,
+			Unit:   items.Unit,
+			Title:  items.Title,
+			Detail: items.Detail,
+			Video:  items.UrlVideo,
+			Web:    items.UrlWeb,
+		}
+		res = append(res, item)
+	}
+	return res, nil
+}

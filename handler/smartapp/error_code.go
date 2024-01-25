@@ -19,6 +19,16 @@ func NewErrorCodeHandler(acErrService smartapp.AcErrorService) ErrorCodeHandler 
 
 func (h *ErrorCodeHandler) GetErrorCode(c *gin.Context) {
 
+	res, err := h.acErrService.GetErrors()
+	if err != nil {
+		h.resp.BadRequest(c, err.Error())
+		return
+	}
+	h.resp.Success(c, res)
+}
+
+func (h *ErrorCodeHandler) GetErrorByCode(c *gin.Context) {
+
 	errCode, _ := strconv.Atoi(c.Param("code"))
 
 	fmt.Println("Error Code", errCode)
@@ -28,10 +38,4 @@ func (h *ErrorCodeHandler) GetErrorCode(c *gin.Context) {
 		return
 	}
 	h.resp.Success(c, res)
-
-	//h.resp.Success(c, "Error Code Handler OK")
-}
-
-func (h *ErrorCodeHandler) GetErrorByCode(c *gin.Context) {
-
 }

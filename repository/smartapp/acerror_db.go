@@ -39,18 +39,11 @@ func (r *acErrorRepo) GetErrorCode(code int) (*ErrorCode, error) {
 	return nil, res.Error
 }
 
-//func (r *acErrorRepo) GetErrorCode(code int) (*AcErrorCodeInfo, error) {
-//
-//	fmt.Println("IN Repo code id", code)
-//	query := "select code_id,unit,title from error_code where code_id=?"
-//	row := r.db.QueryRow(query, code)
-//	//defer r.db.Close()
-//
-//	acErr := AcErrorCodeInfo{}
-//	err := row.Scan(&acErr.ID, &acErr.Unit, &acErr.Title)
-//	if err != nil {
-//		return nil, err
-//	}
-//	return &acErr, err
-//
-//}
+func (r *acErrorRepo) AcErrorCodeList() ([]ErrorCode, error) {
+	acErrors := []ErrorCode{}
+	res := r.db.Find(&acErrors)
+	if res.RowsAffected > 0 {
+		return acErrors, nil
+	}
+	return nil, res.Error
+}

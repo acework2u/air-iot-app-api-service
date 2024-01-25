@@ -31,4 +31,5 @@ type ErrorCode struct {
 
 type AcErrorCodeRepo interface {
 	GetErrorCode(code int) (*ErrorCode, error)
+	AcErrorCodeList() ([]ErrorCode, error)
 }

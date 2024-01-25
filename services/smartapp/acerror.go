@@ -20,4 +20,5 @@ type APIErrorCode struct {
 
 type AcErrorService interface {
 	GetErrorByCode(code int) (*APIErrorCode, error)
+	GetErrors() ([]APIErrorCode, error)
 }

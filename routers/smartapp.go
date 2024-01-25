@@ -16,6 +16,6 @@ func NewAcErrorCodeRouter(errorCodeHandler smartapp.ErrorCodeHandler) AcErrorCod
 func (rt *AcErrorCodeRouter) ErrorCodeRoute(rg *gin.RouterGroup) {
 	router := rg.Group("/error-code")
 	router.GET("", rt.errorCodeHandler.GetErrorCode)
-	router.GET("/:code", rt.errorCodeHandler.GetErrorCode)
+	router.GET("/:code", rt.errorCodeHandler.GetErrorByCode)
 
 }
