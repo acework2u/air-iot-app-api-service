@@ -1,7 +1,7 @@
 package smartapp
 
 import (
-	"fmt"
+	"errors"
 	acrepo "github.com/acework2u/air-iot-app-api-service/repository/smartapp"
 )
 
@@ -13,15 +13,21 @@ func NewAcErrorService(acErrRepo acrepo.AcErrorCodeRepo) AcErrorService {
 	return &acErrorService{acErrRepo}
 }
 
-func (s *acErrorService) GetErrorByCode(code int) (*AcErrorInfo, error) {
+func (s *acErrorService) GetErrorByCode(code int) (*APIErrorCode, error) {
 
-	errInfo := AcErrorInfo{}
+	errInfo := APIErrorCode{}
 	rows, err := s.acErrRepo.GetErrorCode(code)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("Error code ไม่ถูกต้อง หรือ ไม่มีข้อมูลนี้ในระบบ")
 	}
-	errInfo = AcErrorInfo{ID: rows.ID, Unit: rows.Unit, Title: rows.Title}
-	fmt.Println(rows)
+	errInfo = APIErrorCode{
+		Code:   rows.Code,
+		Unit:   rows.Unit,
+		Title:  rows.Title,
+		Detail: rows.Detail,
+		Video:  rows.UrlVideo,
+		Web:    rows.UrlWeb,
+	}
 
 	return &errInfo, nil
 }

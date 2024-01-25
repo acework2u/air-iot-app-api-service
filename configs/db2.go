@@ -5,6 +5,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/mysqldialect"
+	"gorm.io/gorm"
 )
 
 func SmartConnect() (*bun.DB, error) {
@@ -36,4 +37,10 @@ func ConnectToMariaDB() (*sql.DB, error) {
 		return nil, err
 	}
 	return db, nil
+}
+
+func DbConn[T sql.DB | bun.DB | gorm.DB](sb *T) (*T, error) {
+
+	return sb, nil
+
 }

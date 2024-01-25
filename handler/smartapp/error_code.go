@@ -1,9 +1,11 @@
 package smartapp
 
 import (
+	"fmt"
 	"github.com/acework2u/air-iot-app-api-service/services/smartapp"
 	"github.com/acework2u/air-iot-app-api-service/utils"
 	"github.com/gin-gonic/gin"
+	"strconv"
 )
 
 type ErrorCodeHandler struct {
@@ -16,8 +18,11 @@ func NewErrorCodeHandler(acErrService smartapp.AcErrorService) ErrorCodeHandler 
 }
 
 func (h *ErrorCodeHandler) GetErrorCode(c *gin.Context) {
-	id := 2
-	res, err := h.acErrService.GetErrorByCode(id)
+
+	errCode, _ := strconv.Atoi(c.Param("code"))
+
+	fmt.Println("Error Code", errCode)
+	res, err := h.acErrService.GetErrorByCode(errCode)
 	if err != nil {
 		h.resp.BadRequest(c, err.Error())
 		return

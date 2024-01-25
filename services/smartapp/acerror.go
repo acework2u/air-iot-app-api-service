@@ -9,7 +9,15 @@ type AcErrorInfo struct {
 	Unit  string `bun:"unit" json:"unit"`
 	Title string `bun:"title" json:"title"`
 }
+type APIErrorCode struct {
+	Code   int64
+	Unit   string
+	Title  string
+	Detail string
+	Video  string
+	Web    string
+}
 
 type AcErrorService interface {
-	GetErrorByCode(code int) (*AcErrorInfo, error)
+	GetErrorByCode(code int) (*APIErrorCode, error)
 }

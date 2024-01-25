@@ -39,6 +39,8 @@ require (
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/uptrace/bun v1.1.17
 	github.com/uptrace/bun/dialect/mysqldialect v1.1.17
+	gorm.io/driver/mysql v1.5.2
+	gorm.io/gorm v1.25.5
 )
 
 require (
@@ -119,6 +121,4 @@ require (
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	gorm.io/driver/mysql v1.5.2 // indirect
-	gorm.io/gorm v1.25.5 // indirect
 )

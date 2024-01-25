@@ -6,6 +6,7 @@ import (
 	"github.com/acework2u/air-iot-app-api-service/middleware"
 	airIotService "github.com/acework2u/air-iot-app-api-service/services/airiot"
 	"github.com/uptrace/bun"
+	"gorm.io/gorm"
 	"log"
 	"net/http"
 
@@ -14,12 +15,12 @@ import (
 	"github.com/acework2u/air-iot-app-api-service/handler"
 	"github.com/acework2u/air-iot-app-api-service/handler/smartapp"
 	"github.com/acework2u/air-iot-app-api-service/repository"
-	smartapp_repo "github.com/acework2u/air-iot-app-api-service/repository/smartapp"
+	smartAppRepo "github.com/acework2u/air-iot-app-api-service/repository/smartapp"
 	"github.com/acework2u/air-iot-app-api-service/routers"
 	service "github.com/acework2u/air-iot-app-api-service/services"
 	"github.com/acework2u/air-iot-app-api-service/services/auth"
 	clientCog "github.com/acework2u/air-iot-app-api-service/services/clientcoginto"
-	smartapp_s "github.com/acework2u/air-iot-app-api-service/services/smartapp"
+	smartAppService "github.com/acework2u/air-iot-app-api-service/services/smartapp"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
@@ -37,8 +38,9 @@ var (
 	ctx         context.Context
 	mongoclient *mongo.Client
 
+	Db  *sql.DB
 	Db2 *bun.DB
-	DB  *sql.DB
+	Db3 *gorm.DB
 
 	userCollection      *mongo.Collection
 	customerCollection  *mongo.Collection
@@ -189,16 +191,17 @@ func init() {
 	ScheduleRouter = routers.NewScheduleRouter(ScheduleHandler)
 
 	//SmartApp
-	Db, _ := configs.ConnectToMariaDB()
-	Db2, ok := configs.SmartConnect()
+	//Db, _ = configs.ConnectToMariaDB()
+	//Db2, ok := configs.SmartConnect()
+	Db3, ok := configs.Db3Connect()
 	if ok != nil {
 		log.Fatal(ok)
 	}
 
 	_ = Db2
 
-	acErrRepo := smartapp_repo.NewAcErrorCodeRepo(Db)
-	acErrorService := smartapp_s.NewAcErrorService(acErrRepo)
+	acErrRepo := smartAppRepo.NewAcErrorCodeRepo(Db3)
+	acErrorService := smartAppService.NewAcErrorService(acErrRepo)
 	AcErrorCodeHandler = smartapp.NewErrorCodeHandler(acErrorService)
 	AcErrorCodeRouter = routers.NewAcErrorCodeRouter(AcErrorCodeHandler)
 
