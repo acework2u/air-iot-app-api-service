@@ -49,6 +49,8 @@ var (
 	productCollection   *mongo.Collection
 	airThingsCollection *mongo.Collection
 	scheduleCollection  *mongo.Collection
+	// Ac
+	productBomCollection *mongo.Collection
 
 	// UserRouterCtl routers.UserRouteController
 	UserRouterCtl  handler.UserHandler
@@ -93,6 +95,8 @@ var (
 	//SmartApp
 	AcErrorCodeHandler smartapp.ErrorCodeHandler
 	AcErrorCodeRouter  routers.AcErrorCodeRouter
+	AcCompHandler      smartapp.CompressorHandler
+	AcCompRouter       routers.AcCompressorRouter
 )
 
 func init() {
@@ -204,6 +208,12 @@ func init() {
 	acErrorService := smartAppService.NewAcErrorService(acErrRepo)
 	AcErrorCodeHandler = smartapp.NewErrorCodeHandler(acErrorService)
 	AcErrorCodeRouter = routers.NewAcErrorCodeRouter(AcErrorCodeHandler)
+	// AcCheck Compressor
+	productBomCollection = configs.GetCollection(mongoclient, "product_bom")
+	acCompRepo := smartAppRepo.NewBomRepository(ctx, productBomCollection)
+	acCompService := smartAppService.NewBomService(acCompRepo)
+	AcCompHandler = smartapp.NewCompressorHandler(acCompService)
+	AcCompRouter = routers.NewAcCompressorRouter(AcCompHandler)
 
 	_ = scheduleService
 
@@ -281,6 +291,7 @@ func startGinServer(config conf.Config) {
 	//E-Service
 	router2 := server.Group("/smart/app/v1")
 	AcErrorCodeRouter.ErrorCodeRoute(router2)
+	AcCompRouter.AcCompressorRoute(router2)
 
 	// Pro
 	//routerPro := server.Group("/api/v2")

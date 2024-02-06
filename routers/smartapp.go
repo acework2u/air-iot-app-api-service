@@ -19,3 +19,18 @@ func (rt *AcErrorCodeRouter) ErrorCodeRoute(rg *gin.RouterGroup) {
 	router.GET("/:code", rt.errorCodeHandler.GetErrorByCode)
 
 }
+
+type AcCompressorRouter struct {
+	compHandler smartapp.CompressorHandler
+}
+
+func NewAcCompressorRouter(handler smartapp.CompressorHandler) AcCompressorRouter {
+	return AcCompressorRouter{compHandler: handler}
+}
+
+func (rt *AcCompressorRouter) AcCompressorRoute(rg *gin.RouterGroup) {
+	router := rg.Group("/check-compressor")
+	router.GET("", rt.compHandler.GetCheckCompressors)
+	router.GET("/:sn", rt.compHandler.GetCheckCompressor)
+
+}
