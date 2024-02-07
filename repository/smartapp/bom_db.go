@@ -36,7 +36,16 @@ func (r *bomRepositoryDB) Compressor(indoor string) ([]*AcProduct, error) {
 
 	projectStage := bson.D{{"$project", filter}}
 	unsetStage := bson.D{{"$unset", bson.A{"_id"}}}
-	matchStage := bson.D{{Key: "$match", Value: bson.M{"ind_item": indNo}}}
+
+	query := []bson.M{
+		{"ind_item": bson.M{"$in": bson.A{indNo}}},
+		{"ind_model": bson.M{"$in": bson.A{indNo}}},
+		{"odu_model": bson.M{"$in": bson.A{indNo}}},
+		{"odu_item": bson.M{"$in": bson.A{indNo}}},
+	}
+	orCondition := bson.M{"$or": query}
+	matchStage := bson.D{{"$match", orCondition}}
+
 	pipeline := mongo.Pipeline{projectStage, unsetStage, matchStage}
 
 	cursor, err := r.bomCollection.Aggregate(r.ctx, pipeline)
