@@ -232,7 +232,7 @@ func (s *scheduleService) CornJob() {
 					if err != nil {
 						fmt.Println(err.Error())
 					}
-					fmt.Printf("%s", schId)
+					//fmt.Printf("%s", schId)
 					err = s.UpdateJobId(idJob, int(schId))
 					if err != nil {
 						fmt.Println("Error in UpdateJObId")
@@ -251,7 +251,7 @@ func (s *scheduleService) CornJob() {
 						if err != nil {
 							fmt.Println(err.Error())
 						}
-						fmt.Printf("%s", schId)
+						//fmt.Printf("%s", schId)
 						err = s.UpdateJobId(idJob, int(schId))
 						if err != nil {
 							fmt.Println("Error in UpdateJObId")

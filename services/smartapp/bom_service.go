@@ -23,8 +23,6 @@ func (s bomService) CheckCompressor(indoor string) ([]*AcBomResponse, error) {
 	compressor := []*AcBomResponse{}
 
 	for _, items := range comRes {
-
-		fmt.Println(items.Compressors)
 		yearTxt := fmt.Sprintf("%v", items.Year)
 		item := &AcBomResponse{
 			Year:     yearTxt,

@@ -2,10 +2,8 @@ package smartapp
 
 import (
 	"context"
-	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"log"
 	"strings"
 )
 
@@ -66,8 +64,6 @@ func (r *bomRepositoryDB) Compressor(indoor string) ([]*AcProduct, error) {
 		compressors = append(compressors, compressor)
 	}
 
-	log.Printf("%#v", compressors)
-
 	if err := cursor.Err(); err != nil {
 		return nil, err
 	}
@@ -95,13 +91,11 @@ func (r *bomRepositoryDB) Compressors() ([]*AcProduct, error) {
 	pipeline := mongo.Pipeline{projectStage, unsetStage, matchStage}
 
 	cursor, err := r.bomCollection.Aggregate(r.ctx, pipeline)
-
-	//cursor, err := r.bomCollection.Find(r.ctx, query)
+	defer cursor.Close(r.ctx)
 
 	if err != nil {
 		return nil, err
 	}
-	//defer cursor.Close(r.ctx)
 
 	var compressors []*AcProduct
 
@@ -116,19 +110,5 @@ func (r *bomRepositoryDB) Compressors() ([]*AcProduct, error) {
 		res = append(res, item)
 	}
 
-	fmt.Println(res)
-
-	//for cursor.Next(r.ctx) {
-	//	compressor := &AcProduct{}
-	//	err := cursor.Decode(compressor)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	compressors = append(compressors, compressor)
-	//}
-	//
-	//if err := cursor.Err(); err != nil {
-	//	return nil, err
-	//}
 	return compressors, nil
 }
