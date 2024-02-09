@@ -34,9 +34,10 @@ import (
 )
 
 var (
-	server      *gin.Engine
-	ctx         context.Context
-	mongoclient *mongo.Client
+	server         *gin.Engine
+	ctx            context.Context
+	mongoclient    *mongo.Client
+	mongoDB2Client *mongo.Client
 
 	Db  *sql.DB
 	Db2 *bun.DB
@@ -51,6 +52,7 @@ var (
 	scheduleCollection  *mongo.Collection
 	// Ac
 	productBomCollection *mongo.Collection
+	errorCodeCollection  *mongo.Collection
 
 	// UserRouterCtl routers.UserRouteController
 	UserRouterCtl  handler.UserHandler
@@ -110,6 +112,8 @@ func init() {
 	userPoolId := envConf.CognUserPoolId
 
 	mongoclient = configs.ConnectDB()
+	mongoDB2Client = configs.ConnectDB2()
+
 	userCollection = configs.GetCollection(mongoclient, "user")
 
 	// Address
@@ -194,20 +198,22 @@ func init() {
 	ScheduleHandler = handler.NewScheduleHandler(scheduleService)
 	ScheduleRouter = routers.NewScheduleRouter(ScheduleHandler)
 
-	//SmartApp
+	/*********************** Smart App Service **********/
 	//Db, _ = configs.ConnectToMariaDB()
 	//Db2, ok := configs.SmartConnect()
-	Db3, ok := configs.Db3Connect()
-	if ok != nil {
-		log.Fatal(ok)
-	}
+	//Db3, ok := configs.Db3Connect()
 
-	_ = Db2
+	//acErrRepo := smartAppRepo.NewAcErrorCodeRepo(Db3)
+	//acErrorService := smartAppService.NewAcErrorService(acErrRepo)
+	//AcErrorCodeHandler = smartapp.NewErrorCodeHandler(acErrorService)
+	//AcErrorCodeRouter = routers.NewAcErrorCodeRouter(AcErrorCodeHandler)
 
-	acErrRepo := smartAppRepo.NewAcErrorCodeRepo(Db3)
-	acErrorService := smartAppService.NewAcErrorService(acErrRepo)
-	AcErrorCodeHandler = smartapp.NewErrorCodeHandler(acErrorService)
+	errorCodeCollection = configs.GetCollection(mongoDB2Client, "error_code")
+	acErrRepo := smartAppRepo.NewErrorCodeRepo(ctx, errorCodeCollection)
+	acErrService := smartAppService.NewErrorCodeService(acErrRepo)
+	AcErrorCodeHandler = smartapp.NewErrorCodeHandler(acErrService)
 	AcErrorCodeRouter = routers.NewAcErrorCodeRouter(AcErrorCodeHandler)
+
 	// AcCheck Compressor
 	productBomCollection = configs.GetCollection(mongoclient, "product_bom")
 	acCompRepo := smartAppRepo.NewBomRepository(ctx, productBomCollection)

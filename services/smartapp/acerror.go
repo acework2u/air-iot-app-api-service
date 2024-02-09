@@ -10,15 +10,20 @@ type AcErrorInfo struct {
 	Title string `bun:"title" json:"title"`
 }
 type APIErrorCode struct {
-	Code   int64
-	Unit   string
-	Title  string
-	Detail string
-	Video  string
-	Web    string
+	Code   string `json:"code"`
+	Unit   string `json:"unit"`
+	Title  string `json:"title"`
+	Detail string `json:"detail"`
+	Video  string `json:"video"`
+	Web    string `json:"web"`
 }
 
 type AcErrorService interface {
 	GetErrorByCode(code int) (*APIErrorCode, error)
 	GetErrors() ([]APIErrorCode, error)
+}
+
+type ErrorCodeService interface {
+	ErrorCodeList() ([]*APIErrorCode, error)
+	ErrorByCode(code string) (*APIErrorCode, error)
 }

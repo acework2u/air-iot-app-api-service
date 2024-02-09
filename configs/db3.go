@@ -20,8 +20,5 @@ func Db3Connect() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	fmt.Println("Connect Db Success")
-	fmt.Println("Connect Db Success")
-
 	return db, nil
 }

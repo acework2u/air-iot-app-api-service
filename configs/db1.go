@@ -35,8 +35,31 @@ func ConnectDB() *mongo.Client {
 	return client
 
 }
+func ConnectDB2() *mongo.Client {
+	client, err := mongo.NewClient(options.Client().ApplyURI(EnvDB2()))
 
-//var DB *mongo.Client = ConnectDB()
+	if err != nil {
+		log.Fatal(err)
+
+	}
+
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Ping the Database
+	err = client.Ping(ctx, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	//fmt.Println("Connected to DB")
+
+	return client
+
+}
 
 // getting datatbase collections
 
