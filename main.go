@@ -51,8 +51,9 @@ var (
 	airThingsCollection *mongo.Collection
 	scheduleCollection  *mongo.Collection
 	// Ac
-	productBomCollection *mongo.Collection
-	errorCodeCollection  *mongo.Collection
+	productBomCollection      *mongo.Collection
+	errorCodeCollection       *mongo.Collection
+	diagnosticBoardCollection *mongo.Collection
 
 	// UserRouterCtl routers.UserRouteController
 	UserRouterCtl  handler.UserHandler
@@ -94,11 +95,15 @@ var (
 	ScheduleHandler handler.ScheduleHandle
 	ScheduleRouter  routers.ScheduleRouter
 
-	//SmartApp
+	/*** Smart app ****/
+
 	AcErrorCodeHandler smartapp.ErrorCodeHandler
 	AcErrorCodeRouter  routers.AcErrorCodeRouter
 	AcCompHandler      smartapp.CompressorHandler
 	AcCompRouter       routers.AcCompressorRouter
+
+	DiagnosticBoardHandler smartapp.DiagnosticBoardHandler
+	DiagnosticBoardRouter  routers.DiagnosticBoardRouter
 )
 
 func init() {
@@ -221,6 +226,12 @@ func init() {
 	AcCompHandler = smartapp.NewCompressorHandler(acCompService)
 	AcCompRouter = routers.NewAcCompressorRouter(AcCompHandler)
 
+	diagnosticBoardCollection = configs.GetCollection(mongoclient, "universal_board")
+	diagnosticRepo := smartAppRepo.NewDiagnosticBoardRepo(ctx, diagnosticBoardCollection)
+	diagnosticService := smartAppService.NewDiagnosticService(diagnosticRepo)
+	DiagnosticBoardHandler = smartapp.NewDiagnosticBoardHandler(diagnosticService)
+	DiagnosticBoardRouter = routers.NewDiagnosticAcBoard(DiagnosticBoardHandler)
+
 	_ = scheduleService
 
 	_ = scheduleRepo
@@ -298,6 +309,7 @@ func startGinServer(config conf.Config) {
 	router2 := server.Group("/smart/app/v1")
 	AcErrorCodeRouter.ErrorCodeRoute(router2)
 	AcCompRouter.AcCompressorRoute(router2)
+	DiagnosticBoardRouter.DiagnosticRoute(router2)
 
 	// Pro
 	//routerPro := server.Group("/api/v2")

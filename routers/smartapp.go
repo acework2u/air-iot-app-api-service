@@ -34,3 +34,19 @@ func (rt *AcCompressorRouter) AcCompressorRoute(rg *gin.RouterGroup) {
 	router.GET("/:sn", rt.compHandler.GetCheckCompressor)
 
 }
+
+type DiagnosticBoardRouter struct {
+	diagRouter smartapp.DiagnosticBoardHandler
+}
+
+func (rt *DiagnosticBoardRouter) DiagnosticRoute(rg *gin.RouterGroup) {
+	router := rg.Group("diagnostic")
+	router.POST("", rt.diagRouter.PostCheckBoard)
+	router.GET("", rt.diagRouter.GetCheckBoard)
+	router.GET("/:btu/:comeId", rt.diagRouter.GetCheckBoard)
+
+}
+
+func NewDiagnosticAcBoard(handler smartapp.DiagnosticBoardHandler) DiagnosticBoardRouter {
+	return DiagnosticBoardRouter{diagRouter: handler}
+}
