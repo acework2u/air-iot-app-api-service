@@ -10,7 +10,7 @@ import (
 func EnvMongoURI() string {
 	err := godotenv.Load()
 	if err != nil {
-		fmt.Println("Error loading .env file")
+		fmt.Println("DB Error loading .env file")
 		fmt.Println(err.Error())
 		return os.Getenv("MONGURI")
 	}
@@ -19,7 +19,7 @@ func EnvMongoURI() string {
 func EnvDB2() string {
 	err := godotenv.Load()
 	if err != nil {
-		fmt.Println("Error loading .env file")
+		fmt.Println("DB2 Error loading .env file")
 		fmt.Println(err.Error())
 		return os.Getenv("DB2")
 	}

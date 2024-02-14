@@ -34,10 +34,10 @@ import (
 )
 
 var (
-	server         *gin.Engine
-	ctx            context.Context
-	mongoclient    *mongo.Client
-	mongoDB2Client *mongo.Client
+	server      *gin.Engine
+	ctx         context.Context
+	mongoclient *mongo.Client
+	//mongoDB2Client *mongo.Client
 
 	Db  *sql.DB
 	Db2 *bun.DB
@@ -117,7 +117,7 @@ func init() {
 	userPoolId := envConf.CognUserPoolId
 
 	mongoclient = configs.ConnectDB()
-	mongoDB2Client = configs.ConnectDB2()
+	//mongoDB2Client = configs.ConnectDB2()
 
 	userCollection = configs.GetCollection(mongoclient, "user")
 
@@ -213,7 +213,8 @@ func init() {
 	//AcErrorCodeHandler = smartapp.NewErrorCodeHandler(acErrorService)
 	//AcErrorCodeRouter = routers.NewAcErrorCodeRouter(AcErrorCodeHandler)
 
-	errorCodeCollection = configs.GetCollection(mongoDB2Client, "error_code")
+	//errorCodeCollection = configs.GetCollection(mongoDB2Client, "error_code")
+	errorCodeCollection = configs.GetCollection(mongoclient, "error_code")
 	acErrRepo := smartAppRepo.NewErrorCodeRepo(ctx, errorCodeCollection)
 	acErrService := smartAppService.NewErrorCodeService(acErrRepo)
 	AcErrorCodeHandler = smartapp.NewErrorCodeHandler(acErrService)
