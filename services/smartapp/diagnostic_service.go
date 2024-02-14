@@ -14,8 +14,6 @@ func NewDiagnosticService(diagnosticRepo smartappRep.DiagnosticBoardRepo) Diagno
 }
 
 func (s *diagnosticBoardService) CheckDiagnosticBoard(filter2 *DiagnosticFilter) (*DiagnosticResponse, error) {
-	//filter := (*smartappRep.DiagnosticFilter)(filter2)
-
 	filter := smartappRep.DiagnosticFilter{
 		Btu:    filter2.Btu,
 		CompId: filter2.CompId,
@@ -40,7 +38,6 @@ func (s *diagnosticBoardService) DiagnosticBoards() ([]*DiagnosticResponse, erro
 	if err != nil {
 		return nil, err
 	}
-
 	compList := []*DiagnosticResponse{}
 	for _, items := range res {
 		item := &DiagnosticResponse{
