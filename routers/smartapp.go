@@ -42,7 +42,7 @@ type DiagnosticBoardRouter struct {
 func (rt *DiagnosticBoardRouter) DiagnosticRoute(rg *gin.RouterGroup) {
 	router := rg.Group("diagnostic")
 	router.POST("", rt.diagRouter.PostCheckBoard)
-	router.GET("", rt.diagRouter.GetCheckBoard)
+	router.GET("", rt.diagRouter.GetDiagnosticBoards)
 	router.GET("/:btu/:comeId", rt.diagRouter.GetCheckBoard)
 
 }

@@ -36,6 +36,21 @@ func (s *diagnosticBoardService) CheckDiagnosticBoard(filter2 *DiagnosticFilter)
 	return diagResponse, nil
 }
 func (s *diagnosticBoardService) DiagnosticBoards() ([]*DiagnosticResponse, error) {
+	res, err := s.diagnosticRepo.DiagnosticBoards()
+	if err != nil {
+		return nil, err
+	}
 
-	return nil, nil
+	compList := []*DiagnosticResponse{}
+	for _, items := range res {
+		item := &DiagnosticResponse{
+			Btu:       items.Btu,
+			CompId:    items.CompId,
+			CompItem:  items.CompItem,
+			CompModel: items.CompModel,
+		}
+		compList = append(compList, item)
+	}
+
+	return compList, nil
 }

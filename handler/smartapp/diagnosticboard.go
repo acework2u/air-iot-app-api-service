@@ -1,6 +1,7 @@
 package smartapp
 
 import (
+	"errors"
 	"github.com/acework2u/air-iot-app-api-service/services/smartapp"
 	"github.com/acework2u/air-iot-app-api-service/utils"
 	"github.com/gin-gonic/gin"
@@ -28,6 +29,15 @@ func (h *DiagnosticBoardHandler) GetCheckBoard(c *gin.Context) {
 	res, err := h.diagnosticService.CheckDiagnosticBoard(req)
 	if err != nil {
 		h.resp.BadRequest(c, err.Error())
+		return
+	}
+
+	h.resp.Success(c, res)
+}
+func (h *DiagnosticBoardHandler) GetDiagnosticBoards(c *gin.Context) {
+	res, err := h.diagnosticService.DiagnosticBoards()
+	if err != nil {
+		h.resp.BadRequest(c, errors.New("ไม่พบข้อมูล"))
 		return
 	}
 
