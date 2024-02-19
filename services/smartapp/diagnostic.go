@@ -4,6 +4,7 @@ package smartapp
 type DiagnosticService interface {
 	CheckDiagnosticBoard(filter *DiagnosticFilter) (*DiagnosticResponse, error)
 	DiagnosticBoards() ([]*DiagnosticResponse, error)
+	CheckCompBoard(btu int64, compModel string) (*DiagnosticResponse, error)
 }
 type DiagnosticResponse struct {
 	Btu       int64  `json:"btu"`

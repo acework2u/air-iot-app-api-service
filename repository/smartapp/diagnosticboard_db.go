@@ -50,3 +50,14 @@ func (r *diagnosticBoardRepo) DiagnosticBoard(filter DiagnosticFilter) (*Diagnos
 	}
 	return diagnosticBoard, err
 }
+func (r *diagnosticBoardRepo) CompressorOnBoard(filter CompressorFilter) (*DiagnosticBoard, error) {
+
+	query := bson.M{"btu": filter.Btu, "comp_item": filter.CompItem}
+	diagnosticBoard := &DiagnosticBoard{}
+
+	err := r.diagnosticBoardCollection.FindOne(r.ctx, query).Decode(&diagnosticBoard)
+	if err != nil {
+		return nil, err
+	}
+	return diagnosticBoard, err
+}

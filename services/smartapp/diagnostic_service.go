@@ -51,3 +51,19 @@ func (s *diagnosticBoardService) DiagnosticBoards() ([]*DiagnosticResponse, erro
 
 	return compList, nil
 }
+func (s *diagnosticBoardService) CheckCompBoard(btu int64, compModel string) (*DiagnosticResponse, error) {
+
+	res, err := s.diagnosticRepo.CompressorOnBoard(smartappRep.CompressorFilter{btu, compModel})
+	_ = res
+	if err != nil {
+		return nil, err
+	}
+	compData := &DiagnosticResponse{
+		Btu:       res.Btu,
+		CompId:    res.CompId,
+		CompItem:  res.CompItem,
+		CompModel: res.CompModel,
+	}
+
+	return compData, nil
+}

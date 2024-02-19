@@ -44,6 +44,7 @@ func (rt *DiagnosticBoardRouter) DiagnosticRoute(rg *gin.RouterGroup) {
 	router.POST("", rt.diagRouter.PostCheckBoard)
 	router.GET("", rt.diagRouter.GetDiagnosticBoards)
 	router.GET("/:btu/:comeId", rt.diagRouter.GetCheckBoard)
+	router.GET("/check-comp/:btu/:compModel", rt.diagRouter.GetCheckCompBoard)
 
 }
 

@@ -6,6 +6,7 @@ import (
 	"github.com/acework2u/air-iot-app-api-service/utils"
 	"github.com/gin-gonic/gin"
 	"strconv"
+	"strings"
 )
 
 type DiagnosticBoardHandler struct {
@@ -33,6 +34,26 @@ func (h *DiagnosticBoardHandler) GetCheckBoard(c *gin.Context) {
 	}
 
 	h.resp.Success(c, res)
+}
+func (h *DiagnosticBoardHandler) GetCheckCompBoard(c *gin.Context) {
+
+	btu := c.Param("btu")
+	compModel := c.Param("compModel")
+	compModel = strings.ToUpper(compModel)
+
+	acBtu, err := strconv.ParseInt(btu, 10, 64)
+	if err != nil {
+		h.resp.BadRequest(c, "btu is number required")
+		return
+	}
+	acComp, err := h.diagnosticService.CheckCompBoard(acBtu, compModel)
+	if err != nil {
+		h.resp.BadRequest(c, err.Error())
+		return
+	}
+
+	h.resp.Success(c, acComp)
+
 }
 func (h *DiagnosticBoardHandler) GetDiagnosticBoards(c *gin.Context) {
 	res, err := h.diagnosticService.DiagnosticBoards()

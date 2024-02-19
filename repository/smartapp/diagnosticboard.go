@@ -7,6 +7,12 @@ import (
 type DiagnosticBoardRepo interface {
 	DiagnosticBoards() ([]DiagnosticBoard, error)
 	DiagnosticBoard(filter DiagnosticFilter) (*DiagnosticBoard, error)
+	CompressorOnBoard(filter CompressorFilter) (*DiagnosticBoard, error)
+}
+
+type CompressorFilter struct {
+	Btu      int64  `json:"btu"`
+	CompItem string `json:"compItem"`
 }
 
 type DiagnosticFilter struct {
