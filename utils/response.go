@@ -51,3 +51,7 @@ func ResponseFailed(c *gin.Context, msg *ApiResponse) {
 	c.AbortWithStatusJSON(http.StatusBadRequest, msg)
 	//c.JSON(http.StatusBadRequest, msg)
 }
+func SetupRouter() *gin.Engine {
+	router := gin.Default()
+	return router
+}

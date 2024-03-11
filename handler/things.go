@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/hex"
 	"fmt"
 	"github.com/acework2u/air-iot-app-api-service/services"
 	"github.com/acework2u/air-iot-app-api-service/utils"
@@ -59,20 +58,20 @@ func (h *ThingsHandler) UserCert(c *gin.Context) {
 
 func (h *ThingsHandler) ThingsPayload(c *gin.Context) {
 
-	airMode, _ := hex.DecodeString("1")
+	//airMode, _ := hex.DecodeString("1")
 
-	fmt.Println("airMode 1 hex to string")
-	fmt.Println(airMode)
+	//fmt.Println("airMode 1 hex to string")
+	//fmt.Println(airMode)
 
 	airPayload := make([]byte, 40)
-	copy(airPayload[0:], string(1))
-	copy(airPayload[1:], string(3))
-	copy(airPayload[2:], string(60))
-	copy(airPayload[3:], string(120))
-	copy(airPayload[4:], string(1))
-	copy(airPayload[14:], string(1))
+	copy(airPayload[0:], []byte{1})
+	copy(airPayload[1:], []byte{3})
+	copy(airPayload[2:], []byte{60})
+	copy(airPayload[3:], []byte{120})
+	copy(airPayload[4:], []byte{1})
+	copy(airPayload[14:], []byte{1})
 
-	fmt.Println(airPayload)
+	//fmt.Println(airPayload)
 	h.resp.Success(c, airPayload)
 
 }

@@ -1,9 +1,8 @@
 package main
 
 import (
+	"github.com/acework2u/air-iot-app-api-service/config"
 	"testing"
-
-	_ "golang.org/x/lint"
 )
 
 func Test_SummaryCal(t *testing.T) {
@@ -27,6 +26,7 @@ func Test_SummaryCal(t *testing.T) {
 		},
 	}
 
+	startGinServer(config.Config{Origin: "*"})
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// if got := SumCal(tt.args.x, tt.args.y); got != tt.want {
