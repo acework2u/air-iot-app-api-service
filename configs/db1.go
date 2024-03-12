@@ -2,6 +2,7 @@ package configs
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 
 func ConnectDB() *mongo.Client {
 
+	fmt.Println("<!------------DB URL--------------->\n", EnvMongoURI())
 	client, err := mongo.NewClient(options.Client().ApplyURI(EnvMongoURI()))
 
 	if err != nil {

@@ -10,13 +10,24 @@ services:
     volumes:
       - .:/app
       - ~/.aws/:/root/.aws:ro
+    links:
+      - database2
     depends_on:
-      - database  
+      - database
+      - database2
     ports:
       - 8080:8080
     networks:
       - go-ci-cd-net
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      ME_CONFIG_MONGODB_URL: ${MONGOURI}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "localhost:127.0.0.1"
   database:
+    container_name: postgres-db
     image: postgres
     restart: always
     hostname: db 
@@ -28,8 +39,33 @@ services:
       - "5432:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
+  database2:
+    container_name: mongo-db
+    image: mongo:latest
+    hostname: mongo
+    restart: always
+    environment:
+       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+       MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+       MONGODB_DB: ${MONGODB_DB}
+       MONGODB_USER: ${MONGODB_USER}
+       MONGODB_PASSWORD: ${MONGODB_PASSWORD}
+#       MONGO_INITDB_ROOT_USERNAME: airsadmin
+#       MONGO_INITDB_ROOT_PASSWORD: wPx7g4BvWrJd2022
+    env_file:
+      - .env
+    ports:
+      - ${MONGODB_PORT}:27017
+    networks:
+      - go-ci-cd-net
+    volumes:
+#      - ./mongo-init.sh:/docker-entrypoint-initdb.d/init.sh:ro
+      - ./init.sh:/docker-entrypoint-initdb.d/init.sh:ro
+      - mongodb_data_smartapp:/data/db
 volumes:
   db-data:
+  mongodb_data_smartapp:
                
 networks:
   go-ci-cd-net:
