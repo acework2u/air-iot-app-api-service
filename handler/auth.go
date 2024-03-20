@@ -32,19 +32,18 @@ func NewAuthHandler(authService services.AuthenServices) AuthHandler {
 // @Success 400 {object} utils.ApiResponse{}
 // @Router /auth/signin [post]
 func (h *AuthHandler) PostSignIn(c *gin.Context) {
-	authInput := &services.SignInRequest{}
+	authInput := services.SignInRequest{}
 	authResponse := &utils.ApiResponse{}
 
-	err := c.ShouldBindJSON(authInput)
+	err := c.ShouldBindJSON(&authInput)
 	if err != nil {
 		h.resp.BadRequest(c, err.Error())
 		return
 	}
 
-	res, err := h.authService.SignIn(authInput.Username, authInput.Password)
+	res, err := h.authService.SignIn(authInput)
 
 	if err != nil {
-
 		errText := utils.ApiResponse{Status: http.StatusBadRequest, Message: "Incorrect username or password."}
 		h.resp.BadRequest(c, errText)
 		return
@@ -70,16 +69,22 @@ func (h *AuthHandler) PostSignIn(c *gin.Context) {
 // @Router /auth/signup [post]
 func (h *AuthHandler) PostSignUp(c *gin.Context) {
 
-	var authSignUp *services.SignUpRequest
+	var authSignUp services.SignUpRequest
 
 	err := c.ShouldBindJSON(&authSignUp)
 
+	custErr := utils.NewErrorHandler(c)
+
 	if err != nil {
-		h.resp.BadRequest(c, err.Error())
+		custErr.CustomError(err)
 		return
 	}
 
-	result, ok := h.authService.SignUp(authSignUp.Username, authSignUp.Password, authSignUp.PhoneNo)
+	mobile := fmt.Sprintf("%v%v", "+66", authSignUp.PhoneNo)
+	authSignUp.PhoneNo = mobile
+	authSignUp.CustomRole = "1"
+
+	result, ok := h.authService.SignUp(authSignUp)
 	if ok != nil {
 		txtErr := strings.Split(ok.Error(), ",")
 		h.resp.BadRequest(c, fmt.Sprintf("%s", txtErr[len(txtErr)-1]))
@@ -316,4 +321,23 @@ func (h *AuthHandler) DelCustomer(c *gin.Context) {
 	}
 	h.resp.Success(c, "Delete your account is a complete")
 	//h.resp.Success(c, "Delete Customer")
+}
+
+func (h *AuthHandler) ConfirmDevice(c *gin.Context) {
+	deviceInput := services.DeviceConfirmReq{}
+	err := c.ShouldBindJSON(&deviceInput)
+
+	cusErr := utils.NewErrorHandler(c)
+	if err != nil {
+		cusErr.CustomError(err)
+		return
+	}
+
+	err = h.authService.ConfirmDevice(&deviceInput)
+
+	if err != nil {
+		h.resp.BadRequest(c, err.Error())
+		return
+	}
+	h.resp.Success(c, "Your are confirm device")
 }

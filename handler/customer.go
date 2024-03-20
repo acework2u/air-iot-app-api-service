@@ -147,8 +147,16 @@ func (h *CustomerHandler) UpdateCustomer(c *gin.Context) {
 	infoUpdate := &services.UpdateInfoRequest{}
 	if ok {
 		if cusID == userId {
-			if err := c.ShouldBindJSON(infoUpdate); err != nil {
-				h.res.BadRequest(c, err.Error())
+			// if err := c.ShouldBindJSON(infoUpdate); err != nil {
+			//h.res.BadRequest(c, err.Error())
+			// return
+			// }
+
+			err := c.ShouldBindJSON(infoUpdate)
+
+			cusErr := utils.NewErrorHandler(c)
+			if err != nil {
+				cusErr.CustomError(err)
 				return
 			}
 

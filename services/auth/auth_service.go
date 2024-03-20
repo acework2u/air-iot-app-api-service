@@ -38,37 +38,15 @@ func NewCognitoClient(cognitoRegion string, userPoolId string, cognitoClientId s
 
 }
 
-func (s *CognitoClient) SignIn(email string, password string) (*cip.InitiateAuthOutput, error) {
-
-	//params := map[string]string{
-	//	"USERNAME": *aws.String(email),
-	//	"PASSWPRD": *aws.String(password),
-	//}
-
-	//signInInput := &cip.AdminInitiateAuthInput{
-	//
-	//	AuthFlow:       types.AuthFlowTypeAdminUserPasswordAuth,
-	//	AuthParameters: params,
-	//	ClientId:       &s.AppClientId,
-	//	UserPoolId:     &s.UserPoolId,
-	//}
-	//
-	//res, err := s.ClientCognito.AdminInitiateAuth(ctx, signInInput)
-	//
-	//if err != nil {
-	//	fmt.Println(err)
-	//	return "Notwork", err
-	//}
-	//fmt.Println(res)
-	//
-	//return "work", nil
+func (s *CognitoClient) SignIn(signInReq SignInRequest) (*cip.InitiateAuthOutput, error) {
 
 	// Work
-
 	flow := aws.String("USER_PASSWORD_AUTH")
+	//flow := aws.String("USER_SRP_AUTH")
 	params := map[string]string{
-		"USERNAME": *aws.String(email),
-		"PASSWORD": *aws.String(password),
+		"USERNAME":   *aws.String(signInReq.Username),
+		"PASSWORD":   *aws.String(signInReq.Password),
+		"DEVICE_KEY": *aws.String(signInReq.DeviceNo),
 	}
 
 	signInInput := &cip.InitiateAuthInput{
@@ -84,24 +62,36 @@ func (s *CognitoClient) SignIn(email string, password string) (*cip.InitiateAuth
 	}
 
 	//return *res.Session, nil
-
 	return result, nil
 
 }
-func (s *CognitoClient) SignUp(email string, password string, phoneNo string) (string, error) {
+
+func (s *CognitoClient) SignUp(signUpReq SignUpRequest) (string, error) {
 
 	userSignUp := &cip.SignUpInput{
 		ClientId: &s.AppClientId,
-		Username: aws.String(email),
-		Password: aws.String(password),
+		Username: aws.String(signUpReq.Username),
+		Password: aws.String(signUpReq.Password),
 		UserAttributes: []types.AttributeType{
 			{
 				Name:  aws.String("email"),
-				Value: aws.String(email),
+				Value: aws.String(signUpReq.Username),
 			},
 			{
 				Name:  aws.String("phone_number"),
-				Value: aws.String(phoneNo),
+				Value: aws.String(signUpReq.PhoneNo),
+			},
+			{
+				Name:  aws.String("name"),
+				Value: aws.String(signUpReq.Name),
+			},
+			{
+				Name:  aws.String("family_name"),
+				Value: aws.String(signUpReq.LastName),
+			},
+			{
+				Name:  aws.String("custom:role"),
+				Value: aws.String("1"),
 			},
 		},
 	}
@@ -113,12 +103,14 @@ func (s *CognitoClient) SignUp(email string, password string, phoneNo string) (s
 	}
 
 	// Register Customer success
-
 	userInfo := &repository.CreateCustomerRequest2{
 		UserSub:       *result.UserSub,
-		Email:         email,
+		Name:          signUpReq.Name,
+		Lastname:      signUpReq.LastName,
+		Email:         signUpReq.Username,
 		UserConfirmed: result.UserConfirmed,
-		Mobile:        phoneNo,
+		Mobile:        signUpReq.PhoneNo,
+		Role:          signUpReq.CustomRole,
 	}
 
 	_, ok := s.cusRepo.NewCustomer(userInfo)
@@ -134,6 +126,7 @@ func (s *CognitoClient) SignUp(email string, password string, phoneNo string) (s
 	return msgSuccess, nil
 
 }
+
 func (s *CognitoClient) UserConfirm(username string, confirmCode string) (interface{}, error) {
 
 	confirmSignUpInput := &cip.ConfirmSignUpInput{
@@ -151,6 +144,7 @@ func (s *CognitoClient) UserConfirm(username string, confirmCode string) (interf
 	return result, nil
 
 }
+
 func (s *CognitoClient) ResendConfirmCode(username string) (*cip.ResendConfirmationCodeOutput, error) {
 
 	resendConfirmCodeInput := &cip.ResendConfirmationCodeInput{
@@ -166,6 +160,7 @@ func (s *CognitoClient) ResendConfirmCode(username string) (*cip.ResendConfirmat
 	return resConfOut, nil
 
 }
+
 func (s *CognitoClient) RefreshToken(refreshToken string) (interface{}, error) {
 
 	param := map[string]string{
@@ -247,4 +242,24 @@ func (s *CognitoClient) DeleteMyAccount(accessKey string) error {
 		return err
 	}
 	return nil
+}
+
+func (s *CognitoClient) ConfirmDevice(deviceInput *DeviceConfirmReq) error {
+	var err error
+
+	deviceConfirm := &cip.ConfirmDeviceInput{
+		AccessToken: aws.String(deviceInput.AccessToken),
+		DeviceKey:   aws.String(deviceInput.DeviceKey),
+	}
+
+	confirmDeviceOut, err := s.ClientCognito.ConfirmDevice(ctx, deviceConfirm)
+
+	if err != nil {
+		return err
+	}
+	// Confirm Success
+	if confirmDeviceOut.UserConfirmationNecessary {
+		return nil
+	}
+	return err
 }

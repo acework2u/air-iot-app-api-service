@@ -3,8 +3,8 @@ package auth
 import "github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
 
 type AuthenServices interface {
-	SignIn(string, string) (*cognitoidentityprovider.InitiateAuthOutput, error)
-	SignUp(string, string, string) (string, error)
+	SignIn(signInReq SignInRequest) (*cognitoidentityprovider.InitiateAuthOutput, error)
+	SignUp(signUp SignUpRequest) (string, error)
 	UserConfirm(string, string) (interface{}, error)
 	ResendConfirmCode(string) (*cognitoidentityprovider.ResendConfirmationCodeOutput, error)
 	RefreshToken(refreshToken string) (interface{}, error)
@@ -12,12 +12,14 @@ type AuthenServices interface {
 	ConfirmNewPassword(*UserConfirmNewPassword) (*cognitoidentityprovider.ConfirmForgotPasswordOutput, error)
 	ChangePassword(changeReq *ChangePasswordReq) (interface{}, error)
 	DeleteMyAccount(accessKey string) error
+	ConfirmDevice(deviceInput *DeviceConfirmReq) error
 }
 
 type (
 	SignInRequest struct {
 		Username string `json:"username" form:"username" binding:"required"`
 		Password string `json:"password" form:"password" binding:"required"`
+		DeviceNo string `json:"device_no" form:"device_no" binding:"required"`
 	}
 
 	UserConfirm struct {
@@ -54,9 +56,12 @@ type (
 	}
 
 	SignUpRequest struct {
-		Username string `json:"username" binding:"required"`
-		Password string `json:"password" binding:"required"`
-		PhoneNo  string `json:"phone_no" binding:"required"`
+		Username   string `json:"username" binding:"required"`
+		Password   string `json:"password" binding:"required"`
+		PhoneNo    string `json:"phone_no" binding:"required,number,len=10"`
+		Name       string `json:"name" binding:"required,min=2,max=20"`
+		LastName   string `json:"lastName" binding:"required"`
+		CustomRole string `json:"customRole"`
 	}
 	SignInResponse struct {
 		// The access token.
@@ -73,5 +78,10 @@ type (
 
 		// The token type.
 		TokenType *string `json:"token_type"`
+	}
+
+	DeviceConfirmReq struct {
+		AccessToken string `json:"accessToken" binding:"required"`
+		DeviceKey   string `json:"deviceKey" binding:"required"`
 	}
 )

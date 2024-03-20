@@ -21,6 +21,7 @@ type CreateCustomerRequest2 struct {
 	Lastname      string    `json:"last_name" bson:"last_name"`
 	Email         string    `json:"email" bson:"email"`
 	Mobile        string    `json:"mobile_no" bson:"mobile"`
+	Role          string    `json:"role" bson:"role"`
 	UserConfirmed bool      `json:"UserConfirmed" bson:"UserConfirmed"`
 	CreateAt      time.Time `json:"created_at,omitempty" bson:"created_at,omitempty"`
 	UpdateAt      time.Time `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
@@ -55,6 +56,12 @@ type UpdateCustomer struct {
 	UpdateAt time.Time `json:"updatedAt,omitempty" bson:"updated_at,omitempty"`
 }
 
+type DeviceCustomer struct {
+	DeviceNo string    `bson:"device_no"`
+	UserSub  string    `bson:"usersub"`
+	UpdateAt time.Time `bson:"updated_at,omitempty"`
+}
+
 type CustomerRepository interface {
 	CreateCustomer(*CreateCustomerRequest) (*DBCustomer, error)
 	NewCustomer(*CreateCustomerRequest2) (*DBCustomer2, error)
@@ -63,4 +70,5 @@ type CustomerRepository interface {
 	FindCustomers() ([]*DBCustomer, error)
 	DeleteCustomer(string) error
 	FindCustomerID(string) (*DBCustomer2, error)
+	UpdateDeviceNo(deviceCustomer *DeviceCustomer) error
 }

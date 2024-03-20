@@ -195,3 +195,7 @@ func (r *CustomerRepositoryDB) FindCustomerID(uid string) (*DBCustomer2, error) 
 
 	return result, nil
 }
+func (r *CustomerRepositoryDB) UpdateDeviceNo(deviceCustomer *DeviceCustomer) error {
+	panic("No action")
+
+}

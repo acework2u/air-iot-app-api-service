@@ -25,5 +25,6 @@ func (rc *AuthController) AuthRoute(rg *gin.RouterGroup) {
 	router.POST("/confirm-password", rc.authHandler.PostConfirmNewPassword)
 	router.POST("/change-password", rc.authHandler.PostChangePassword)
 	router.DELETE("/delete-my-account", rc.authHandler.DelCustomer)
+	router.POST("/confirm-device", rc.authHandler.ConfirmDevice)
 
 }
