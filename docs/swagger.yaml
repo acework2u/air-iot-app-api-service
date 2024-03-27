@@ -9,23 +9,94 @@ definitions:
     type: object
   auth.SignInRequest:
     properties:
+      device_no:
+        description: |-
+          DeviceNo
+          A device no of user authentication
+          in:body
+          Type: String
+          Required: Yes
+        type: string
       password:
+        description: |-
+          Password
+          A Password of user authentication
+          in:body
+          Type: String
+          Required: Yes
         type: string
       username:
+        description: |-
+          Username
+          A Username of user authentication
+          in:body
+          Type: String
+          Required: Yes
         type: string
     required:
+    - device_no
     - password
     - username
     type: object
   auth.SignUpRequest:
     properties:
+      customRole:
+        description: |-
+          customRole
+          Role of access to our resource
+          in:body
+          Type: String
+          Required: No (option)
+          example: 1 is role default
+        type: string
+      lastName:
+        description: |-
+          Last name of user
+          in:body
+          Type: String
+          Required: Yes
+          example: dechpala
+        maxLength: 100
+        minLength: 2
+        type: string
+      name:
+        description: |-
+          The name of user
+          A unique identifier for new user
+          in:body
+          Type: String
+          Required: Yes
+          example: anon
+        maxLength: 20
+        minLength: 2
+        type: string
       password:
+        description: |-
+          Password of user authentication
+          in:body
+          Type: String
+          Required: Yes
+          example: P@assWord1234
         type: string
       phone_no:
+        description: |-
+          The mobile number of user
+          in:body
+          Type: String
+          Required: Yes
+          example: 0941234567 for Thailand
         type: string
       username:
+        description: |-
+          Username is Email of user authentication
+          in:body
+          Type: String
+          Required: Yes
+          example: my-email@mail.com
         type: string
     required:
+    - lastName
+    - name
     - password
     - phone_no
     - username
@@ -33,9 +104,20 @@ definitions:
   auth.UserConfirm:
     properties:
       confirmationCode:
+        description: |-
+          ConfirmationCode
+          A code of user confirmation
+          in:body
+          Type: String
+          Required: Yes
         type: string
       username:
-        description: code for confirm
+        description: |-
+          Username
+          A Username of confirmation
+          in:body
+          Type: String
+          Required: Yes
         type: string
     required:
     - confirmationCode
@@ -44,12 +126,30 @@ definitions:
   auth.UserConfirmNewPassword:
     properties:
       confirmCode:
+        description: |-
+          ConfirmCode
+          Confirm code sent the confirmation to the client.
+          in:body
+          Type: String
+          Required: Yes
         type: string
       password:
+        description: |-
+          Password
+          A password of confirm new password
+          in:body
+          Type: String
+          Required: Yes
         maxLength: 10
         minLength: 1
         type: string
       userName:
+        description: |-
+          UserName
+          A username of confirm new password
+          in:body
+          Type: String
+          Required: Yes
         type: string
     required:
     - confirmCode
@@ -281,7 +381,7 @@ info:
   contact: {}
   description: Air Smart IoT App API Service
   title: Air IoT API Service 2023
-  version: "1.0"
+  version: 1.0.0
 paths:
   /air/{id}:
     put:
@@ -846,6 +946,7 @@ paths:
       tags:
       - AirThingsCommand
 schemes:
+- https
 - http
 securityDefinitions:
   BearerAuth:

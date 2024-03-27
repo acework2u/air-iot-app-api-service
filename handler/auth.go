@@ -36,6 +36,12 @@ func (h *AuthHandler) PostSignIn(c *gin.Context) {
 	authResponse := &utils.ApiResponse{}
 
 	err := c.ShouldBindJSON(&authInput)
+	cusErr := utils.NewErrorHandler(c)
+	if err != nil {
+		cusErr.CustomError(err)
+		return
+	}
+
 	if err != nil {
 		h.resp.BadRequest(c, err.Error())
 		return
@@ -64,8 +70,8 @@ func (h *AuthHandler) PostSignIn(c *gin.Context) {
 // @Produce application/json
 // @Tags Authentication
 // @Param SignUp body services.SignUpRequest true "New User information"
-// @Success 200 {object} utils.ApiResponse{}
-// @Failure 400 {object} utils.ApiResponse{}
+// @Success 200 {object} utils.ApiResponse
+// @Failure 400 {object} utils.ApiResponse
 // @Router /auth/signup [post]
 func (h *AuthHandler) PostSignUp(c *gin.Context) {
 
@@ -229,7 +235,7 @@ func (h *AuthHandler) PostForgotPw(c *gin.Context) {
 		erList := cusErr.MyErr(err)
 
 		for _, fe := range erList {
-			textErr := fmt.Sprintf("field is a %s %s", fe.Field, fe.Msg)
+			textErr := fmt.Sprintf("field is a %s %s", fe.Field, fe.Message)
 			h.resp.BadRequest(c, textErr)
 
 		}

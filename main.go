@@ -244,9 +244,9 @@ func init() {
 }
 
 // @title Air IoT API Service 2023
-// @version 1.0
+// @version 1.0.0
 // @description Air Smart IoT App API Service
-// @Schemes http
+// @Schemes https http
 // @host localhost:8080
 // @BasePath /api/v1
 // @securityDefinitions.apiKey	BearerAuth

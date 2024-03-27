@@ -12,8 +12,8 @@ type ErrHandler struct {
 	ctx *gin.Context
 }
 type ApiError struct {
-	Field string `json:"field"`
-	Msg   string `json:"msg"`
+	Field   string `json:"field"`
+	Message string `json:"message"`
 }
 
 func ErrorHandler(c *gin.Context) {
@@ -53,7 +53,7 @@ func (c *ErrHandler) CustomError(err error) {
 		for i, fe := range ve {
 			out[i] = ApiError{fe.Field(), getErrorMsg(fe)}
 		}
-		c.ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errors": out})
+		c.ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "errors": out})
 		return
 
 	}
@@ -72,7 +72,7 @@ func getErrorMsg(fe validator.FieldError) string {
 	case "required":
 		return "this field is required"
 	case "email":
-		return "invalid email"
+		return "invalid email" + fe.Param()
 	case "numeric":
 		return "invalid numeric"
 	case "lte":
@@ -81,6 +81,9 @@ func getErrorMsg(fe validator.FieldError) string {
 		return "should be greater than " + fe.Param()
 	case "min":
 		return "should be less than " + fe.Param()
+	case "number":
+		return fmt.Sprintf("Invalid %v", fe.Field())
+
 	}
 
 	return "Unknown error"

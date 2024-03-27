@@ -1,5 +1,6 @@
 {
     "schemes": [
+        "https",
         "http"
     ],
     "swagger": "2.0",
@@ -7,7 +8,7 @@
         "description": "Air Smart IoT App API Service",
         "title": "Air IoT API Service 2023",
         "contact": {},
-        "version": "1.0"
+        "version": "1.0.0"
     },
     "host": "localhost:8080",
     "basePath": "/api/v1",
@@ -921,14 +922,21 @@
         "auth.SignInRequest": {
             "type": "object",
             "required": [
+                "device_no",
                 "password",
                 "username"
             ],
             "properties": {
+                "device_no": {
+                    "description": "DeviceNo\nA device no of user authentication\nin:body\nType: String\nRequired: Yes",
+                    "type": "string"
+                },
                 "password": {
+                    "description": "Password\nA Password of user authentication\nin:body\nType: String\nRequired: Yes",
                     "type": "string"
                 },
                 "username": {
+                    "description": "Username\nA Username of user authentication\nin:body\nType: String\nRequired: Yes",
                     "type": "string"
                 }
             }
@@ -936,18 +944,39 @@
         "auth.SignUpRequest": {
             "type": "object",
             "required": [
+                "lastName",
+                "name",
                 "password",
                 "phone_no",
                 "username"
             ],
             "properties": {
+                "customRole": {
+                    "description": "customRole\nRole of access to our resource\nin:body\nType: String\nRequired: No (option)\nexample: 1 is role default",
+                    "type": "string"
+                },
+                "lastName": {
+                    "description": "Last name of user\nin:body\nType: String\nRequired: Yes\nexample: dechpala",
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 2
+                },
+                "name": {
+                    "description": "The name of user\nA unique identifier for new user\nin:body\nType: String\nRequired: Yes\nexample: anon",
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 2
+                },
                 "password": {
+                    "description": "Password of user authentication\nin:body\nType: String\nRequired: Yes\nexample: P@assWord1234",
                     "type": "string"
                 },
                 "phone_no": {
+                    "description": "The mobile number of user\nin:body\nType: String\nRequired: Yes\nexample: 0941234567 for Thailand",
                     "type": "string"
                 },
                 "username": {
+                    "description": "Username is Email of user authentication\nin:body\nType: String\nRequired: Yes\nexample: my-email@mail.com",
                     "type": "string"
                 }
             }
@@ -960,10 +989,11 @@
             ],
             "properties": {
                 "confirmationCode": {
+                    "description": "ConfirmationCode\nA code of user confirmation\nin:body\nType: String\nRequired: Yes",
                     "type": "string"
                 },
                 "username": {
-                    "description": "code for confirm",
+                    "description": "Username\nA Username of confirmation\nin:body\nType: String\nRequired: Yes",
                     "type": "string"
                 }
             }
@@ -977,14 +1007,17 @@
             ],
             "properties": {
                 "confirmCode": {
+                    "description": "ConfirmCode\nConfirm code sent the confirmation to the client.\nin:body\nType: String\nRequired: Yes",
                     "type": "string"
                 },
                 "password": {
+                    "description": "Password\nA password of confirm new password\nin:body\nType: String\nRequired: Yes",
                     "type": "string",
                     "maxLength": 10,
                     "minLength": 1
                 },
                 "userName": {
+                    "description": "UserName\nA username of confirm new password\nin:body\nType: String\nRequired: Yes",
                     "type": "string"
                 }
             }

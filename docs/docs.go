@@ -925,14 +925,21 @@ const docTemplate = `{
         "auth.SignInRequest": {
             "type": "object",
             "required": [
+                "device_no",
                 "password",
                 "username"
             ],
             "properties": {
+                "device_no": {
+                    "description": "DeviceNo\nA device no of user authentication\nin:body\nType: String\nRequired: Yes",
+                    "type": "string"
+                },
                 "password": {
+                    "description": "Password\nA Password of user authentication\nin:body\nType: String\nRequired: Yes",
                     "type": "string"
                 },
                 "username": {
+                    "description": "Username\nA Username of user authentication\nin:body\nType: String\nRequired: Yes",
                     "type": "string"
                 }
             }
@@ -940,18 +947,39 @@ const docTemplate = `{
         "auth.SignUpRequest": {
             "type": "object",
             "required": [
+                "lastName",
+                "name",
                 "password",
                 "phone_no",
                 "username"
             ],
             "properties": {
+                "customRole": {
+                    "description": "customRole\nRole of access to our resource\nin:body\nType: String\nRequired: No (option)\nexample: 1 is role default",
+                    "type": "string"
+                },
+                "lastName": {
+                    "description": "Last name of user\nin:body\nType: String\nRequired: Yes\nexample: dechpala",
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 2
+                },
+                "name": {
+                    "description": "The name of user\nA unique identifier for new user\nin:body\nType: String\nRequired: Yes\nexample: anon",
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 2
+                },
                 "password": {
+                    "description": "Password of user authentication\nin:body\nType: String\nRequired: Yes\nexample: P@assWord1234",
                     "type": "string"
                 },
                 "phone_no": {
+                    "description": "The mobile number of user\nin:body\nType: String\nRequired: Yes\nexample: 0941234567 for Thailand",
                     "type": "string"
                 },
                 "username": {
+                    "description": "Username is Email of user authentication\nin:body\nType: String\nRequired: Yes\nexample: my-email@mail.com",
                     "type": "string"
                 }
             }
@@ -964,10 +992,11 @@ const docTemplate = `{
             ],
             "properties": {
                 "confirmationCode": {
+                    "description": "ConfirmationCode\nA code of user confirmation\nin:body\nType: String\nRequired: Yes",
                     "type": "string"
                 },
                 "username": {
-                    "description": "code for confirm",
+                    "description": "Username\nA Username of confirmation\nin:body\nType: String\nRequired: Yes",
                     "type": "string"
                 }
             }
@@ -981,14 +1010,17 @@ const docTemplate = `{
             ],
             "properties": {
                 "confirmCode": {
+                    "description": "ConfirmCode\nConfirm code sent the confirmation to the client.\nin:body\nType: String\nRequired: Yes",
                     "type": "string"
                 },
                 "password": {
+                    "description": "Password\nA password of confirm new password\nin:body\nType: String\nRequired: Yes",
                     "type": "string",
                     "maxLength": 10,
                     "minLength": 1
                 },
                 "userName": {
+                    "description": "UserName\nA username of confirm new password\nin:body\nType: String\nRequired: Yes",
                     "type": "string"
                 }
             }
@@ -1327,10 +1359,10 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
+	Version:          "1.0.0",
 	Host:             "localhost:8080",
 	BasePath:         "/api/v1",
-	Schemes:          []string{"http"},
+	Schemes:          []string{"https", "http"},
 	Title:            "Air IoT API Service 2023",
 	Description:      "Air Smart IoT App API Service",
 	InfoInstanceName: "swagger",
