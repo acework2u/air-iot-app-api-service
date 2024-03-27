@@ -9,6 +9,8 @@ import (
 )
 
 const RegisterAddr = int64(1000)
+const Reg2000Addr = int64(2000)
+const Reg3000Addr = int64(3000)
 
 var secretKey = "SaijoDenkiSmartIOT"
 
@@ -36,7 +38,6 @@ func (u *Air) Action() error {
 	var err error
 	switch strings.ToLower(u.Cmd) {
 	case "power":
-
 		if strings.ToLower(u.Value) == "on" {
 			u.Value = "1"
 		}
@@ -137,6 +138,34 @@ func (u *Air) Action() error {
 		if err != nil {
 			return err
 		}
+	case "aps":
+		if strings.ToLower(u.Value) == "on" {
+			u.Value = "1"
+		} else if strings.ToLower(u.Value) == "off" {
+			u.Value = "0"
+		} else {
+			return err
+		}
+
+		u.Payload, err = u.ApsControl()
+		if err != nil {
+			return err
+		}
+	case "ozone":
+		if strings.ToLower(u.Value) == "on" {
+			u.Value = "1"
+		} else if strings.ToLower(u.Value) == "off" {
+			u.Value = "0"
+		} else {
+			return err
+		}
+
+		// set payload
+		u.Payload, err = u.OzoneGenerate()
+		if err != nil {
+			return err
+		}
+
 	case "option":
 		u.Payload, err = u.option()
 		if err != nil {
@@ -208,7 +237,7 @@ func (u *Air) setTemp() ([]byte, error) {
 
 	val := uint64(tempVal)
 
-	fmt.Println(val)
+	//fmt.Println(val)
 	if val < 0 || val > 60 {
 		return nil, errors.New("value is wrong")
 	}
@@ -313,6 +342,55 @@ func (u *Air) option() ([]byte, error) {
 	payload[2] = uint8(val >> 8)
 	payload[3] = uint8(val & 0xff)
 
+	rtuFrame.SetData(payload)
+	var dataFrame = rtuFrame.Bytes()
+	newPayload, _ := NewSaijoFrame(dataFrame)
+
+	return newPayload, nil
+}
+func (u *Air) ApsControl() ([]byte, error) {
+
+	val, _ := strconv.Atoi(u.Value)
+
+	if val < 0 || val > 1 {
+		return nil, errors.New("value is wrong")
+	}
+
+	regAdd := RegisterAddr + 8
+	rtuFrame := &RTUFrame{
+		Address:  uint8(1),
+		Function: uint8(6),
+	}
+	payload := make([]byte, 4)
+	payload[0] = uint8(regAdd >> 8)
+	payload[1] = uint8(regAdd & 0xff)
+	payload[2] = uint8(val >> 8)
+	payload[3] = uint8(val & 0xff)
+
+	rtuFrame.SetData(payload)
+	var dataFrame = rtuFrame.Bytes()
+	newPayload, _ := NewSaijoFrame(dataFrame)
+
+	return newPayload, nil
+}
+func (u *Air) OzoneGenerate() ([]byte, error) {
+
+	val, _ := strconv.Atoi(u.Value)
+
+	if val < 0 || val > 1 {
+		return nil, errors.New("value is wrong")
+	}
+
+	regAdd := RegisterAddr + 8
+	rtuFrame := &RTUFrame{
+		Address:  uint8(1),
+		Function: uint8(6),
+	}
+	payload := make([]byte, 4)
+	payload[0] = uint8(regAdd >> 8)
+	payload[1] = uint8(regAdd & 0xff)
+	payload[2] = uint8(val >> 7)
+	payload[3] = uint8(val & 0xff)
 	rtuFrame.SetData(payload)
 	var dataFrame = rtuFrame.Bytes()
 	newPayload, _ := NewSaijoFrame(dataFrame)
