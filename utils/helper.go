@@ -24,6 +24,8 @@ type setRhFunc func(val int) string
 type roomRhFunc func(val int) string
 type fanSpeedFunc func(val int) string
 type louverFunc func(val int) string
+type apsFunc func(val int) string
+type ozoneGenFunc func(val int) string
 
 type AC1000 struct {
 	Power    powerFunc    `json:"power"`
@@ -34,6 +36,8 @@ type AC1000 struct {
 	RoomRh   roomRhFunc   `json:"roomRh"`
 	FanSpeed fanSpeedFunc `json:"fanSpeed"`
 	Louver   louverFunc   `json:"louver"`
+	Aps      apsFunc      `json:"aps"`
+	OzoneGen ozoneGenFunc `json:"ozoneGen"`
 }
 
 type IndoorInfo struct {
@@ -45,6 +49,8 @@ type IndoorInfo struct {
 	RhRoom   string `json:"RhRoom"`
 	FanSpeed string `json:"fanSpeed"`
 	Louver   string `json:"louver"`
+	Aps      string `json:"aps"`
+	OzoneGen string `json:"ozoneGen"`
 }
 
 type AcValue interface {
@@ -61,6 +67,9 @@ func NewGetAcVal(reg1000 string) AcValue {
 		panic(err)
 	}
 
+	//fmt.Println("ac Val")
+	//fmt.Println(data)
+
 	return &AcStr{reg1000: data}
 }
 func (ut *AcStr) Ac1000() *IndoorInfo {
@@ -73,6 +82,8 @@ func (ut *AcStr) Ac1000() *IndoorInfo {
 		RoomRh:   rh,
 		FanSpeed: fanSpeed,
 		Louver:   louver,
+		Aps:      Aps,
+		OzoneGen: Ozone,
 	}
 	rs := &IndoorInfo{
 		Power:    ac.Power(int(ut.reg1000[1])),
@@ -83,6 +94,8 @@ func (ut *AcStr) Ac1000() *IndoorInfo {
 		RhRoom:   ac.RoomRh(int(ut.reg1000[11])),
 		FanSpeed: ac.FanSpeed(int(ut.reg1000[13])),
 		Louver:   ac.Louver(int(ut.reg1000[15])),
+		Aps:      ac.Aps(int(ut.reg1000[17])),
+		OzoneGen: ac.OzoneGen(int(ut.reg1000[17])),
 	}
 
 	return rs
@@ -209,6 +222,64 @@ func louver(val int) string {
 		displayTxt = "level 5"
 	default:
 		displayTxt = "err"
+	}
+	return displayTxt
+}
+
+func Aps(val int) string {
+	var displayTxt string
+	//
+	//fmt.Println("APS=", val)
+	//fmt.Println("bits 0=", val&1)
+	//fmt.Println("bits 1=", val&2)
+	//fmt.Println(val & 4)
+	//fmt.Println(val & 8)
+	//fmt.Println(val & 16)
+	//fmt.Println(val & 32)
+	//fmt.Println(val & 64)
+	//fmt.Println(val & 128)
+
+	switch val {
+	case 0:
+	case 32:
+		displayTxt = "off"
+	case 1:
+	case 3:
+	case 33:
+	case 35:
+		displayTxt = "on"
+	default:
+		displayTxt = "not support"
+	}
+
+	return displayTxt
+}
+
+func Ozone(val int) string {
+
+	var displayTxt string
+	//fmt.Println("bits 0=", val&1)
+	//fmt.Println("bits 1=", val&2)
+	//fmt.Println(val & 4)
+	//fmt.Println(val & 8)
+	//fmt.Println(val & 16)
+	//fmt.Println(val & 32)
+	//fmt.Println(val & 64)
+	//fmt.Println(val & 128)
+
+	switch val {
+	case 0:
+	case 32:
+		displayTxt = "off"
+	case 1:
+	case 33:
+		displayTxt = "on"
+	case 3:
+	case 35:
+		displayTxt = "Ozone Generating"
+
+	default:
+		displayTxt = "this function not support"
 	}
 	return displayTxt
 }

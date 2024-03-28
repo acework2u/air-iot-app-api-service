@@ -38,6 +38,8 @@ type (
 		RhRoom   string `json:"RhRoom,omitempty"`
 		FanSpeed string `json:"fanSpeed,omitempty"`
 		Louver   string `json:"louver,omitempty"`
+		Aps      string `json:"aps,omitempty"`
+		OzoneGen string `json:"ozoneGen"`
 	}
 	ShadowsAccepted struct {
 		State struct {

@@ -361,6 +361,9 @@ func (u *Air) ApsControl() ([]byte, error) {
 		Address:  uint8(1),
 		Function: uint8(6),
 	}
+	// enable buzz
+	val = val + 32
+
 	payload := make([]byte, 4)
 	payload[0] = uint8(regAdd >> 8)
 	payload[1] = uint8(regAdd & 0xff)
@@ -386,6 +389,8 @@ func (u *Air) OzoneGenerate() ([]byte, error) {
 		Address:  uint8(1),
 		Function: uint8(6),
 	}
+	val = val + 32
+
 	payload := make([]byte, 4)
 	payload[0] = uint8(regAdd >> 8)
 	payload[1] = uint8(regAdd & 0xff)
