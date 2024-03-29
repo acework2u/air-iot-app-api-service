@@ -49,13 +49,11 @@ func (u *Air) Action() error {
 		if err != nil {
 			return err
 		}
-
 	case "temp":
 		u.Payload, err = u.setTemp()
 		if err != nil {
 			return err
 		}
-
 	case "mode":
 		switch strings.ToLower(u.Value) {
 		case "cool":
