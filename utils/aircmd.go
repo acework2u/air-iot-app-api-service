@@ -11,6 +11,7 @@ import (
 const RegisterAddr = int64(1000)
 const Reg2000Addr = int64(2000)
 const Reg3000Addr = int64(3000)
+const Reg4000Addr = int64(4000)
 
 var secretKey = "SaijoDenkiSmartIOT"
 
@@ -165,7 +166,6 @@ func (u *Air) Action() error {
 		if err != nil {
 			return err
 		}
-
 	case "option":
 		u.Payload, err = u.option()
 		if err != nil {
@@ -401,6 +401,30 @@ func (u *Air) OzoneGenerate() ([]byte, error) {
 	newPayload, _ := NewSaijoFrame(dataFrame)
 
 	return newPayload, nil
+}
+func (u *Air) ResetTimePreFilter() ([]byte, error) {
+
+	val, _ := strconv.Atoi(u.Value)
+
+	if val < 0 || val > 1 {
+		return nil, errors.New("value is wrong")
+	}
+	regAdd := Reg4000Addr + 8
+	rtuFrame := &RTUFrame{
+		Address:  uint8(1),
+		Function: uint8(6),
+	}
+	payload := make([]byte, 4)
+	payload[0] = uint8(regAdd >> 8)
+	payload[1] = uint8(regAdd & 0xff)
+	payload[2] = uint8(val >> 8)
+	payload[3] = uint8(val & 0xff)
+	rtuFrame.SetData(payload)
+	var dataFrame = rtuFrame.Bytes()
+	newPayload, _ := NewSaijoFrame(dataFrame)
+
+	return newPayload, nil
+
 }
 func (u *Air) GetPayload() string {
 

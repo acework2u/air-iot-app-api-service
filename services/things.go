@@ -30,17 +30,25 @@ type (
 		Message string `json:"message,omitempty"`
 	}
 	IndoorInfo struct {
-		Power    string `json:"power,omitempty"`
-		Mode     string `json:"mode,omitempty"`
-		Temp     string `json:"temp,omitempty"`
-		RoomTemp string `json:"roomTemp,omitempty"`
-		RhSet    string `json:"rhSet,omitempty"`
-		RhRoom   string `json:"RhRoom,omitempty"`
-		FanSpeed string `json:"fanSpeed,omitempty"`
-		Louver   string `json:"louver,omitempty"`
-		Aps      string `json:"aps,omitempty"`
-		OzoneGen string `json:"ozoneGen"`
+		Power    string   `json:"power,omitempty"`
+		Mode     string   `json:"mode,omitempty"`
+		Temp     string   `json:"temp,omitempty"`
+		RoomTemp string   `json:"roomTemp,omitempty"`
+		RhSet    string   `json:"rhSet,omitempty"`
+		RhRoom   string   `json:"RhRoom,omitempty"`
+		FanSpeed string   `json:"fanSpeed,omitempty"`
+		Louver   string   `json:"louver,omitempty"`
+		Aps      string   `json:"aps,omitempty"`
+		OzoneGen string   `json:"ozoneGen"`
+		Pm25Info Pm25Info `json:"pm25Info"`
 	}
+
+	Pm25Info struct {
+		Pm25      string `json:"pm25"`
+		Clean     string `json:"clean"`
+		ResetTime string `json:"resetTime"`
+	}
+
 	ShadowsAccepted struct {
 		State struct {
 			Reported struct {

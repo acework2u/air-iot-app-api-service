@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
+	"math"
 )
 
 func ToDoc(v interface{}) (doc *bson.D, err error) {
@@ -27,6 +28,9 @@ type louverFunc func(val int) string
 type apsFunc func(val int) string
 type ozoneGenFunc func(val int) string
 
+// type pm25Func func(val []byte) float64
+type pm25Func func(val []byte) Pm25Info
+
 type AC1000 struct {
 	Power    powerFunc    `json:"power"`
 	Mode     modeFunc     `json:"mode"`
@@ -38,19 +42,27 @@ type AC1000 struct {
 	Louver   louverFunc   `json:"louver"`
 	Aps      apsFunc      `json:"aps"`
 	OzoneGen ozoneGenFunc `json:"ozoneGen"`
+	Pm25Info pm25Func     `json:"pm25Info"`
 }
 
 type IndoorInfo struct {
-	Power    string `json:"power"`
-	Mode     string `json:"mode"`
-	Temp     string `json:"temp"`
-	RoomTemp string `json:"roomTemp"`
-	RhSet    string `json:"rhSet"`
-	RhRoom   string `json:"RhRoom"`
-	FanSpeed string `json:"fanSpeed"`
-	Louver   string `json:"louver"`
-	Aps      string `json:"aps"`
-	OzoneGen string `json:"ozoneGen"`
+	Power    string   `json:"power"`
+	Mode     string   `json:"mode"`
+	Temp     string   `json:"temp"`
+	RoomTemp string   `json:"roomTemp"`
+	RhSet    string   `json:"rhSet"`
+	RhRoom   string   `json:"RhRoom"`
+	FanSpeed string   `json:"fanSpeed"`
+	Louver   string   `json:"louver"`
+	Aps      string   `json:"aps"`
+	OzoneGen string   `json:"ozoneGen"`
+	Pm25Info Pm25Info `json:"pm25Info"`
+}
+
+type Pm25Info struct {
+	Pm25      string `json:"pm25"`
+	Clean     string `json:"clean"`
+	ResetTime string `json:"resetTime"`
 }
 
 type AcValue interface {
@@ -59,18 +71,49 @@ type AcValue interface {
 
 type AcStr struct {
 	reg1000 []byte
+	reg2000 []byte
+	reg3000 []byte
+	reg4000 []byte
+}
+type AcValReq struct {
+	Reg1000 string
+	Reg2000 string
+	Reg3000 string
+	Reg4000 string
 }
 
-func NewGetAcVal(reg1000 string) AcValue {
-	data, err := hex.DecodeString(reg1000)
+func NewGetAcVal(reg *AcValReq) AcValue {
+	data, err := hex.DecodeString(reg.Reg1000)
+	data2000, err := hex.DecodeString(reg.Reg2000)
+	data3000, err := hex.DecodeString(reg.Reg3000)
+	data4000, err := hex.DecodeString(reg.Reg4000)
 	if err != nil {
 		panic(err)
 	}
 
-	//fmt.Println("ac Val")
-	//fmt.Println(data)
+	fmt.Println("ac Val")
+	fmt.Println("reg1000 =", data)
+	fmt.Println("reg2000 =", data2000)
+	fmt.Println("reg3000 =", data3000)
+	fmt.Println("reg4000 =", data4000)
+	pm25 := data2000[14]
+	fmt.Println("pm25", pm25)
+	fmt.Println("lne reg1000", len(data))
+	fmt.Println("lne reg2000", len(data2000))
 
-	return &AcStr{reg1000: data}
+	ozoneVal := make([]byte, 2)
+	ozoneVal = data2000[18:]
+	fmt.Println("data reg2009", data2000[18:])
+	fmt.Println("data reg2009", ozoneVal)
+	fmt.Println("Prefilter = ", len(data4000))
+
+	fmt.Println("data Pm2.5 low", data2000[14:16])
+	fmt.Println("data pm2.5 Hi", data2000[16:18])
+	fmt.Println("data pm2.5", data2000[14:18])
+	fmt.Println("data pm2.5 = ", GetPm25Val(data2000[14:18]))
+	fmt.Printf("data pm2.5 = %.2f \n", GetPm25Val(data2000[14:18]))
+
+	return &AcStr{reg1000: data, reg2000: data2000, reg3000: data3000, reg4000: data4000}
 }
 func (ut *AcStr) Ac1000() *IndoorInfo {
 	ac := &AC1000{
@@ -84,6 +127,7 @@ func (ut *AcStr) Ac1000() *IndoorInfo {
 		Louver:   louver,
 		Aps:      Aps,
 		OzoneGen: Ozone,
+		Pm25Info: Pm25Func,
 	}
 	rs := &IndoorInfo{
 		Power:    ac.Power(int(ut.reg1000[1])),
@@ -96,10 +140,23 @@ func (ut *AcStr) Ac1000() *IndoorInfo {
 		Louver:   ac.Louver(int(ut.reg1000[15])),
 		Aps:      ac.Aps(int(ut.reg1000[17])),
 		OzoneGen: ac.OzoneGen(int(ut.reg1000[17])),
+		Pm25Info: ut.Pm25(),
 	}
 
 	return rs
 }
+func (ut *AcStr) Pm25() Pm25Info {
+
+	cleanTime := ut.reg4000[9]
+	pm25Value := GetPm25Val(ut.reg2000[14:18])
+
+	return Pm25Info{
+		Pm25:      fmt.Sprintf("%.2f", pm25Value),
+		Clean:     fmt.Sprintf("%v", cleanTime),
+		ResetTime: fmt.Sprintf("%v", cleanTime),
+	}
+}
+
 func power(val int) string {
 	powerTxt := ""
 	switch val {
@@ -276,10 +333,33 @@ func Ozone(val int) string {
 		displayTxt = "on"
 	case 3:
 	case 35:
-		displayTxt = "Ozone Generating"
+		displayTxt = "Ozone Generator Running"
 
 	default:
 		displayTxt = "this function not support"
 	}
 	return displayTxt
+}
+func GetPm25Val(pmReg []byte) float64 {
+	if len(pmReg) == 4 {
+
+		var pmVal float64
+		for i, v := range pmReg {
+			pmVal = pmVal + (float64(v) * math.Pow(2, float64(len(pmReg)-i)))
+		}
+		// div 1000
+		if pmVal != 0 {
+			pmVal = pmVal / 1000
+		}
+		return pmVal
+	}
+	return 0.0
+}
+
+func Pm25Func(pmReg []byte) Pm25Info {
+	return Pm25Info{
+		Pm25:      fmt.Sprintf("%.2f", GetPm25Val(pmReg[14:18])),
+		Clean:     "",
+		ResetTime: "",
+	}
 }

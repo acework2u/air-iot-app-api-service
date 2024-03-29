@@ -520,11 +520,25 @@ func (s *CogClient) ThinksShadows(idToken string, res string) (*ShadowsValue, er
 		if err != nil {
 			return nil, err
 		}
-		reg1000 := decodeShadow["data"].(map[string]interface{})["reg1000"].(string)
-		acVal := utils.NewGetAcVal(reg1000)
+
+		regis1000 := decodeShadow["data"].(map[string]interface{})["reg1000"].(string)
+		regis2000 := decodeShadow["data"].(map[string]interface{})["reg2000"].(string)
+		regis3000 := decodeShadow["data"].(map[string]interface{})["reg3000"].(string)
+		regis4000 := decodeShadow["data"].(map[string]interface{})["reg4000"].(string)
+		acValReq := &utils.AcValReq{
+			Reg1000: regis1000,
+			Reg2000: regis2000,
+			Reg3000: regis3000,
+			Reg4000: regis4000,
+		}
+		acVal := utils.NewGetAcVal(acValReq)
 		ac1000 := acVal.Ac1000()
 
-		acData := (*IndoorInfo)(ac1000)
+		//acData := (*IndoorInfo)(ac1000)
+		acData := &IndoorInfo{
+			Power: ac1000.Power,
+		}
+
 		log.Println(acData)
 		log.SetFlags(log.Ldate | log.Lshortfile)
 
@@ -557,8 +571,19 @@ func (s *CogClient) PubGetShadows(thinkName string, shadowName string) (*IndoorI
 		return nil, err
 	}
 
-	reg1000 := decodeShadow["data"].(map[string]interface{})["reg1000"].(string)
-	acVal := utils.NewGetAcVal(reg1000)
+	//reg1000 := decodeShadow["data"].(map[string]interface{})["reg1000"].(string)
+	//acVal := utils.NewGetAcVal(reg1000)
+	regis1000 := decodeShadow["data"].(map[string]interface{})["reg1000"].(string)
+	regis2000 := decodeShadow["data"].(map[string]interface{})["reg2000"].(string)
+	regis3000 := decodeShadow["data"].(map[string]interface{})["reg3000"].(string)
+	regis4000 := decodeShadow["data"].(map[string]interface{})["reg4000"].(string)
+	acValReq := &utils.AcValReq{
+		Reg1000: regis1000,
+		Reg2000: regis2000,
+		Reg3000: regis3000,
+		Reg4000: regis4000,
+	}
+	acVal := utils.NewGetAcVal(acValReq)
 	ac1000 := acVal.Ac1000()
 
 	pubTopic := fmt.Sprintf("$aws/things/%v/shadow/name/air-users/get", thinkName)
@@ -567,7 +592,20 @@ func (s *CogClient) PubGetShadows(thinkName string, shadowName string) (*IndoorI
 		return nil, err
 	}
 
-	acData := (*IndoorInfo)(ac1000)
+	//acData := (*IndoorInfo)(ac1000)
+	acData := &IndoorInfo{
+		Power:    ac1000.Power,
+		Mode:     ac1000.Mode,
+		Temp:     ac1000.Temp,
+		RoomTemp: ac1000.RoomTemp,
+		RhSet:    ac1000.RhSet,
+		RhRoom:   ac1000.RhRoom,
+		FanSpeed: ac1000.FanSpeed,
+		Louver:   ac1000.Louver,
+		Aps:      ac1000.Aps,
+		OzoneGen: ac1000.OzoneGen,
+		Pm25Info: (Pm25Info)(ac1000.Pm25Info),
+	}
 
 	return acData, nil
 
@@ -628,8 +666,8 @@ func iotSub(topic string, result chan<- *ShadowsValue) {
 				fmt.Println("err")
 				fmt.Println(err)
 			}
-			fmt.Println("shadowsVal")
-			fmt.Println(shadowsVal)
+			//fmt.Println("shadowsVal")
+			//fmt.Println(shadowsVal)
 			result <- shadowsVal
 		})
 	}()
@@ -758,283 +796,3 @@ func iotConn(cognitoIdentityId string) {
 		time.Sleep(4 * time.Second)
 	}
 } // end of func
-
-// func (s *CogClient) GetCerds() (interface{}, error) {
-
-// 	username := "wowoy73603@camplvad.com"
-// 	password := "J@e2262527"
-
-// 	//Ser
-
-// 	// stsSvc := sts.NewFromConfig(*s.Cfg)
-// 	// creds := stscreds.NewAssumeRoleProvider(stsSvc, myRoleArn)
-
-// 	// credens := aws.NewCredentialsCache(creds)
-
-// 	fmt.Println("<------credens---------->")
-// 	// fmt.Println(credens.Retrieve(context.TODO()))
-
-// 	// _ = creds
-// 	authResult, err := s.ClientCog.InitiateAuth(context.TODO(), &cognitoidentityprovider.InitiateAuthInput{
-// 		AuthFlow: types.AuthFlowTypeUserPasswordAuth,
-// 		AuthParameters: map[string]string{
-// 			"USERNAME": *aws.String(username),
-// 			"PASSWORD": *aws.String(password),
-// 		},
-// 		ClientId: aws.String(s.AppClientId),
-// 	})
-// 	if err != nil {
-// 		log.Fatalln("Failed to authenticate user:", err)
-// 	}
-// 	fmt.Println("&authResult.AuthenticationResult.IdToken")
-
-// 	fmt.Println("<---iotSession----<")
-
-// 	// 	fmt.Println(webId)
-// 	// webId := stscreds.NewWebIdentityRoleProvider(s.StsSvc, *myRoleArn)
-// 	// fmt.Println("Web Idd")
-// 	// fmt.Println(webId)
-
-// 	// Create assomeRole
-// 	// asSumeRoleInput := sts.AssumeRoleInput{
-// 	// 	RoleArn:         &myRoleArn,
-// 	// 	RoleSessionName: aws.String("session"),
-// 	// 	TokenCode:       authResult.AuthenticationResult.IdToken,
-// 	// }
-
-// 	// credsOut, err := stsSvc.AssumeRole(context.TODO(), &asSumeRoleInput, func(o *sts.Options) {
-// 	// 	o.Region = *aws.String("us-east-1")
-// 	// })
-
-// 	// if err != nil {
-// 	// 	log.Fatal("can not assomeRole :", err)
-// 	// }
-
-// 	// fmt.Println(credsOut)
-
-// 	// Create a Cognito Identity client
-// 	// cognitoIdentityClient := cognitoidentity.NewFromConfig(*s.Cfg)
-
-// 	// // // arn:aws:cognito-idp:ap-southeast-1:513310385702:userpool/ap-southeast-1_yW7AZdShx
-
-// 	// getIdentityResult, err := cognitoIdentityClient.GetId(context.TODO(), &cognitoidentity.GetIdInput{
-// 	// 	IdentityPoolId: aws.String(s.UserPoolId),
-// 	// 	Logins: map[string]string{
-// 	// 		"cognito-idp.ap-southeast-1.amazonaws.com/ap-southeast-1_yW7AZdShx": *authResult.AuthenticationResult.IdToken,
-// 	// 	},
-// 	// })
-
-// 	pubKeyURL := "https://cognito-idp.%s.amazonaws.com/%s/.well-known/jwks.json"
-// 	formattedURL := fmt.Sprintf(pubKeyURL, os.Getenv("AWS_REGION"), s.UserPoolId)
-// 	keySet, err := jwk.Fetch(context.TODO(), formattedURL)
-// 	if err != nil {
-// 		return "", nil
-// 	}
-
-// 	idToken := authResult.AuthenticationResult.IdToken
-
-// 	token, err := jwt.Parse(
-// 		[]byte(*idToken),
-// 		jwt.WithKeySet(keySet),
-// 		jwt.WithValidate(true),
-// 	)
-// 	if err != nil {
-// 		return "", nil
-// 	}
-
-// 	if err != nil {
-// 		fmt.Println("Failed to get Cognito identity ID:")
-// 		fmt.Println(err.Error())
-// 		log.Fatalln("Failed to get Cognito identity ID:", err)
-// 	}
-
-// 	userInfo, _ := token.Get("cognito:username")
-// 	cognitoIdentityId := userInfo.(string)
-
-// 	fmt.Println("cognitoIdentityId")
-// 	fmt.Println(cognitoIdentityId)
-
-// 	// myRoleArn := aws.String("arn:aws:iam::513310385702:role/Cognito_aws_iotUnauth_Role")
-// 	// assomeRoleResult, err := s.StsSvc.AssumeRole(context.TODO(), &sts.AssumeRoleInput{
-// 	// 	RoleArn:         myRoleArn,
-// 	// 	RoleSessionName: aws.String("session"),
-// 	// 	TokenCode:       authResult.AuthenticationResult.IdToken,
-// 	// })
-
-// 	// if err != nil {
-// 	// 	fmt.Println("Can not Assumrole")
-// 	// 	fmt.Println(err.Error())
-// 	// }
-
-// 	// fmt.Println(assomeRoleResult)
-
-// 	// stsClient := sts.NewFromConfig(*s.Cfg)
-
-// 	// // Assume an IAM role with the Cognito identity as the role's principal
-// 	// myRoleArn := aws.String("arn:aws:iam::513310385702:role/Cognito_aws_iotUnauth_Role")
-
-// 	// assumeRoleResult, err := s.StsSvc.AssumeRole(context.TODO(), &sts.AssumeRoleInput{
-// 	// 	RoleArn:         &myRoleArn,
-// 	// 	RoleSessionName: aws.String("iot-access-air"),
-// 	// 	DurationSeconds: aws.Int32(900),
-// 	// })
-
-// 	/*
-// 	assumeRoleResult, err := s.StsSvc.AssumeRoleWithWebIdentity(context.TODO(), &sts.AssumeRoleWithWebIdentityInput{
-// 		RoleArn:          &myRoleArn,
-// 		RoleSessionName:  aws.String("session"),
-// 		WebIdentityToken: authResult.AuthenticationResult.IdToken,
-// 	})
-
-// 	if err != nil {
-// 		// log.Fatalln("Failed to assume role with web identity:", err)
-// 		fmt.Println(err)
-// 	}
-
-// 	fmt.Println(assumeRoleResult)
-// */
-
-// 	svs := cid.NewFromConfig(*s.Cfg)
-
-// 	idRes,_ := svs.GetId(context.TODO(),&cid.GetIdInput{
-// 		IdentityPoolId: aws.String("ap-southeast-1:8f60452e-9616-4914-bdbf-d8f149ca8dfa"),
-// 		Logins: map[string]string{
-// 			"cognito-idp.ap-southeast-1.amazonaws.com/ap-southeast-1_yW7AZdShx:":assumeRoleResult.AuthenticationResult.IdToken
-// 		},
-// 	})
-
-// 	fmt.Println("<--- idRes --->")
-// 	// fmt.Println(idRes)
-
-// 	// Connect Iot Core
-
-// 	// s.Cfg.Credentials = aws.NewCredentialsCache(assumeRoleResult)
-
-// 	return authResult, nil
-// }
-
-// func (s *CogClient) GetCerds() (interface{}, error) {
-
-// 	// username := "tidosi6511@vaband.com"
-// 	// password := "Pass@word2020"
-// 	username := "wowoy73603@camplvad.com"
-// 	password := "J@e2262527"
-
-// 	// Authenticate the user and retrieve the Cognito ID token
-// 	authResult, err := s.ClientCog.InitiateAuth(context.TODO(), &cip.InitiateAuthInput{
-// 		AuthFlow: types.AuthFlowTypeUserPasswordAuth,
-// 		AuthParameters: map[string]string{
-// 			"USERNAME": username,
-// 			"PASSWORD": password,
-// 		},
-// 		ClientId: aws.String(s.AppClientId),
-// 		// UserPoolId: aws.String(s.UserPoolId),
-// 	})
-
-// 	// authResult, err := s.ClientCog.AdminInitiateAuth(context.TODO(), &cip.AdminInitiateAuthInput{
-// 	// 	AuthFlow: types.AuthFlowTypeAdminNoSrpAuth,
-// 	// 	AuthParameters: map[string]string{
-// 	// 		"USERNAME": username,
-// 	// 		"PASSWORD": password,
-// 	// 	},
-// 	// 	ClientId:   aws.String(s.AppClientId),
-// 	// 	UserPoolId: aws.String(s.UserPoolId),
-// 	// })
-
-// 	if err != nil {
-// 		log.Fatalln("Failed to authenticate user:", err)
-// 	}
-
-// 	//  Create a Cognito Identity client
-// 	// Create a Security Token Service (STS) client
-
-// 	myRoleArn := aws.String("arn:aws:iam::513310385702:role/Cognito_aws_iotUnauth_Role")
-// 	// myRoleArn := aws.String("arn:aws:iam::513310385702:role/service-role/customer_air_iot_2023")
-
-// 	// assumeRoleResult, err := s.StsSvc.AssumeRoleWithWebIdentity(context.TODO(), &sts.AssumeRoleWithWebIdentityInput{
-// 	// 	RoleArn:          myRoleArn,
-// 	// 	RoleSessionName:  aws.String("session"),
-// 	// 	WebIdentityToken: authResult.AuthenticationResult.IdToken,
-// 	// })
-
-// 	// if err != nil {
-// 	// 	println(err)
-// 	// 	panic(err)
-// 	// }
-
-// 	// _ = assumeRoleResult
-
-// 	creds := stscreds.NewAssumeRoleProvider(s.StsSvc, *myRoleArn)
-
-// 	idenInputParams := sts.AssumeRoleWithWebIdentityInput{
-// 		RoleArn:          myRoleArn,
-// 		RoleSessionName:  aws.String("session"),
-// 		WebIdentityToken: authResult.AuthenticationResult.IdToken,
-// 	}
-
-// 	webId, err := s.StsSvc.AssumeRoleWithWebIdentity(context.TODO(), &idenInputParams)
-
-// 	if err != nil {
-// 		fmt.Println(err)
-// 	}
-
-// 	println(creds)
-// 	fmt.Println(webId)
-// 	// webId := stscreds.NewWebIdentityRoleProvider(s.StsSvc, *myRoleArn)
-
-// 	// _ = webId
-// 	// _ = myRoleArn
-// 	// println("Cert")
-// 	// fmt.Println(assumeRoleResult)
-// 	// attParams := &iot.AttachPolicyInput{
-// 	// 	PolicyName: aws.String("Cognito_aws_iotUnauth_Role"),
-// 	// 	Target:     aws.String("arn:aws:iot:ap-southeast-1:513310385702:thinggroup/air_iot"),
-// 	// }
-// 	// attachPolicyOutput, err := s.IotClient.AttachPolicy(context.TODO(), attParams)
-
-// 	// principalParams := iot.AttachPrincipalPolicyInput{
-// 	// 	PolicyName: aws.String("AirThingPolicy"),
-// 	// 	Principal:  aws.String("ap-southeast-1:8f60452e-9616-4914-bdbf-d8f149ca8dfa"),
-// 	// }
-
-// 	// _ = principalParams
-// 	// principalOut, err := s.IotClient.AttachPrincipalPolicy(context.TODO(), &principalParams)
-
-// 	// if err != nil {
-// 	// 	fmt.Println("Not attach work")
-// 	// 	fmt.Println(err.Error())
-// 	// }
-
-// 	// fmt.Println(principalOut)
-
-// 	// if err != nil {
-// 	// 	println("AttachPolicy not work")
-// 	// 	panic(err)
-
-// 	// }
-
-// 	// println("attachPolicyOutput")
-// 	// println(principalOut)
-// 	// signer := v4.NewSigner(assumeRoleResult.Credentials)
-// 	// _ = signer
-// 	// println(assumeRoleResult.Credentials)
-// 	// println(creds)
-
-// 	// s.Cfg.Credentials = aws.NewCredentialsCache(creds)
-
-// 	// cerds := stscreds.NewWebIdentityRoleProvider(s.StsSvc, *aws.String("arn:aws:iam::513310385702:role/service-role/customer_air_iot_2023"))
-// 	// s.Cfg.Credentials = aws.NewCredentialsCache(cerds)
-
-// 	// if err != nil {
-// 	// 	log.Fatalln("Failed to assume role with web identity:", err)
-// 	// }
-
-// 	// println("Assumrole")
-// 	// println(assumeRoleResult.Credentials)
-// 	// _ = assumeRoleResult.Credentials
-// 	// Set the temporary credentials in the AWS config
-// 	// s.Cfg.Credentials = aws.NewCredentialsCache(assumeRoleResult.Credentials)
-
-// 	// s.Cfg.Credentials = aws.NewCredentialsCache(assumeRoleResult.Credentials)
-// 	return authResult.AuthenticationResult, nil
-// }
