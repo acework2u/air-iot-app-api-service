@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/hex"
 	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"go.mongodb.org/mongo-driver/bson"
 	"math"
 )
@@ -82,11 +83,28 @@ type AcValReq struct {
 	Reg4000 string
 }
 
+//type AcValShadow jwt.MapClaims
+
+func DecodeValAcShadow(valShadow jwt.MapClaims) *AcValReq {
+	regis1000 := valShadow["data"].(map[string]interface{})["reg1000"].(string)
+	regis2000 := valShadow["data"].(map[string]interface{})["reg2000"].(string)
+	regis3000 := valShadow["data"].(map[string]interface{})["reg3000"].(string)
+	regis4000 := valShadow["data"].(map[string]interface{})["reg4000"].(string)
+	acValReq := &AcValReq{
+		Reg1000: regis1000,
+		Reg2000: regis2000,
+		Reg3000: regis3000,
+		Reg4000: regis4000,
+	}
+	return acValReq
+}
+
 func NewGetAcVal(reg *AcValReq) AcValue {
 	data, err := hex.DecodeString(reg.Reg1000)
 	data2000, err := hex.DecodeString(reg.Reg2000)
 	data3000, err := hex.DecodeString(reg.Reg3000)
 	data4000, err := hex.DecodeString(reg.Reg4000)
+
 	if err != nil {
 		panic(err)
 	}
@@ -96,22 +114,25 @@ func NewGetAcVal(reg *AcValReq) AcValue {
 	fmt.Println("reg2000 =", data2000)
 	fmt.Println("reg3000 =", data3000)
 	fmt.Println("reg4000 =", data4000)
-	pm25 := data2000[14]
-	fmt.Println("pm25", pm25)
-	fmt.Println("lne reg1000", len(data))
-	fmt.Println("lne reg2000", len(data2000))
+	fmt.Println("APS", data[17])
+	//fmt.Println("APS==>", Aps(int(data[17])))
 
-	ozoneVal := make([]byte, 2)
-	ozoneVal = data2000[18:]
-	fmt.Println("data reg2009", data2000[18:])
-	fmt.Println("data reg2009", ozoneVal)
-	fmt.Println("Prefilter = ", len(data4000))
-
-	fmt.Println("data Pm2.5 low", data2000[14:16])
-	fmt.Println("data pm2.5 Hi", data2000[16:18])
-	fmt.Println("data pm2.5", data2000[14:18])
-	fmt.Println("data pm2.5 = ", GetPm25Val(data2000[14:18]))
-	fmt.Printf("data pm2.5 = %.2f \n", GetPm25Val(data2000[14:18]))
+	//pm25 := data2000[14]
+	//fmt.Println("pm25", pm25)
+	//fmt.Println("lne reg1000", len(data))
+	//fmt.Println("lne reg2000", len(data2000))
+	//
+	//ozoneVal := make([]byte, 2)
+	//ozoneVal = data2000[18:]
+	//fmt.Println("data reg2009", data2000[18:])
+	//fmt.Println("data reg2009", ozoneVal)
+	//fmt.Println("Prefilter = ", len(data4000))
+	//
+	//fmt.Println("data Pm2.5 low", data2000[14:16])
+	//fmt.Println("data pm2.5 Hi", data2000[16:18])
+	//fmt.Println("data pm2.5", data2000[14:18])
+	//fmt.Println("data pm2.5 = ", GetPm25Val(data2000[14:18]))
+	//fmt.Printf("data pm2.5 = %.2f \n", GetPm25Val(data2000[14:18]))
 
 	return &AcStr{reg1000: data, reg2000: data2000, reg3000: data3000, reg4000: data4000}
 }
@@ -147,13 +168,14 @@ func (ut *AcStr) Ac1000() *IndoorInfo {
 }
 func (ut *AcStr) Pm25() Pm25Info {
 
-	cleanTime := ut.reg4000[9]
 	pm25Value := GetPm25Val(ut.reg2000[14:18])
+	fmt.Println("pm25 Len =====>", len(ut.reg4000))
+	cleanTime := ut.reg4000[len(ut.reg4000)-1:]
 
 	return Pm25Info{
 		Pm25:      fmt.Sprintf("%.2f", pm25Value),
-		Clean:     fmt.Sprintf("%v", cleanTime),
-		ResetTime: fmt.Sprintf("%v", cleanTime),
+		Clean:     fmt.Sprintf("%v", cleanTime[0]),
+		ResetTime: fmt.Sprintf("%v", cleanTime[0]),
 	}
 }
 
@@ -284,32 +306,18 @@ func louver(val int) string {
 }
 
 func Aps(val int) string {
-	var displayTxt string
-	//
-	//fmt.Println("APS=", val)
-	//fmt.Println("bits 0=", val&1)
-	//fmt.Println("bits 1=", val&2)
-	//fmt.Println(val & 4)
-	//fmt.Println(val & 8)
-	//fmt.Println(val & 16)
-	//fmt.Println(val & 32)
-	//fmt.Println(val & 64)
-	//fmt.Println(val & 128)
 
+	//check := strconv.Itoa(val)
 	switch val {
-	case 0:
-	case 32:
-		displayTxt = "off"
-	case 1:
-	case 3:
-	case 33:
-	case 35:
-		displayTxt = "on"
+	case 0, 32:
+		return "off"
+	case 1, 33, 35:
+		return "on"
 	default:
-		displayTxt = "not support"
+		return "no support"
+
 	}
 
-	return displayTxt
 }
 
 func Ozone(val int) string {
@@ -325,14 +333,11 @@ func Ozone(val int) string {
 	//fmt.Println(val & 128)
 
 	switch val {
-	case 0:
-	case 32:
+	case 0, 32:
 		displayTxt = "off"
-	case 1:
-	case 33:
+	case 1, 33:
 		displayTxt = "on"
-	case 3:
-	case 35:
+	case 3, 35:
 		displayTxt = "Ozone Generator Running"
 
 	default:

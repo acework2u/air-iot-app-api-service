@@ -492,24 +492,6 @@ func (s *CogClient) ThinksShadows(idToken string, res string) (*ShadowsValue, er
 
 	}(revMsg)
 
-	//result := make(chan *ShadowsValue)
-	//
-	//_ = result
-	//var err error
-	//ClientAwsMqtt, err = NewAwsMqttConnect(idToken)
-	//if err != nil {
-	//	panic(err)
-	//}
-	//topic := strings.ToUpper(res)
-
-	//Shadows topic
-	//shadowsAcceptTopic := fmt.Sprintf("$aws/things/%s/shadow/name/air-users/update/accepted", res)
-	//
-	//fmt.Println("<-result----------->")
-	//fmt.Println(<-result)
-
-	//go iotSub(shadowsAcceptTopic, result)
-
 	select {
 	case <-revMsg:
 
@@ -521,16 +503,8 @@ func (s *CogClient) ThinksShadows(idToken string, res string) (*ShadowsValue, er
 			return nil, err
 		}
 
-		regis1000 := decodeShadow["data"].(map[string]interface{})["reg1000"].(string)
-		regis2000 := decodeShadow["data"].(map[string]interface{})["reg2000"].(string)
-		regis3000 := decodeShadow["data"].(map[string]interface{})["reg3000"].(string)
-		regis4000 := decodeShadow["data"].(map[string]interface{})["reg4000"].(string)
-		acValReq := &utils.AcValReq{
-			Reg1000: regis1000,
-			Reg2000: regis2000,
-			Reg3000: regis3000,
-			Reg4000: regis4000,
-		}
+		acValReq := utils.DecodeValAcShadow(decodeShadow)
+
 		acVal := utils.NewGetAcVal(acValReq)
 		ac1000 := acVal.Ac1000()
 
@@ -570,19 +544,7 @@ func (s *CogClient) PubGetShadows(thinkName string, shadowName string) (*IndoorI
 	if err != nil {
 		return nil, err
 	}
-
-	//reg1000 := decodeShadow["data"].(map[string]interface{})["reg1000"].(string)
-	//acVal := utils.NewGetAcVal(reg1000)
-	regis1000 := decodeShadow["data"].(map[string]interface{})["reg1000"].(string)
-	regis2000 := decodeShadow["data"].(map[string]interface{})["reg2000"].(string)
-	regis3000 := decodeShadow["data"].(map[string]interface{})["reg3000"].(string)
-	regis4000 := decodeShadow["data"].(map[string]interface{})["reg4000"].(string)
-	acValReq := &utils.AcValReq{
-		Reg1000: regis1000,
-		Reg2000: regis2000,
-		Reg3000: regis3000,
-		Reg4000: regis4000,
-	}
+	acValReq := utils.DecodeValAcShadow(decodeShadow)
 	acVal := utils.NewGetAcVal(acValReq)
 	ac1000 := acVal.Ac1000()
 

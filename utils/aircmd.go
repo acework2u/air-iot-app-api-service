@@ -164,6 +164,44 @@ func (u *Air) Action() error {
 		if err != nil {
 			return err
 		}
+	case "pm25":
+
+		val := strings.ToLower(u.Value)
+
+		switch val {
+		case "on":
+			u.Value = "1"
+		case "off", "reset":
+			u.Value = "0"
+		default:
+			return err
+
+		}
+		// set payload
+		u.Payload, err = u.resetPm25()
+		if err != nil {
+			return err
+		}
+	case "prefilter":
+
+		val := strings.ToLower(u.Value)
+
+		switch val {
+		case "on":
+			u.Value = "1"
+		case "off":
+		case "reset":
+			u.Value = "0"
+		default:
+			return err
+
+		}
+
+		// set payload
+		u.Payload, err = u.ResetTimePreFilter()
+		if err != nil {
+			return err
+		}
 	case "option":
 		u.Payload, err = u.option()
 		if err != nil {
@@ -196,12 +234,22 @@ func (u *Air) power() ([]byte, error) {
 	payload[2] = uint8(val >> 8)
 	payload[3] = uint8(val & 0xff)
 
+	//rtuFrame.SetData(payload)
+	//
+	//var dataFrame = rtuFrame.Bytes()
+	//
+	//newPayload, _ := NewSaijoFrame(dataFrame)
+	//
+	//return newPayload, nil
+	fmt.Println("Payload ", regAdd)
+	fmt.Println(payload)
 	rtuFrame.SetData(payload)
-
 	var dataFrame = rtuFrame.Bytes()
-
 	newPayload, _ := NewSaijoFrame(dataFrame)
-
+	fmt.Println("data Frame")
+	fmt.Println(rtuFrame)
+	fmt.Println("new Payload")
+	fmt.Println(newPayload)
 	return newPayload, nil
 }
 func (u *Air) mode() ([]byte, error) {
@@ -421,6 +469,42 @@ func (u *Air) ResetTimePreFilter() ([]byte, error) {
 	var dataFrame = rtuFrame.Bytes()
 	newPayload, _ := NewSaijoFrame(dataFrame)
 
+	return newPayload, nil
+
+}
+func (u *Air) resetPm25() ([]byte, error) {
+
+	val, _ := strconv.Atoi(u.Value)
+
+	if val < 0 || val > 1 {
+		return nil, errors.New("value is wrong")
+	}
+	regAdd := Reg4000Addr + 9
+	rtuFrame := &RTUFrame{
+		Address:  uint8(1),
+		Function: uint8(6),
+	}
+	payload := make([]byte, 4)
+	payload[0] = uint8(regAdd >> 8)
+	payload[1] = uint8(regAdd & 0xff)
+	payload[2] = uint8(val >> 8)
+	payload[3] = uint8(val & 0xff)
+
+	fmt.Println("Payload ", regAdd)
+	fmt.Println(payload)
+	rtuFrame.SetData(payload)
+	var dataFrame = rtuFrame.Bytes()
+	newPayload, err := NewSaijoFrame(dataFrame)
+	if err != nil {
+
+		fmt.Println("err")
+		fmt.Println(err.Error())
+	}
+
+	fmt.Println("data Frame")
+	fmt.Println(rtuFrame)
+	fmt.Println("new Payload")
+	fmt.Println(newPayload)
 	return newPayload, nil
 
 }
