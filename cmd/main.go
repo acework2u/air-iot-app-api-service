@@ -21,7 +21,7 @@ func main() {
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message":  "OK API",
-			"data env": fmt.Sprintf("Port :", configs.Port),
+			"data env": fmt.Sprintf("Port %v :", configs.Port),
 		})
 	})
 	r.GET("/ping", func(c *gin.Context) {

@@ -26,7 +26,7 @@ func NewUserRepositoryDb(mongo *mongo.Collection, ctx context.Context) UsersRepo
 func (r *userRepositoryDB) Create(user UsersInfo) error {
 	//panic("no Action")
 	currentTime := time.Now()
-	user.CreateAt = fmt.Sprintf("", currentTime.Format("2006-01-02 15:04:05"))
+	user.CreateAt = fmt.Sprintf("%v", currentTime.Format("2006-01-02 15:04:05"))
 	res, err := r.usersCollection.InsertOne(r.ctx, &user)
 	_ = res
 	if err != nil {
