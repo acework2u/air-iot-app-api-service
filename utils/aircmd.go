@@ -164,6 +164,14 @@ func (u *Air) Action() error {
 		if err != nil {
 			return err
 		}
+	case "ozone-forceoff":
+		u.Value = "0"
+
+		u.Payload, err = u.forceOffCleanOzone()
+		if err != nil {
+			return err
+		}
+
 	case "pm25":
 
 		val := strings.ToLower(u.Value)
@@ -480,6 +488,42 @@ func (u *Air) resetPm25() ([]byte, error) {
 		return nil, errors.New("value is wrong")
 	}
 	regAdd := Reg4000Addr + 9
+	rtuFrame := &RTUFrame{
+		Address:  uint8(1),
+		Function: uint8(6),
+	}
+	payload := make([]byte, 4)
+	payload[0] = uint8(regAdd >> 8)
+	payload[1] = uint8(regAdd & 0xff)
+	payload[2] = uint8(val >> 8)
+	payload[3] = uint8(val & 0xff)
+
+	fmt.Println("Payload ", regAdd)
+	fmt.Println(payload)
+	rtuFrame.SetData(payload)
+	var dataFrame = rtuFrame.Bytes()
+	newPayload, err := NewSaijoFrame(dataFrame)
+	if err != nil {
+
+		fmt.Println("err")
+		fmt.Println(err.Error())
+	}
+
+	fmt.Println("data Frame")
+	fmt.Println(rtuFrame)
+	fmt.Println("new Payload")
+	fmt.Println(newPayload)
+	return newPayload, nil
+
+}
+func (u *Air) forceOffCleanOzone() ([]byte, error) {
+
+	val, _ := strconv.Atoi(u.Value)
+
+	if val < 0 || val > 1 {
+		return nil, errors.New("value is wrong")
+	}
+	regAdd := Reg2000Addr + 9
 	rtuFrame := &RTUFrame{
 		Address:  uint8(1),
 		Function: uint8(6),
