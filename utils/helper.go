@@ -182,9 +182,9 @@ func (ut *AcStr) Pm25() Pm25Info {
 func power(val int) string {
 	powerTxt := ""
 	switch val {
-	case 0:
+	case 0, 2:
 		powerTxt = "off"
-	case 1:
+	case 1, 3:
 		powerTxt = "on"
 	default:
 		powerTxt = "err"

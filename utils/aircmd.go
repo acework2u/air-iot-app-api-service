@@ -242,22 +242,10 @@ func (u *Air) power() ([]byte, error) {
 	payload[2] = uint8(val >> 8)
 	payload[3] = uint8(val & 0xff)
 
-	//rtuFrame.SetData(payload)
-	//
-	//var dataFrame = rtuFrame.Bytes()
-	//
-	//newPayload, _ := NewSaijoFrame(dataFrame)
-	//
-	//return newPayload, nil
-	fmt.Println("Payload ", regAdd)
-	fmt.Println(payload)
+	// Build payload frame
 	rtuFrame.SetData(payload)
 	var dataFrame = rtuFrame.Bytes()
 	newPayload, _ := NewSaijoFrame(dataFrame)
-	fmt.Println("data Frame")
-	fmt.Println(rtuFrame)
-	fmt.Println("new Payload")
-	fmt.Println(newPayload)
 	return newPayload, nil
 }
 func (u *Air) mode() ([]byte, error) {
@@ -505,8 +493,9 @@ func (u *Air) resetPm25() ([]byte, error) {
 	newPayload, err := NewSaijoFrame(dataFrame)
 	if err != nil {
 
-		fmt.Println("err")
-		fmt.Println(err.Error())
+		return nil, err
+		//fmt.Println("err")
+		//fmt.Println(err.Error())
 	}
 
 	fmt.Println("data Frame")
@@ -541,8 +530,9 @@ func (u *Air) forceOffCleanOzone() ([]byte, error) {
 	newPayload, err := NewSaijoFrame(dataFrame)
 	if err != nil {
 
-		fmt.Println("err")
-		fmt.Println(err.Error())
+		//	fmt.Println("err")
+		//	fmt.Println(err.Error())
+		return nil, err
 	}
 
 	fmt.Println("data Frame")
@@ -588,7 +578,7 @@ func GetClaimsFromToken(tokenString string) (jwt.MapClaims, error) {
 
 	if err != nil {
 
-		fmt.Println("Error :" + err.Error())
+		//fmt.Println("Error :" + err.Error())
 		return nil, err
 	}
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
