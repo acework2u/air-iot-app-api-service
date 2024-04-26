@@ -486,8 +486,8 @@ func (u *Air) resetPm25() ([]byte, error) {
 	payload[2] = uint8(val >> 8)
 	payload[3] = uint8(val & 0xff)
 
-	fmt.Println("Payload ", regAdd)
-	fmt.Println(payload)
+	//fmt.Println("Payload ", regAdd)
+	//fmt.Println(payload)
 	rtuFrame.SetData(payload)
 	var dataFrame = rtuFrame.Bytes()
 	newPayload, err := NewSaijoFrame(dataFrame)
@@ -498,10 +498,10 @@ func (u *Air) resetPm25() ([]byte, error) {
 		//fmt.Println(err.Error())
 	}
 
-	fmt.Println("data Frame")
-	fmt.Println(rtuFrame)
-	fmt.Println("new Payload")
-	fmt.Println(newPayload)
+	//fmt.Println("data Frame")
+	//fmt.Println(rtuFrame)
+	//fmt.Println("new Payload")
+	//fmt.Println(newPayload)
 	return newPayload, nil
 
 }
@@ -523,8 +523,8 @@ func (u *Air) forceOffCleanOzone() ([]byte, error) {
 	payload[2] = uint8(val >> 8)
 	payload[3] = uint8(val & 0xff)
 
-	fmt.Println("Payload ", regAdd)
-	fmt.Println(payload)
+	//fmt.Println("Payload ", regAdd)
+	//fmt.Println(payload)
 	rtuFrame.SetData(payload)
 	var dataFrame = rtuFrame.Bytes()
 	newPayload, err := NewSaijoFrame(dataFrame)
@@ -535,10 +535,10 @@ func (u *Air) forceOffCleanOzone() ([]byte, error) {
 		return nil, err
 	}
 
-	fmt.Println("data Frame")
-	fmt.Println(rtuFrame)
-	fmt.Println("new Payload")
-	fmt.Println(newPayload)
+	//fmt.Println("data Frame")
+	//fmt.Println(rtuFrame)
+	//fmt.Println("new Payload")
+	//fmt.Println(newPayload)
 	return newPayload, nil
 
 }

@@ -109,12 +109,12 @@ func NewGetAcVal(reg *AcValReq) AcValue {
 		panic(err)
 	}
 
-	fmt.Println("ac Val")
-	fmt.Println("reg1000 =", data)
-	fmt.Println("reg2000 =", data2000)
-	fmt.Println("reg3000 =", data3000)
-	fmt.Println("reg4000 =", data4000)
-	fmt.Println("APS", data[17])
+	//fmt.Println("ac Val")
+	//fmt.Println("reg1000 =", data)
+	//fmt.Println("reg2000 =", data2000)
+	//fmt.Println("reg3000 =", data3000)
+	//fmt.Println("reg4000 =", data4000)
+	//fmt.Println("APS", data[17])
 	//fmt.Println("APS==>", Aps(int(data[17])))
 
 	//pm25 := data2000[14]
@@ -169,7 +169,7 @@ func (ut *AcStr) Ac1000() *IndoorInfo {
 func (ut *AcStr) Pm25() Pm25Info {
 
 	pm25Value := GetPm25Val(ut.reg2000[14:18])
-	fmt.Println("pm25 Len =====>", len(ut.reg4000))
+	//fmt.Println("pm25 Len =====>", len(ut.reg4000))
 	cleanTime := ut.reg4000[len(ut.reg4000)-1:]
 
 	return Pm25Info{
